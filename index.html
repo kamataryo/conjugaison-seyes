@@ -167,15 +167,17 @@
   thead th { padding: .45rem .5rem; white-space: nowrap; border-bottom: 2px solid var(--margin); }
   tbody th {
     position: sticky; left: 0; z-index: 1; background: var(--card);
-    padding: 0 .6rem; white-space: nowrap;
+    padding: 0 .5rem; white-space: nowrap;
     border-right: 2px solid var(--margin);
   }
   /* 見出しの中身で決まるぶん。行と列を入れ替えても字面はついて回る */
   th.pron { font-family: var(--display); font-size: 1.05rem; }
   th.tense { font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
   thead th:first-child { position: sticky; left: 0; z-index: 2; background: var(--card); border-right: 2px solid var(--margin); padding: .25rem .4rem; }
-  /* 見出し列は幅を固定。人称と時制を入れ替えても表の位置がずれない */
-  tbody th, thead th:first-child { box-sizing: border-box; width: 7.5rem; min-width: 7.5rem; text-align: right; }
+  /* 見出し列は幅を固定。人称と時制を入れ替えても表の位置がずれない。
+     下限を決めているのは転置したときの "plus-que-parfait"。これ以上詰めると
+     人称のときだけ列が細くなって、入れ替えるたびに表が横に動く */
+  tbody th, thead th:first-child { box-sizing: border-box; width: 6.5rem; min-width: 6.5rem; text-align: right; }
   /* 行・列を消すボタンの置き場。採点したら出す */
   th.foot, td.foot {
     box-sizing: border-box; width: 2.6rem; min-width: 2.6rem; padding: .2rem;
