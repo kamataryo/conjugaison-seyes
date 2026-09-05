@@ -74,6 +74,10 @@ function shuffle(a) {
     [a[i], a[j]] = [a[j], a[i]];
   }
 }
+// 行の見出しは CSS の :has で染まるが、同じ列の見出しは CSS から選べないので印をつける
+const markCol = (x) =>
+  grid.querySelectorAll("thead th").forEach((th, i) => th.classList.toggle("here", i === x + 1 && x >= 0));
+
 const rows = () => rowKeys.length;
 const cols = () => colKeys.length;
 // 空欄は採点しない。正解にも誤答にも数えず、灰色のまま残す
@@ -121,7 +125,8 @@ function build() {
   grid.classList.remove("grading"); // 走りは答え合わせの一回きり
 
   inputs.forEach((el, n) => {
-    el.addEventListener("focus", () => { cur = n; });
+    el.addEventListener("focus", () => { cur = n; markCol(n % cols()); });
+    el.addEventListener("blur", () => markCol(-1));
     el.addEventListener("input", () => setValue(n, el.value));
     el.addEventListener("keydown", (e) => {
       if (e.key === "Enter") { e.preventDefault(); nextCell(); }

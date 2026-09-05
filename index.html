@@ -200,7 +200,7 @@
   td { position: relative; border-bottom: 1px solid var(--rule-faint); border-right: 1px solid var(--rule-faint); padding: 0; }
   tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
   /* 人称の行、時制の列に印をつけて現在地を示す */
-  tr:has(input:focus) th { color: var(--focus); }
+  tr:has(input:focus) th, thead th.here { color: var(--focus); }
 
   input {
     /* 16px 未満だと iOS がフォーカス時にズームする */
