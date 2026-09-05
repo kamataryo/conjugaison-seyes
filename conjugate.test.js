@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { PRONOUNS, TENSES, conjugate, isCorrect } from "./conjugate.js";
+import { PRONOUNS, TENSES, classify, conjugate, isCorrect } from "./conjugate.js";
 
 const verbs = JSON.parse(readFileSync(new URL("./verbs.json", import.meta.url), "utf8"));
 const find = (inf) => verbs.find((v) => v.infinitive === inf);
@@ -193,4 +193,73 @@ test("être を取る複合時制は過去分詞の女性形も作れる", () =>
   assert.equal(conjugate(find("rester"), "plusQueParfait", 0, true), "étais restée");
   // avoir を取る動詞は主語と性数一致しない
   assert.equal(conjugate(find("parler"), "passeCompose", 2, true), "a parlé");
+});
+
+// forms の書き漏らしは、規則活用へ静かに落ちて誤答になる。
+// 第3群は導出がまず当たらないので、単純時制5つと過去分詞を必ずデータで持たせる
+test("第3群の不規則動詞は単純時制と過去分詞をすべてデータで持つ", () => {
+  const SIMPLE = ["present", "imparfait", "futur", "conditionnel", "subjonctif"];
+  for (const v of verbs) {
+    if (!v.forms || v.group) continue; // group 付きは -er の規則活用で埋まる
+    assert.ok(v.pp, `${v.infinitive}: pp がない`);
+    for (const t of SIMPLE) assert.ok(v.forms[t], `${v.infinitive}: forms.${t} がない`);
+  }
+});
+
+test("forms の各行は6人称そろっている", () => {
+  for (const v of verbs)
+    for (const [t, r] of Object.entries(v.forms ?? {}))
+      assert.ok(r.length === 6 && r.every((f) => f && f.trim()), `${v.infinitive} ${t}`);
+});
+
+test("-ger/-cer/-yer と語幹が変わる -er 動詞", () => {
+  // 綴りが変わるのは nous/vous の前後だけ。ほかは規則どおりに導出させる
+  assert.equal(row("manger", "present")[3], "mangeons");
+  assert.deepEqual(row("manger", "imparfait"),
+    ["mangeais", "mangeais", "mangeait", "mangions", "mangiez", "mangeaient"]);
+  assert.deepEqual(row("manger", "subjonctif"),
+    ["mange", "manges", "mange", "mangions", "mangiez", "mangent"]); // 導出で足りる
+  assert.equal(row("manger", "futur")[0], "mangerai");
+  assert.equal(conjugate(find("manger"), "passeCompose", 0), "ai mangé");
+  assert.equal(row("commencer", "present")[3], "commençons");
+  assert.equal(row("commencer", "imparfait")[3], "commencions"); // i の前は c のまま
+  assert.equal(row("commencer", "imparfait")[5], "commençaient");
+  // 語幹が変わる -er は未来・条件法まで引きずる。半過去は規則どおり
+  assert.deepEqual(row("acheter", "futur")[0], "achèterai");
+  assert.equal(row("acheter", "imparfait")[0], "achetais");
+  assert.equal(row("jeter", "present")[5], "jettent");
+  assert.equal(row("jeter", "futur")[0], "jetterai");
+  assert.equal(row("nettoyer", "present")[5], "nettoient");
+  assert.equal(row("nettoyer", "futur")[0], "nettoierai");
+  assert.equal(row("nettoyer", "subjonctif")[3], "nettoyions");
+  assert.equal(row("envoyer", "futur")[0], "enverrai"); // -yer だが未来は特殊
+  assert.equal(row("préférer", "futur")[0], "préférerai"); // 未来は規則どおり
+  assert.equal(row("préférer", "present")[5], "préfèrent");
+  // 綴りが変わるだけなので群は第1群のまま
+  assert.equal(classify(find("manger")).group, 1);
+  assert.equal(classify(find("mettre")).group, 3);
+});
+
+test("追加した第3群と être を取る動詞", () => {
+  assert.equal(row("recevoir", "present")[5], "reçoivent"); // -oir は group() が効かない
+  assert.equal(row("courir", "futur")[0], "courrai");       // r が重なる
+  assert.equal(row("mourir", "futur")[0], "mourrai");
+  assert.equal(row("boire", "imparfait")[3], "buvions");
+  assert.equal(row("connaître", "present")[2], "connaît");
+  assert.equal(conjugate(find("ouvrir"), "passeCompose", 0), "ai ouvert");
+  assert.equal(conjugate(find("naître"), "passeCompose", 2, true), "est née");
+  assert.equal(conjugate(find("mourir"), "passeCompose", 5, true), "sont mortes");
+  assert.equal(conjugate(find("sortir"), "plusQueParfait", 3), "étions sortis");
+  assert.equal(conjugate(find("descendre"), "passeCompose", 2, true), "est descendue");
+  assert.equal(conjugate(find("arriver"), "passeCompose", 0), "suis arrivé");
+});
+
+test("代名動詞の s' は無音の h の前でも縮む", async () => {
+  const { infinitiveLabel } = await import("./conjugate.js");
+  assert.equal(infinitiveLabel(find("habiller")), "s'habiller");
+  assert.equal(conjugate(find("habiller"), "present", 0), "m'habille");
+  assert.equal(conjugate(find("habiller"), "present", 3), "nous habillons");
+  assert.equal(conjugate(find("habiller"), "passeCompose", 0), "me suis habillé");
+  assert.deepEqual(row("promener", "present")[0], "me promène");
+  assert.equal(conjugate(find("dépêcher"), "plusQueParfait", 1, true), "t'étais dépêchée");
 });

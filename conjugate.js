@@ -95,11 +95,11 @@ export function conjugate(verb, tense, i, fem = false) {
 
 /**
  * 第1群(-er) / 第2群(-ir, -issons型) / 第3群。forms を持つものは不規則。
- * ただし語幹が変わるだけの -er 動詞 (lever → lève) も forms を持つので、
- * data 側の group で本来の群に引き戻せるようにする
+ * ただし語幹や綴りが変わるだけの -er 動詞 (lever → lève, manger → mangeons) も
+ * forms を持つので、data 側の group で本来の群に引き戻せるようにする
  */
 export function classify(verb) {
-  if (verb.group) return { group: verb.group, label: `第${verb.group}群・語幹変化` };
+  if (verb.group) return { group: verb.group, label: `第${verb.group}群・語幹・綴りの変化` };
   if (verb.forms) return { group: 3, label: "第3群・不規則動詞" };
   const g = group(verb.infinitive);
   if (g === "er") return { group: 1, label: "第1群・-er 規則動詞" };

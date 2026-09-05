@@ -358,5 +358,485 @@
       "conditionnel": ["souviendrais", "souviendrais", "souviendrait", "souviendrions", "souviendriez", "souviendraient"],
       "subjonctif": ["souvienne", "souviennes", "souvienne", "souvenions", "souveniez", "souviennent"]
     }
+  },
+  {
+    "infinitive": "travailler",
+    "kind": "vi",
+    "meaning": "働く",
+    "ex": ["Elle travaille à Paris.", "彼女はパリで働いている"]
+  },
+  {
+    "infinitive": "donner",
+    "kind": "vt",
+    "meaning": "与える",
+    "usage": "qc à qn",
+    "ex": ["Il donne un cadeau à sa mère.", "彼は母に贈り物を渡す"]
+  },
+  {
+    "infinitive": "écouter",
+    "kind": "vt",
+    "meaning": "聞く",
+    "ex": ["Elle écoute la radio.", "彼女はラジオを聴く"]
+  },
+  {
+    "infinitive": "trouver",
+    "kind": "vt",
+    "meaning": "見つける",
+    "ex": ["Il trouve la solution.", "彼は解決策を見つける"]
+  },
+  {
+    "infinitive": "penser",
+    "kind": "vi/vt",
+    "meaning": "思う・考える",
+    "usage": "à qc・que + 直説法",
+    "ex": ["Elle pense à son voyage.", "彼女は旅行のことを考えている"]
+  },
+  {
+    "infinitive": "jouer",
+    "kind": "vi",
+    "meaning": "遊ぶ・演奏する",
+    "usage": "à + 競技・de + 楽器",
+    "ex": ["Il joue du piano.", "彼はピアノを弾く"]
+  },
+  {
+    "infinitive": "arriver",
+    "kind": "vi",
+    "meaning": "到着する",
+    "usage": "à + 場所",
+    "ex": ["Elle arrive à la gare.", "彼女は駅に着く"],
+    "aux": "être"
+  },
+  {
+    "infinitive": "entrer",
+    "kind": "vi",
+    "meaning": "入る",
+    "usage": "dans + 場所",
+    "ex": ["Il entre dans la salle.", "彼は部屋に入る"],
+    "aux": "être"
+  },
+  {
+    "infinitive": "tomber",
+    "kind": "vi",
+    "meaning": "倒れる・落ちる",
+    "ex": ["Elle tombe dans l'escalier.", "彼女は階段で転ぶ"],
+    "aux": "être"
+  },
+  {
+    "infinitive": "grandir",
+    "kind": "vi",
+    "meaning": "成長する",
+    "ex": ["L'enfant grandit vite.", "その子は早く大きくなる"]
+  },
+  {
+    "infinitive": "remplir",
+    "kind": "vt",
+    "meaning": "満たす",
+    "usage": "qc de qc",
+    "ex": ["Il remplit son verre d'eau.", "彼はコップを水で満たす"]
+  },
+  {
+    "infinitive": "obéir",
+    "kind": "vi",
+    "meaning": "従う",
+    "usage": "à qn",
+    "ex": ["Elle obéit à ses parents.", "彼女は両親に従う"]
+  },
+  {
+    "infinitive": "perdre",
+    "kind": "vt",
+    "meaning": "失う・負ける",
+    "ex": ["Il perd ses clés.", "彼は鍵をなくす"]
+  },
+  {
+    "infinitive": "entendre",
+    "kind": "vt",
+    "meaning": "聞こえる",
+    "ex": ["Elle entend un bruit.", "彼女は物音を聞く"]
+  },
+  {
+    "infinitive": "descendre",
+    "kind": "vi",
+    "meaning": "降りる",
+    "usage": "de + 場所",
+    "ex": ["Il descend du train.", "彼は電車を降りる"],
+    "aux": "être"
+  },
+  {
+    "infinitive": "manger",
+    "kind": "vi/vt",
+    "meaning": "食べる",
+    "ex": ["Nous mangeons au restaurant.", "私たちはレストランで食事をする"],
+    "group": 1,
+    "forms": {
+      "present": ["mange", "manges", "mange", "mangeons", "mangez", "mangent"],
+      "imparfait": ["mangeais", "mangeais", "mangeait", "mangions", "mangiez", "mangeaient"]
+    }
+  },
+  {
+    "infinitive": "commencer",
+    "kind": "vi/vt",
+    "meaning": "始める・始まる",
+    "usage": "à + 不定詞",
+    "ex": ["Nous commençons à travailler.", "私たちは働き始める"],
+    "group": 1,
+    "forms": {
+      "present": ["commence", "commences", "commence", "commençons", "commencez", "commencent"],
+      "imparfait": ["commençais", "commençais", "commençait", "commencions", "commenciez", "commençaient"]
+    }
+  },
+  {
+    "infinitive": "acheter",
+    "kind": "vt",
+    "meaning": "買う",
+    "usage": "qc à qn",
+    "ex": ["Elle achète du pain.", "彼女はパンを買う"],
+    "group": 1,
+    "forms": {
+      "present": ["achète", "achètes", "achète", "achetons", "achetez", "achètent"],
+      "futur": ["achèterai", "achèteras", "achètera", "achèterons", "achèterez", "achèteront"],
+      "conditionnel": ["achèterais", "achèterais", "achèterait", "achèterions", "achèteriez", "achèteraient"],
+      "subjonctif": ["achète", "achètes", "achète", "achetions", "achetiez", "achètent"]
+    }
+  },
+  {
+    "infinitive": "jeter",
+    "kind": "vt",
+    "meaning": "投げる・捨てる",
+    "ex": ["Il jette le papier.", "彼は紙を捨てる"],
+    "group": 1,
+    "forms": {
+      "present": ["jette", "jettes", "jette", "jetons", "jetez", "jettent"],
+      "futur": ["jetterai", "jetteras", "jettera", "jetterons", "jetterez", "jetteront"],
+      "conditionnel": ["jetterais", "jetterais", "jetterait", "jetterions", "jetteriez", "jetteraient"],
+      "subjonctif": ["jette", "jettes", "jette", "jetions", "jetiez", "jettent"]
+    }
+  },
+  {
+    "infinitive": "préférer",
+    "kind": "vt",
+    "meaning": "より好む",
+    "usage": "+ 不定詞",
+    "ex": ["Elle préfère le thé.", "彼女は紅茶のほうが好きだ"],
+    "group": 1,
+    "forms": {
+      "present": ["préfère", "préfères", "préfère", "préférons", "préférez", "préfèrent"],
+      "subjonctif": ["préfère", "préfères", "préfère", "préférions", "préfériez", "préfèrent"]
+    }
+  },
+  {
+    "infinitive": "nettoyer",
+    "kind": "vt",
+    "meaning": "掃除する",
+    "ex": ["Il nettoie sa chambre.", "彼は自分の部屋を掃除する"],
+    "group": 1,
+    "forms": {
+      "present": ["nettoie", "nettoies", "nettoie", "nettoyons", "nettoyez", "nettoient"],
+      "futur": ["nettoierai", "nettoieras", "nettoiera", "nettoierons", "nettoierez", "nettoieront"],
+      "conditionnel": ["nettoierais", "nettoierais", "nettoierait", "nettoierions", "nettoieriez", "nettoieraient"],
+      "subjonctif": ["nettoie", "nettoies", "nettoie", "nettoyions", "nettoyiez", "nettoient"]
+    }
+  },
+  {
+    "infinitive": "envoyer",
+    "kind": "vt",
+    "meaning": "送る",
+    "usage": "qc à qn",
+    "ex": ["Elle envoie une lettre à son ami.", "彼女は友人に手紙を送る"],
+    "group": 1,
+    "forms": {
+      "present": ["envoie", "envoies", "envoie", "envoyons", "envoyez", "envoient"],
+      "futur": ["enverrai", "enverras", "enverra", "enverrons", "enverrez", "enverront"],
+      "conditionnel": ["enverrais", "enverrais", "enverrait", "enverrions", "enverriez", "enverraient"],
+      "subjonctif": ["envoie", "envoies", "envoie", "envoyions", "envoyiez", "envoient"]
+    }
+  },
+  {
+    "infinitive": "mettre",
+    "kind": "vt",
+    "meaning": "置く・身につける",
+    "ex": ["Il met son manteau.", "彼はコートを着る"],
+    "pp": "mis",
+    "aux": "avoir",
+    "forms": {
+      "present": ["mets", "mets", "met", "mettons", "mettez", "mettent"],
+      "imparfait": ["mettais", "mettais", "mettait", "mettions", "mettiez", "mettaient"],
+      "futur": ["mettrai", "mettras", "mettra", "mettrons", "mettrez", "mettront"],
+      "conditionnel": ["mettrais", "mettrais", "mettrait", "mettrions", "mettriez", "mettraient"],
+      "subjonctif": ["mette", "mettes", "mette", "mettions", "mettiez", "mettent"]
+    }
+  },
+  {
+    "infinitive": "lire",
+    "kind": "vt",
+    "meaning": "読む",
+    "ex": ["Elle lit un roman.", "彼女は小説を読む"],
+    "pp": "lu",
+    "aux": "avoir",
+    "forms": {
+      "present": ["lis", "lis", "lit", "lisons", "lisez", "lisent"],
+      "imparfait": ["lisais", "lisais", "lisait", "lisions", "lisiez", "lisaient"],
+      "futur": ["lirai", "liras", "lira", "lirons", "lirez", "liront"],
+      "conditionnel": ["lirais", "lirais", "lirait", "lirions", "liriez", "liraient"],
+      "subjonctif": ["lise", "lises", "lise", "lisions", "lisiez", "lisent"]
+    }
+  },
+  {
+    "infinitive": "écrire",
+    "kind": "vt",
+    "meaning": "書く",
+    "usage": "à qn",
+    "ex": ["Il écrit à sa famille.", "彼は家族に手紙を書く"],
+    "pp": "écrit",
+    "aux": "avoir",
+    "forms": {
+      "present": ["écris", "écris", "écrit", "écrivons", "écrivez", "écrivent"],
+      "imparfait": ["écrivais", "écrivais", "écrivait", "écrivions", "écriviez", "écrivaient"],
+      "futur": ["écrirai", "écriras", "écrira", "écrirons", "écrirez", "écriront"],
+      "conditionnel": ["écrirais", "écrirais", "écrirait", "écririons", "écririez", "écriraient"],
+      "subjonctif": ["écrive", "écrives", "écrive", "écrivions", "écriviez", "écrivent"]
+    }
+  },
+  {
+    "infinitive": "boire",
+    "kind": "vt",
+    "meaning": "飲む",
+    "ex": ["Elle boit du café.", "彼女はコーヒーを飲む"],
+    "pp": "bu",
+    "aux": "avoir",
+    "forms": {
+      "present": ["bois", "bois", "boit", "buvons", "buvez", "boivent"],
+      "imparfait": ["buvais", "buvais", "buvait", "buvions", "buviez", "buvaient"],
+      "futur": ["boirai", "boiras", "boira", "boirons", "boirez", "boiront"],
+      "conditionnel": ["boirais", "boirais", "boirait", "boirions", "boiriez", "boiraient"],
+      "subjonctif": ["boive", "boives", "boive", "buvions", "buviez", "boivent"]
+    }
+  },
+  {
+    "infinitive": "connaître",
+    "kind": "vt",
+    "meaning": "知っている",
+    "ex": ["Il connaît bien cette ville.", "彼はこの街をよく知っている"],
+    "pp": "connu",
+    "aux": "avoir",
+    "forms": {
+      "present": ["connais", "connais", "connaît", "connaissons", "connaissez", "connaissent"],
+      "imparfait": ["connaissais", "connaissais", "connaissait", "connaissions", "connaissiez", "connaissaient"],
+      "futur": ["connaîtrai", "connaîtras", "connaîtra", "connaîtrons", "connaîtrez", "connaîtront"],
+      "conditionnel": ["connaîtrais", "connaîtrais", "connaîtrait", "connaîtrions", "connaîtriez", "connaîtraient"],
+      "subjonctif": ["connaisse", "connaisses", "connaisse", "connaissions", "connaissiez", "connaissent"]
+    }
+  },
+  {
+    "infinitive": "sortir",
+    "kind": "vi",
+    "meaning": "出る・外出する",
+    "usage": "de + 場所",
+    "ex": ["Elle sort de la maison.", "彼女は家を出る"],
+    "pp": "sorti",
+    "aux": "être",
+    "forms": {
+      "present": ["sors", "sors", "sort", "sortons", "sortez", "sortent"],
+      "imparfait": ["sortais", "sortais", "sortait", "sortions", "sortiez", "sortaient"],
+      "futur": ["sortirai", "sortiras", "sortira", "sortirons", "sortirez", "sortiront"],
+      "conditionnel": ["sortirais", "sortirais", "sortirait", "sortirions", "sortiriez", "sortiraient"],
+      "subjonctif": ["sorte", "sortes", "sorte", "sortions", "sortiez", "sortent"]
+    }
+  },
+  {
+    "infinitive": "dormir",
+    "kind": "vi",
+    "meaning": "眠る",
+    "ex": ["Il dort huit heures.", "彼は8時間眠る"],
+    "pp": "dormi",
+    "aux": "avoir",
+    "forms": {
+      "present": ["dors", "dors", "dort", "dormons", "dormez", "dorment"],
+      "imparfait": ["dormais", "dormais", "dormait", "dormions", "dormiez", "dormaient"],
+      "futur": ["dormirai", "dormiras", "dormira", "dormirons", "dormirez", "dormiront"],
+      "conditionnel": ["dormirais", "dormirais", "dormirait", "dormirions", "dormiriez", "dormiraient"],
+      "subjonctif": ["dorme", "dormes", "dorme", "dormions", "dormiez", "dorment"]
+    }
+  },
+  {
+    "infinitive": "ouvrir",
+    "kind": "vt",
+    "meaning": "開ける",
+    "ex": ["Elle ouvre la fenêtre.", "彼女は窓を開ける"],
+    "pp": "ouvert",
+    "aux": "avoir",
+    "forms": {
+      "present": ["ouvre", "ouvres", "ouvre", "ouvrons", "ouvrez", "ouvrent"],
+      "imparfait": ["ouvrais", "ouvrais", "ouvrait", "ouvrions", "ouvriez", "ouvraient"],
+      "futur": ["ouvrirai", "ouvriras", "ouvrira", "ouvrirons", "ouvrirez", "ouvriront"],
+      "conditionnel": ["ouvrirais", "ouvrirais", "ouvrirait", "ouvririons", "ouvririez", "ouvriraient"],
+      "subjonctif": ["ouvre", "ouvres", "ouvre", "ouvrions", "ouvriez", "ouvrent"]
+    }
+  },
+  {
+    "infinitive": "courir",
+    "kind": "vi",
+    "meaning": "走る",
+    "ex": ["Il court dans le parc.", "彼は公園を走る"],
+    "pp": "couru",
+    "aux": "avoir",
+    "forms": {
+      "present": ["cours", "cours", "court", "courons", "courez", "courent"],
+      "imparfait": ["courais", "courais", "courait", "courions", "couriez", "couraient"],
+      "futur": ["courrai", "courras", "courra", "courrons", "courrez", "courront"],
+      "conditionnel": ["courrais", "courrais", "courrait", "courrions", "courriez", "courraient"],
+      "subjonctif": ["coure", "coures", "coure", "courions", "couriez", "courent"]
+    }
+  },
+  {
+    "infinitive": "recevoir",
+    "kind": "vt",
+    "meaning": "受け取る",
+    "ex": ["Elle reçoit une lettre.", "彼女は手紙を受け取る"],
+    "pp": "reçu",
+    "aux": "avoir",
+    "forms": {
+      "present": ["reçois", "reçois", "reçoit", "recevons", "recevez", "reçoivent"],
+      "imparfait": ["recevais", "recevais", "recevait", "recevions", "receviez", "recevaient"],
+      "futur": ["recevrai", "recevras", "recevra", "recevrons", "recevrez", "recevront"],
+      "conditionnel": ["recevrais", "recevrais", "recevrait", "recevrions", "recevriez", "recevraient"],
+      "subjonctif": ["reçoive", "reçoives", "reçoive", "recevions", "receviez", "reçoivent"]
+    }
+  },
+  {
+    "infinitive": "vivre",
+    "kind": "vi",
+    "meaning": "生きる・暮らす",
+    "usage": "à + 場所",
+    "ex": ["Il vit à Marseille.", "彼はマルセイユで暮らしている"],
+    "pp": "vécu",
+    "aux": "avoir",
+    "forms": {
+      "present": ["vis", "vis", "vit", "vivons", "vivez", "vivent"],
+      "imparfait": ["vivais", "vivais", "vivait", "vivions", "viviez", "vivaient"],
+      "futur": ["vivrai", "vivras", "vivra", "vivrons", "vivrez", "vivront"],
+      "conditionnel": ["vivrais", "vivrais", "vivrait", "vivrions", "vivriez", "vivraient"],
+      "subjonctif": ["vive", "vives", "vive", "vivions", "viviez", "vivent"]
+    }
+  },
+  {
+    "infinitive": "croire",
+    "kind": "vi/vt",
+    "meaning": "信じる・思う",
+    "usage": "à qc・que + 直説法",
+    "ex": ["Elle croit à cette histoire.", "彼女はその話を信じている"],
+    "pp": "cru",
+    "aux": "avoir",
+    "forms": {
+      "present": ["crois", "crois", "croit", "croyons", "croyez", "croient"],
+      "imparfait": ["croyais", "croyais", "croyait", "croyions", "croyiez", "croyaient"],
+      "futur": ["croirai", "croiras", "croira", "croirons", "croirez", "croiront"],
+      "conditionnel": ["croirais", "croirais", "croirait", "croirions", "croiriez", "croiraient"],
+      "subjonctif": ["croie", "croies", "croie", "croyions", "croyiez", "croient"]
+    }
+  },
+  {
+    "infinitive": "suivre",
+    "kind": "vt",
+    "meaning": "ついていく・受講する",
+    "ex": ["Il suit un cours de français.", "彼はフランス語の授業を受けている"],
+    "pp": "suivi",
+    "aux": "avoir",
+    "forms": {
+      "present": ["suis", "suis", "suit", "suivons", "suivez", "suivent"],
+      "imparfait": ["suivais", "suivais", "suivait", "suivions", "suiviez", "suivaient"],
+      "futur": ["suivrai", "suivras", "suivra", "suivrons", "suivrez", "suivront"],
+      "conditionnel": ["suivrais", "suivrais", "suivrait", "suivrions", "suivriez", "suivraient"],
+      "subjonctif": ["suive", "suives", "suive", "suivions", "suiviez", "suivent"]
+    }
+  },
+  {
+    "infinitive": "tenir",
+    "kind": "vt",
+    "meaning": "持つ・保つ",
+    "usage": "à qc (執着する)",
+    "ex": ["Elle tient son sac.", "彼女はかばんを持っている"],
+    "pp": "tenu",
+    "aux": "avoir",
+    "forms": {
+      "present": ["tiens", "tiens", "tient", "tenons", "tenez", "tiennent"],
+      "imparfait": ["tenais", "tenais", "tenait", "tenions", "teniez", "tenaient"],
+      "futur": ["tiendrai", "tiendras", "tiendra", "tiendrons", "tiendrez", "tiendront"],
+      "conditionnel": ["tiendrais", "tiendrais", "tiendrait", "tiendrions", "tiendriez", "tiendraient"],
+      "subjonctif": ["tienne", "tiennes", "tienne", "tenions", "teniez", "tiennent"]
+    }
+  },
+  {
+    "infinitive": "devenir",
+    "kind": "vi",
+    "meaning": "〜になる",
+    "ex": ["Il devient médecin.", "彼は医者になる"],
+    "pp": "devenu",
+    "aux": "être",
+    "forms": {
+      "present": ["deviens", "deviens", "devient", "devenons", "devenez", "deviennent"],
+      "imparfait": ["devenais", "devenais", "devenait", "devenions", "deveniez", "devenaient"],
+      "futur": ["deviendrai", "deviendras", "deviendra", "deviendrons", "deviendrez", "deviendront"],
+      "conditionnel": ["deviendrais", "deviendrais", "deviendrait", "deviendrions", "deviendriez", "deviendraient"],
+      "subjonctif": ["devienne", "deviennes", "devienne", "devenions", "deveniez", "deviennent"]
+    }
+  },
+  {
+    "infinitive": "naître",
+    "kind": "vi",
+    "meaning": "生まれる",
+    "ex": ["Le bébé naît en mai.", "赤ん坊は5月に生まれる"],
+    "pp": "né",
+    "aux": "être",
+    "forms": {
+      "present": ["nais", "nais", "naît", "naissons", "naissez", "naissent"],
+      "imparfait": ["naissais", "naissais", "naissait", "naissions", "naissiez", "naissaient"],
+      "futur": ["naîtrai", "naîtras", "naîtra", "naîtrons", "naîtrez", "naîtront"],
+      "conditionnel": ["naîtrais", "naîtrais", "naîtrait", "naîtrions", "naîtriez", "naîtraient"],
+      "subjonctif": ["naisse", "naisses", "naisse", "naissions", "naissiez", "naissent"]
+    }
+  },
+  {
+    "infinitive": "mourir",
+    "kind": "vi",
+    "meaning": "死ぬ",
+    "ex": ["Le vieil homme meurt en hiver.", "その老人は冬に亡くなる"],
+    "pp": "mort",
+    "aux": "être",
+    "forms": {
+      "present": ["meurs", "meurs", "meurt", "mourons", "mourez", "meurent"],
+      "imparfait": ["mourais", "mourais", "mourait", "mourions", "mouriez", "mouraient"],
+      "futur": ["mourrai", "mourras", "mourra", "mourrons", "mourrez", "mourront"],
+      "conditionnel": ["mourrais", "mourrais", "mourrait", "mourrions", "mourriez", "mourraient"],
+      "subjonctif": ["meure", "meures", "meure", "mourions", "mouriez", "meurent"]
+    }
+  },
+  {
+    "infinitive": "dépêcher",
+    "pron": true,
+    "kind": "vpr",
+    "meaning": "急ぐ",
+    "usage": "de + 不定詞",
+    "ex": ["Il se dépêche de partir.", "彼は急いで出発する"]
+  },
+  {
+    "infinitive": "habiller",
+    "pron": true,
+    "kind": "vpr",
+    "meaning": "服を着る",
+    "ex": ["Elle s'habille en noir.", "彼女は黒い服を着る"]
+  },
+  {
+    "infinitive": "promener",
+    "pron": true,
+    "kind": "vpr",
+    "meaning": "散歩する",
+    "ex": ["Il se promène au bord de la mer.", "彼は海辺を散歩する"],
+    "group": 1,
+    "forms": {
+      "present": ["promène", "promènes", "promène", "promenons", "promenez", "promènent"],
+      "futur": ["promènerai", "promèneras", "promènera", "promènerons", "promènerez", "promèneront"],
+      "conditionnel": ["promènerais", "promènerais", "promènerait", "promènerions", "promèneriez", "promèneraient"],
+      "subjonctif": ["promène", "promènes", "promène", "promenions", "promeniez", "promènent"]
+    }
   }
 ]
