@@ -281,7 +281,7 @@
   #check { color: var(--focus); border-color: var(--focus); background: var(--focus-bg); }
   #check:hover { background: color-mix(in srgb, var(--focus) 16%, transparent); }
   #next { color: var(--margin); border-color: var(--margin); }
-  #restore { color: var(--ink-soft); }
+  #restore, #reorder { color: var(--ink-soft); }
   #next:hover { background: var(--ng-bg); }
   /* 通算スコアの全消しは日常の操作ではないので、小さく下に置く */
   #reset-score {
@@ -322,6 +322,7 @@
   <div class="bar">
     <button id="check">答え合わせ<small class="fr">Corriger</small></button>
     <button id="restore" hidden></button>
+    <button id="reorder" hidden>並び順を戻す<small class="fr">Ordre initial</small></button>
     <button id="next">次の動詞<small class="fr">Verbe suivant</small></button>
     <a class="feedback" href="https://github.com/kamataryo/conjugaison-seyes/issues/new"
        target="_blank" rel="noopener">feedback</a>

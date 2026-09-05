@@ -62,6 +62,10 @@ const cutButton = (axis, i) => {
 };
 
 const visible = (axis) => order[axis].filter((i) => !hidden[axis].has(i));
+const iota = (n) => [...Array(n).keys()];
+const sorted = (a) => a.every((v, i) => v === i);
+// 転置もシャッフルもしていない、まっさらな並び
+const plain = () => !transposed && sorted(order.p) && sorted(order.t);
 
 // Fisher-Yates。sort(() => Math.random() - .5) は偏るので使わない
 function shuffle(a) {
@@ -132,6 +136,7 @@ function build() {
   $("restore").innerHTML = `消した${what[0]}を表示<small class="fr">Afficher les ${what[1]}</small>`;
   // 1セルだけになったら並べ替える先がない
   $("shuffle").disabled = rows() === 1 && cols() === 1;
+  $("reorder").hidden = plain();
   syncUrl();
   render();
 }
@@ -278,7 +283,12 @@ function syncUrl() {
   for (const a of ["p", "t"]) {
     if (hidden[a].size) url.searchParams.set(a, [...hidden[a]].sort().join(""));
     else url.searchParams.delete(a);
+    // 並び順は初期状態のときだけ省く。URL をむやみに長くしない
+    if (sorted(order[a])) url.searchParams.delete("o" + a);
+    else url.searchParams.set("o" + a, order[a].join(""));
   }
+  if (transposed) url.searchParams.set("x", "1");
+  else url.searchParams.delete("x");
   history.replaceState(null, "", url);
 }
 
@@ -339,6 +349,14 @@ $("restore").addEventListener("click", () => {
   build();
 });
 
+// シャッフルと行列入れ替えをまとめて戻す。消した行列はそのまま (#restore の担当)
+$("reorder").addEventListener("click", () => {
+  order.p = iota(P);
+  order.t = iota(T);
+  transposed = false;
+  build();
+});
+
 const pick = () => verbs[Math.floor(Math.random() * verbs.length)];
 $("next").addEventListener("click", () => load(pick()));
 
@@ -350,6 +368,14 @@ const parseCut = (v, n) =>
   new Set([...new Set(v ?? "")].map(Number).filter((i) => i >= 0 && i < n).slice(0, n - 1));
 hidden.p = parseCut(query.get("p"), P);
 hidden.t = parseCut(query.get("t"), T);
+// 並び順は全索引がそろっているときだけ採る。欠けても重なっても初期順に戻す
+const parseOrder = (v, n) => {
+  const a = [...new Set(v ?? "")].map(Number).filter((i) => i >= 0 && i < n);
+  return a.length === n ? a : iota(n);
+};
+order.p = parseOrder(query.get("op"), P);
+order.t = parseOrder(query.get("ot"), T);
+transposed = query.get("x") === "1";
 // 表を作る前に出す。描画はこのタスクの終わりまで起きないので、まだちらつかない
 document.querySelector("main").hidden = false;
 load(verbs.find((v) => infinitiveLabel(v) === wanted) ?? pick());
