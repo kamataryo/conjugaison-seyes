@@ -69,15 +69,19 @@ function stem(inf, tense) {
 const participle = (inf) =>
   inf.slice(0, -2) + { er: "é", ir: "i", re: "u" }[group(inf)];
 
-/** verb.forms に書いてあればそれを、なければ規則活用から導出する */
-export function conjugate(verb, tense, i) {
+/**
+ * verb.forms に書いてあればそれを、なければ規則活用から導出する。
+ * fem=true で、être を取る複合時制の過去分詞を女性形にする (allé → allée / allées)
+ */
+export function conjugate(verb, tense, i, fem = false) {
   const auxTense = COMPOUND[tense];
   let form;
   if (auxTense) {
     const aux = auxOf(verb);
-    const pp = verb.pp ?? participle(verb.infinitive);
-    // ponytail: 主語は男性扱い固定。女性形の性一致が要るなら人称ごとに性を持たせる
-    form = `${AUX[aux][auxTense][i]} ${aux === "être" && i >= 3 ? pp + "s" : pp}`;
+    let pp = verb.pp ?? participle(verb.infinitive);
+    // 過去分詞が主語に性数一致するのは être のとき。avoir は不変
+    if (aux === "être") pp += (fem ? "e" : "") + (i >= 3 ? "s" : "");
+    form = `${AUX[aux][auxTense][i]} ${pp}`;
   } else {
     // 語尾は forms が無いときだけ引く。haïr のように群から外れる綴りがある
     const given = verb.forms?.[tense];

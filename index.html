@@ -205,10 +205,10 @@
   /* 答え合わせで全セルに出る正解。採点前は空なので行の高さは変わらない */
   .ans {
     display: block; padding: 0 .5rem .4rem; font-size: .8rem; line-height: 1.3;
-    font-family: var(--display); font-style: italic; font-weight: 500; color: var(--ink-soft);
+    font-family: var(--display); font-style: italic; font-weight: 500; color: inherit;
     white-space: nowrap;
   }
-  .ans .pr { font-weight: 400; }
+  .ans > .pr { font-weight: 400; color: var(--ink-soft); }
   .ans:empty { display: none; }
 
   /* 行・列の出し入れ、採点の走り、用例。どれもセルの --i でわずかにずらす */
@@ -243,8 +243,16 @@
 
   /* 主なボタンは横並びで等分。消した行列がなければ2つ、あれば3つ */
   .bar { display: flex; flex-wrap: wrap; gap: .5rem; }
-  .bar button { flex: 1 1 auto; } /* 幅は文字なりに、余白は等分。狭ければ折り返す */
+  /* 日本語の下にフランス語が入るぶん、上下の余白は詰める */
+  .bar button { flex: 1 1 auto; padding-block: .5rem; } /* 幅は文字なりに、余白は等分。狭ければ折り返す */
   .bar button[hidden] { display: none; }
+  /* ボタンの下、右端に小さく */
+  .bar .feedback {
+    flex: 1 0 100%; text-align: right;
+    font-size: .72rem; color: var(--ink-soft); text-decoration: none;
+  }
+  .bar .feedback:hover { text-decoration: underline; }
+  .bar .fr { color: inherit; opacity: .7; } /* ボタンの色に合わせる */
   button {
     font: 500 .95rem var(--body); color: var(--ink);
     background: var(--card); border: 1px solid var(--rule);
@@ -265,6 +273,9 @@
   }
   #swap:hover, #shuffle:hover { background: var(--ng-bg); }
   #swap:active, #shuffle:active { background: var(--ng-bg); transform: scale(.88); }
+  /* 1セルだけになったシャッフル。押せないことを見せて、そのまま置いておく */
+  #shuffle:disabled { opacity: .3; cursor: default; }
+  #shuffle:disabled:hover, #shuffle:disabled:active { background: var(--card); transform: none; }
   #swap svg, #shuffle svg { width: 1.05rem; height: 1.05rem; }
   #swap svg { transform: translate(1px, 1px); }
   #check { color: var(--focus); border-color: var(--focus); background: var(--focus-bg); }
@@ -309,9 +320,11 @@
   </div>
 
   <div class="bar">
-    <button id="check">答え合わせ</button>
+    <button id="check">答え合わせ<small class="fr">Corriger</small></button>
     <button id="restore" hidden></button>
-    <button id="next">次の動詞</button>
+    <button id="next">次の動詞<small class="fr">Verbe suivant</small></button>
+    <a class="feedback" href="https://github.com/kamataryo/conjugaison-seyes/issues/new"
+       target="_blank" rel="noopener">feedback</a>
   </div>
   <!-- 今回のリリースでは出さない。app.js のリスナと対で戻す
   <button id="reset-score">スコアをリセット</button>

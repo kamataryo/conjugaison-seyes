@@ -15,6 +15,8 @@ const scroller = document.querySelector(".scroll");
 // 答えと入力は常に「人称*時制」の正準順 (p * T + t) で保持し、表示だけ転置する
 let verb;
 let answers = [];
+// être の複合時制だけ、過去分詞を女性形にした別解。それ以外は answers と同じ文字列
+let femAnswers = [];
 const values = new Array(P * T).fill("");
 // 採点後に消した人称と時制。やり直しても残り、次の動詞と「消した◯を表示」で戻る
 const hidden = { p: new Set(), t: new Set() };
@@ -72,6 +74,9 @@ const rows = () => rowKeys.length;
 const cols = () => colKeys.length;
 // 空欄は採点しない。正解にも誤答にも数えず、灰色のまま残す
 const answered = (k) => values[k].trim() !== "";
+// 女性形で答えたか (être の複合時制でだけ起こりうる)。正解表示の性もこれに合わせる
+const isFem = (k) => femAnswers[k] !== answers[k] && isCorrect(values[k], femAnswers[k]);
+const graded = (k) => isCorrect(values[k], answers[k]) || isFem(k);
 
 function build() {
   const ps = visible("p");
@@ -123,8 +128,11 @@ function build() {
   const cutRows = (transposed ? hidden.t : hidden.p).size;
   const cutCols = (transposed ? hidden.p : hidden.t).size;
   $("restore").hidden = !cutRows && !cutCols;
-  $("restore").textContent =
-    `消した${cutRows && cutCols ? "行と列" : cutRows ? "行" : "列"}を表示`;
+  const what = cutRows && cutCols ? ["行と列", "lignes et colonnes"] : cutRows ? ["行", "lignes"] : ["列", "colonnes"];
+  $("restore").innerHTML = `消した${what[0]}を表示<small class="fr">Afficher les ${what[1]}</small>`;
+  // 1セルだけになったら並べ替える先がない
+  $("shuffle").disabled = rows() === 1 && cols() === 1;
+  syncUrl();
   render();
 }
 
@@ -151,9 +159,11 @@ $("gloss").addEventListener("click", (e) => {
 });
 
 // 正解表示。人称代名詞は控えめに、動詞のほうを太くする
-function answerHtml(p, form) {
+function answerHtml(p, form, fem) {
   const s = withPronoun(p, form, verb.aspirate);
-  return `<span class="pr">${s.slice(0, -form.length)}</span>${form}`; // "je " / "j'" / "il/elle "
+  const pr = s.slice(0, -form.length); // "je " / "j'" / "il/elle "
+  // 女性形で答えたなら主語も女性に絞る (il/elle → elle、ils/elles → elles)
+  return `<span class="pr">${fem ? pr.replace(/^ils?\//, "") : pr}</span>${form}`;
 }
 
 function render() {
@@ -162,12 +172,15 @@ function render() {
     const k = canon[n];
     const done = checked && answered(k);
     el.value = values[k];
-    el.classList.toggle("ok", done && isCorrect(values[k], answers[k]));
-    el.classList.toggle("ng", done && !isCorrect(values[k], answers[k]));
+    el.classList.toggle("ok", done && graded(k));
+    el.classList.toggle("ng", done && !graded(k));
     el.classList.toggle("skip", checked && !done); // 空欄は採点対象外
     el.disabled = checked; // 採点中は触れない。やり直すと入力に戻る
     // 答えは空欄のセルにも出す。行の高さが揃って背景がずれない
-    reveals[n].innerHTML = checked ? answerHtml(Math.floor(k / T), answers[k]) : "";
+    const fem = isFem(k);
+    reveals[n].innerHTML = checked
+      ? answerHtml(Math.floor(k / T), fem ? femAnswers[k] : answers[k], fem)
+      : "";
   });
 
   // 今回のリリースでは通算正答率を出さない。記録は続けているので、この行を戻せば表示される
@@ -229,7 +242,9 @@ grid.addEventListener("click", (e) => {
 function setChecked(v) {
   checked = v;
   auxShown = v; // 答え合わせで出し、やり直すとまた伏せる
-  $("check").textContent = v ? "やり直す" : "答え合わせ";
+  $("check").innerHTML = v
+    ? 'やり直す<small class="fr">Recommencer</small>'
+    : '答え合わせ<small class="fr">Corriger</small>';
   renderGloss();
 }
 
@@ -248,13 +263,22 @@ function load(v) {
   $("meaning").textContent = v.meaning ?? "";
   $("group").textContent = kind.label;
   answers = PRONOUNS.flatMap((_, p) => TENSES.map((t) => conjugate(v, t.key, p)));
+  femAnswers = PRONOUNS.flatMap((_, p) => TENSES.map((t) => conjugate(v, t.key, p, true)));
   values.fill("");
   setChecked(false);
   cur = 0;
-  build(); // 消した行列も並び順も、動詞をまたいでそのまま
+  build(); // 消した行列も並び順も、動詞をまたいでそのまま。URL は build() が書く
   inputs[0].focus();
+}
+
+// ?v=parler&p=05&t=13 = 動詞と、消した人称・時制。リロードや共有で同じ表に戻る
+function syncUrl() {
   const url = new URL(location);
-  url.searchParams.set("v", infinitiveLabel(v));
+  url.searchParams.set("v", infinitiveLabel(verb));
+  for (const a of ["p", "t"]) {
+    if (hidden[a].size) url.searchParams.set(a, [...hidden[a]].sort().join(""));
+    else url.searchParams.delete(a);
+  }
   history.replaceState(null, "", url);
 }
 
@@ -267,7 +291,7 @@ $("check").addEventListener("click", () => {
       p: Math.floor(k / T),
       tense: TENSES[k % T].key,
       input: values[k],
-      ok: isCorrect(values[k], answers[k]),
+      ok: graded(k),
     });
   }
   save(stats);
@@ -319,7 +343,13 @@ const pick = () => verbs[Math.floor(Math.random() * verbs.length)];
 $("next").addEventListener("click", () => load(pick()));
 
 // ?v=parler で動詞を指す。リロードしても同じ表に戻る
-const wanted = new URLSearchParams(location.search).get("v");
+const query = new URLSearchParams(location.search);
+const wanted = query.get("v");
+// 消した人称・時制は1桁ずつ並べてある。数字以外と範囲外は捨て、最後の1本は必ず残す
+const parseCut = (v, n) =>
+  new Set([...new Set(v ?? "")].map(Number).filter((i) => i >= 0 && i < n).slice(0, n - 1));
+hidden.p = parseCut(query.get("p"), P);
+hidden.t = parseCut(query.get("t"), T);
 // 表を作る前に出す。描画はこのタスクの終わりまで起きないので、まだちらつかない
 document.querySelector("main").hidden = false;
 load(verbs.find((v) => infinitiveLabel(v) === wanted) ?? pick());

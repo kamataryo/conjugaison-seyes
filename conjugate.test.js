@@ -186,3 +186,11 @@ test("代名動詞は再帰代名詞を前に置き、複合時制は être に�
   assert.equal(withPronoun(0, "m'appelle"), "je m'appelle");
   assert.equal(withPronoun(0, "me lève"), "je me lève");
 });
+
+test("être を取る複合時制は過去分詞の女性形も作れる", () => {
+  assert.equal(conjugate(find("aller"), "passeCompose", 2, true), "est allée");
+  assert.equal(conjugate(find("aller"), "passeCompose", 5, true), "sont allées");
+  assert.equal(conjugate(find("rester"), "plusQueParfait", 0, true), "étais restée");
+  // avoir を取る動詞は主語と性数一致しない
+  assert.equal(conjugate(find("parler"), "passeCompose", 2, true), "a parlé");
+});
