@@ -59,12 +59,11 @@ test("採点は大文字小文字と前後空白を無視し、アクセント�
 
 test("動詞の群を判定する", async () => {
   const { classify } = await import("./conjugate.js");
-  assert.deepEqual(classify(find("parler")), { group: 1, label: "第1群・-er 規則動詞", irregular: false });
+  assert.deepEqual(classify(find("parler")), { group: 1, label: "第1群・-er 規則動詞" });
   assert.equal(classify(find("finir")).group, 2);
   assert.equal(classify(find("vendre")).group, 3);
-  assert.equal(classify(find("vendre")).irregular, false);
   // aller は -er だが不規則。forms を持つので第3群に落ちる
-  assert.deepEqual(classify(find("aller")), { group: 3, label: "第3群・不規則動詞", irregular: true });
+  assert.deepEqual(classify(find("aller")), { group: 3, label: "第3群・不規則動詞" });
 });
 
 test("正解表示に人称代名詞を添え、je はエリジオンする", async () => {

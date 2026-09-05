@@ -69,7 +69,7 @@
     min-height: 100dvh;
     box-sizing: border-box;
   }
-  @media (pointer: coarse) { body { padding-bottom: 45vh; } }
+  main[hidden] { display: none; }
   main { width: 100%; max-width: 64rem; margin-inline: auto; display: flex; flex-direction: column; gap: 1.25rem; }
 
   .eyebrow {
@@ -86,42 +86,40 @@
     font-size: 1rem; letter-spacing: .01em; color: var(--ink-soft);
   }
   .eyebrow-row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem; }
+  /* 余白線と同じ赤で目立たせる */
   .chip {
-    font-size: .72rem; letter-spacing: .04em; color: var(--ink-soft);
-    border: 1px solid var(--rule-faint); border-radius: 999px; padding: .2rem .7rem;
+    font-size: .72rem; letter-spacing: .04em; color: var(--margin);
+    border: 1px solid var(--margin); border-radius: 999px; padding: .2rem .7rem;
     white-space: nowrap;
   }
-  /* 不規則動詞は余白線と同じ赤で目立たせる */
-  .chip.irregular { color: var(--margin); border-color: var(--margin); }
 
-  .scroll { overflow-x: auto; scroll-behavior: smooth; background: var(--card); border: 1px solid var(--rule-faint); border-radius: 2px; }
-  @media (prefers-reduced-motion: reduce) { .scroll { scroll-behavior: auto; } }
+  .scroll { overflow-x: auto; background: var(--card); border: 1px solid var(--rule-faint); border-radius: 2px; }
   table { border-collapse: collapse; width: 100%; }
   th { font-weight: 500; text-align: left; }
-  thead th {
-    font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
-    color: var(--ink-soft); padding: .45rem .5rem; white-space: nowrap;
-    border-bottom: 1px solid var(--rule);
-  }
+  /* 見出しの位置で決まるぶん(余白・罫・sticky)。中身が人称でも時制でも共通 */
+  thead th { padding: .45rem .5rem; white-space: nowrap; border-bottom: 2px solid var(--margin); }
   tbody th {
     position: sticky; left: 0; z-index: 1; background: var(--card);
-    font-family: var(--display); font-size: 1.05rem;
     padding: 0 .6rem; white-space: nowrap;
     border-right: 2px solid var(--margin);
   }
-  #grid.transposed tbody th { font-family: var(--body); font-size: .8rem; letter-spacing: .02em; }
-  #grid.transposed tbody th .fr { font-size: .68rem; }
+  /* 見出しの中身で決まるぶん。行と列を入れ替えても字面はついて回る */
+  th.pron { font-family: var(--display); font-size: 1.05rem; }
+  th.tense { font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
   thead th:first-child { position: sticky; left: 0; z-index: 2; background: var(--card); border-right: 2px solid var(--margin); padding: .25rem .4rem; }
   /* 見出し列は幅を固定。人称と時制を入れ替えても表の位置がずれない */
   tbody th, thead th:first-child { box-sizing: border-box; width: 7.5rem; min-width: 7.5rem; text-align: right; }
-  /* 行・列を消すボタンの置き場。ボタンの有無で表が動かないよう常に確保する */
-  th.cut, td.cut { box-sizing: border-box; width: 2.6rem; min-width: 2.6rem; padding: .2rem; border-right: 0; }
-  .cutrow th, .cutrow td { border-bottom: 0; height: 2.2rem; }
-  #grid:not(.checked) .cutrow { display: none; }
+  /* 行・列を消すボタンの置き場。採点したら出す */
+  th.foot, td.foot {
+    box-sizing: border-box; width: 2.6rem; min-width: 2.6rem; padding: .2rem;
+    border-right: 1px solid var(--rule-faint);
+  }
+  .footrow th, .footrow td { border-bottom: 0; height: 2.2rem; }
+  #grid:not(.checked) .footrow, #grid:not(.checked) .foot { display: none; }
   .cut-btn {
     width: 1.8rem; height: 1.8rem; min-width: 0; padding: 0; margin: 0 auto;
-    display: grid; place-items: center; border-radius: 50%;
-    font-size: .85rem; color: var(--ok); border-color: var(--ok);
+    display: grid; place-items: center; border-radius: 50%; font-size: .9rem;
+    color: var(--margin); border-color: var(--margin);
     transition: transform .12s ease, background .12s ease;
   }
   /* 時制ヘッダに添えるフランス語名 */
@@ -130,8 +128,8 @@
     font-size: .72rem; letter-spacing: 0; text-transform: none;
     color: var(--ink-soft); font-weight: 400;
   }
-  .cut-btn:hover { background: var(--ok-bg); }
-  .cut-btn:active { background: var(--ok-bg); transform: scale(.88); }
+  .cut-btn:hover { background: var(--ng-bg); }
+  .cut-btn:active { background: var(--ng-bg); transform: scale(.88); }
   td { position: relative; border-bottom: 1px solid var(--rule-faint); border-right: 1px solid var(--rule-faint); padding: 0; }
   tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
   /* 人称の行、時制の列に印をつけて現在地を示す */
@@ -141,56 +139,68 @@
     /* 16px 未満だと iOS がフォーカス時にズームする */
     font: 400 1.0625rem/1 var(--body);
     border: 0; background: transparent; color: inherit;
-    padding: .55rem .5rem; width: 6.5rem; display: block;
-    scroll-margin: 1rem 0;
+    padding: .55rem .5rem; width: 100%; min-width: 7.5rem; box-sizing: border-box; display: block;
   }
+  /* 採点中。フォーカスも渡さないので下線が出ない。色は自前のものを保つ */
+  input:disabled { -webkit-text-fill-color: currentColor; opacity: 1; cursor: default; }
   input:focus { outline: 0; background: var(--focus-bg); box-shadow: inset 0 -2px 0 var(--focus); }
   input.ok { color: var(--ok); background: var(--ok-bg); }
   input.ng { color: var(--ng); background: var(--ng-bg); }
+  /* 行・列だけ採点したときの、採点対象外のセル */
+  input.skip { color: var(--ink-soft); background: color-mix(in srgb, var(--ink-soft) 13%, transparent); }
   /* 答え合わせで全セルに出る正解。採点前は空なので行の高さは変わらない */
   .ans {
     display: block; padding: 0 .5rem .4rem; font-size: .8rem; line-height: 1.3;
-    font-family: var(--display); font-style: italic; color: var(--ink-soft);
+    font-family: var(--display); font-style: italic; font-weight: 500; color: var(--ink-soft);
     white-space: nowrap;
   }
+  .ans .pr { font-weight: 400; }
   .ans:empty { display: none; }
 
-  .bar {
-    display: flex; flex-wrap: wrap; gap: .75rem; justify-content: center; align-items: center;
-    background: var(--card); border: 1px solid var(--rule-faint);
-    border-radius: 2px; padding: .5rem;
+  /* 行・列の出し入れ、採点の走り。どれもセルの --i でわずかにずらす */
+  @keyframes pop-in { from { opacity: 0; transform: translateY(-.35rem); } }
+  .leaving { opacity: 0; transform: scale(.85); transition: opacity .2s ease, transform .2s ease; }
+  #grid.grading input { transition: background .25s ease, color .25s ease; transition-delay: calc(var(--i, 0) * 9ms); }
+  #grid.grading .ans, #grid.grading td .pct { animation: pop-in .25s ease both; animation-delay: calc(var(--i, 0) * 9ms); }
+  #grid.grading .cut-btn { animation: pop-in .25s ease both; animation-delay: .3s; }
+
+  /* 3. 読み込み時、表が右に見切れていたら横スクロールできることを知らせる */
+  .scroll-wrap { position: relative; }
+  #hint[hidden] { display: none; }
+  #hint {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    pointer-events: none; transition: opacity .45s ease;
+    background: linear-gradient(90deg, transparent 40%, color-mix(in srgb, var(--card) 85%, transparent));
   }
+  #hint.gone { opacity: 0; }
+  #hint span {
+    margin-left: auto; margin-right: 1.25rem;
+    font-size: .78rem; letter-spacing: .04em; color: var(--ink-soft);
+    background: var(--card); border: 1px solid var(--rule);
+    border-radius: 999px; padding: .35rem .8rem; white-space: nowrap;
+  }
+  #hint span::after { content: " →"; display: inline-block; animation: nudge 1.1s ease-in-out infinite; }
+  @keyframes nudge { 50% { transform: translateX(.3rem); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .leaving, #grid.grading input, #grid.grading .ans, #grid.grading td .pct,
+    #grid.grading .cut-btn, #hint span::after { animation: none; transition: none; }
+  }
+
+  /* 主なボタンは横並びで等分。消した行列がなければ2つ、あれば3つ */
+  .bar { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .bar button { flex: 1 1 auto; } /* 幅は文字なりに、余白は等分。狭ければ折り返す */
+  .bar button[hidden] { display: none; }
   button {
     font: 500 .95rem var(--body); color: var(--ink);
     background: var(--card); border: 1px solid var(--rule);
-    border-radius: 2px; padding: .7rem .75rem; min-width: 2.9rem; cursor: pointer;
-    touch-action: manipulation;
+    border-radius: 999px; padding: .75rem .9rem; min-width: 2.9rem; cursor: pointer;
+    touch-action: manipulation; white-space: nowrap;
+    transition: background .12s ease, border-color .12s ease;
   }
+  button:hover { background: var(--focus-bg); }
   button:active { background: var(--focus-bg); }
   button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-  .pad {
-    display: grid; grid-template-columns: repeat(3, 3.1rem); grid-template-rows: repeat(3, 3.1rem);
-    gap: .3rem; place-items: center;
-  }
-  /* 中央の空きマスに小さな点。十字の中心を示す飾り */
-  .pad::after {
-    content: ""; grid-area: 2 / 2; width: .4rem; height: .4rem;
-    border-radius: 50%; background: var(--rule);
-  }
-  .pad button {
-    width: 100%; height: 100%; min-width: 0; padding: 0;
-    display: grid; place-items: center;
-    font-size: 1.35rem; line-height: 1; color: var(--focus);
-    border-radius: 50%; box-shadow: 0 1px 0 var(--rule-faint);
-    transition: transform .12s ease, background .12s ease;
-  }
-  .pad button:hover { background: var(--focus-bg); }
-  .pad button:active { background: var(--focus-bg); transform: scale(.88); }
-  /* 1つだけ明示配置すると残りが自動配置で1行目に流れ込むので、4つとも位置を指定する */
-  .pad button:nth-child(1) { grid-area: 1 / 2; } /* ↑ */
-  .pad button:nth-child(2) { grid-area: 2 / 1; } /* ← */
-  .pad button:nth-child(3) { grid-area: 3 / 2; } /* ↓ */
-  .pad button:nth-child(4) { grid-area: 2 / 3; } /* → */
   /* 行列入れ替えは表の左上の空欄に置く */
   #swap {
     width: 1.9rem; height: 1.9rem; min-width: 0; padding: 0; margin: 0 auto;
@@ -201,13 +211,17 @@
   }
   #swap:hover { background: var(--ng-bg); }
   #swap:active { background: var(--ng-bg); transform: scale(.88); }
-  #swap svg { width: 1.05rem; height: 1.05rem; }
-  .acts { display: flex; flex-direction: column; gap: .35rem; }
-  .acts button { width: 100%; min-width: 6rem; }
-  #next { border-color: var(--margin); color: var(--margin); }
-  #undo { font-size: .85rem; color: var(--ink-soft); border-color: var(--rule-faint); }
-  #undo:disabled { opacity: .4; cursor: default; }
-  #reset-score { font-size: .8rem; color: var(--ink-soft); border-color: var(--rule-faint); }
+  #swap svg { width: 1.05rem; height: 1.05rem; transform: translate(1px, 1px); }
+  #check { color: var(--focus); border-color: var(--focus); background: var(--focus-bg); }
+  #check:hover { background: color-mix(in srgb, var(--focus) 16%, transparent); }
+  #next { color: var(--margin); border-color: var(--margin); }
+  #restore { color: var(--ink-soft); }
+  #next:hover { background: var(--ng-bg); }
+  /* 通算スコアの全消しは日常の操作ではないので、小さく下に置く */
+  #reset-score {
+    align-self: center; font-size: .78rem; padding: .35rem .8rem;
+    color: var(--ink-soft); border-color: var(--rule-faint);
+  }
 
   /* 通算の正答率。セルは右上に小さく、見出しは名前の下 */
   .pct {
@@ -220,7 +234,7 @@
 
 </style>
 
-<main>
+<main hidden>
   <header>
     <div class="eyebrow-row">
       <p class="eyebrow">conjugaison</p>
@@ -229,22 +243,17 @@
     <h1><span id="verb"></span> <small id="meaning"></small></h1>
   </header>
 
-  <div class="scroll"><table id="grid"></table></div>
+  <div class="scroll-wrap">
+    <div class="scroll"><table id="grid"></table></div>
+    <div id="hint" hidden><span>横にスクロールできます</span></div>
+  </div>
 
   <div class="bar">
-    <div class="pad">
-      <button data-move="up" aria-label="上のセルへ">↑</button>
-      <button data-move="left" aria-label="左のセルへ">←</button>
-      <button data-move="down" aria-label="下のセルへ">↓</button>
-      <button data-move="right" aria-label="右のセルへ">→</button>
-    </div>
-    <div class="acts">
-      <button id="check">答え合わせ</button>
-      <button id="next">次の動詞</button>
-      <button id="undo" disabled>↩ 消去を戻す</button>
-      <button id="reset-score">スコアをリセット</button>
-    </div>
+    <button id="check">答え合わせ</button>
+    <button id="restore" hidden></button>
+    <button id="next">次の動詞</button>
   </div>
+  <button id="reset-score">スコアをリセット</button>
 
 </main>
 

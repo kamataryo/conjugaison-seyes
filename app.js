@@ -8,15 +8,13 @@ const T = TENSES.length;
 const $ = (id) => document.getElementById(id);
 const grid = $("grid");
 const scroller = document.querySelector(".scroll");
-const touch = matchMedia("(pointer: coarse)").matches;
 
 // 答えと入力は常に「人称 × 時制」の正準順 (p * T + t) で保持し、表示だけ転置する
 let verb;
 let answers = [];
 const values = new Array(P * T).fill("");
-// 全問正解して消した人称と時制。やり直しても残り、次の動詞で戻る
+// 採点後に消した人称と時制。やり直しても残り、次の動詞と「消した◯を表示」で戻る
 const hidden = { p: new Set(), t: new Set() };
-const cuts = []; // 消した順。アンドゥで後ろから戻す
 let transposed = false;
 let checked = false;
 let cur = 0; // 表示上の位置 (row-major)
@@ -25,8 +23,8 @@ let reveals = [];
 let canon = []; // canon[表示上の位置] = 正準インデックス
 let rowKeys = []; // 表示行 → 人称番号(転置時は時制番号)
 let colKeys = [];
-let cutR = []; // 各行の末尾にある消去ボタンの置き場
-let cutC = [];
+let footR = []; // 各行の末尾、各列の下にある消去ボタンの置き場
+let footC = [];
 let pcts = []; // 各セルの通算正答率
 let rowPct = []; // 行・列の見出しに出す、人称別・時制別の通算正答率
 let colPct = [];
@@ -42,14 +40,17 @@ const SWAP_BUTTON = `<button id="swap" aria-label="行と列を入れ替え" tit
   </svg>
 </button>`;
 
-const cutButton = (dir, key) => {
-  const what = dir === "row" ? "この行" : "この列";
-  return `<button class="cut-btn" data-cut="${dir}" data-key="${key}" title="${what}を消す" aria-label="${what}を消す">✕</button>`;
+const cutButton = (axis, i) => {
+  const what = axis === "row" ? "この行" : "この列";
+  return `<button class="cut-btn" data-axis="${axis}" data-i="${i}" title="${what}を消す" aria-label="${what}を消す">✕</button>`;
 };
 
-const visible = (set, n) => [...Array(n).keys()].filter((i) => !set.has(i));
+const range = (n) => [...Array(n).keys()];
+const visible = (set, n) => range(n).filter((i) => !set.has(i));
 const rows = () => rowKeys.length;
 const cols = () => colKeys.length;
+// 空欄は採点しない。正解にも誤答にも数えず、灰色のまま残す
+const answered = (k) => values[k].trim() !== "";
 
 function build() {
   const ps = visible(hidden.p, P);
@@ -61,18 +62,21 @@ function build() {
   const pct = '<small class="pct"></small>';
   const rowHead = (i) => (transposed ? tense(i) : PRONOUNS[i]) + pct;
   const colHead = (i) => (transposed ? PRONOUNS[i] : tense(i)) + pct;
+  // 見出しの字面は中身につく。入れ替えても人称はセリフ体、時制は小さな大文字のまま
+  const rowCls = transposed ? "tense" : "pron";
+  const colCls = transposed ? "pron" : "tense";
   const rowLabel = (i) => (transposed ? TENSES[i].label : PRONOUNS[i]);
   const colLabel = (i) => (transposed ? PRONOUNS[i] : TENSES[i].label);
 
   grid.innerHTML =
-    `<thead><tr><th>${SWAP_BUTTON}</th>${colKeys.map((i) => `<th>${colHead(i)}</th>`).join("")}<th class="cut"></th></tr></thead><tbody>` +
-    rowKeys.map((r) =>
-      `<tr><th>${rowHead(r)}</th>${colKeys.map((c) =>
-        `<td><input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" aria-label="${rowLabel(r)} ${colLabel(c)}"><small class="ans"></small><small class="pct"></small></td>`,
-      ).join("")}<td class="cut"></td></tr>`,
+    `<thead><tr><th>${SWAP_BUTTON}</th>${colKeys.map((i) => `<th class="${colCls}">${colHead(i)}</th>`).join("")}<th class="foot"></th></tr></thead><tbody>` +
+    rowKeys.map((r, y) =>
+      `<tr><th class="${rowCls}">${rowHead(r)}</th>${colKeys.map((c, x) =>
+        `<td style="--i:${y * cols() + x}"><input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" aria-label="${rowLabel(r)} ${colLabel(c)}"><small class="ans"></small><small class="pct"></small></td>`,
+      ).join("")}<td class="foot"></td></tr>`,
     ).join("") +
-    // 列の消去ボタンを置くためだけの行。ボタンが出ても表が伸びないよう常に置く
-    `<tr class="cutrow"><th></th>${colKeys.map(() => `<td class="cut"></td>`).join("")}<td class="cut"></td></tr>` +
+    // 列の消去ボタンを置くためだけの行
+    `<tr class="footrow"><th></th>${colKeys.map(() => `<td class="foot"></td>`).join("")}<td class="foot"></td></tr>` +
     "</tbody>";
 
   inputs = [...grid.querySelectorAll("input")];
@@ -82,106 +86,73 @@ function build() {
   pcts = [...grid.querySelectorAll("td .pct")];
   rowPct = [...grid.querySelectorAll("tbody th .pct")];
   colPct = [...grid.querySelectorAll("thead .pct")];
-  cutR = [...grid.querySelectorAll("tbody tr:not(.cutrow) td.cut")];
-  cutC = [...grid.querySelectorAll(".cutrow td.cut")].slice(0, cols());
-  grid.classList.toggle("transposed", transposed);
+  footR = [...grid.querySelectorAll("tbody tr:not(.footrow) td.foot")];
+  footC = [...grid.querySelectorAll(".footrow td.foot")].slice(0, cols());
+  grid.classList.remove("grading"); // 走りは答え合わせの一回きり
 
   inputs.forEach((el, n) => {
-    el.addEventListener("focus", () => { cur = n; pinTable(); reveal(el); });
-    el.addEventListener("input", () => {
-      values[canon[n]] = el.value;
-      el.classList.remove("ok", "ng");
-      reveals[n].textContent = "";
-      if (checked) setChecked(false); // 直して再採点できるように戻す
-    });
+    el.addEventListener("focus", () => { cur = n; });
+    el.addEventListener("input", () => setValue(n, el.value));
     el.addEventListener("keydown", (e) => {
       if (e.key === "Enter") { e.preventDefault(); nextCell(); }
     });
   });
 
   cur = Math.min(cur, inputs.length - 1);
-  $("undo").disabled = !cuts.length;
+  const cutRows = (transposed ? hidden.t : hidden.p).size;
+  const cutCols = (transposed ? hidden.p : hidden.t).size;
+  $("restore").hidden = !cutRows && !cutCols;
+  $("restore").textContent =
+    `消した${cutRows && cutCols ? "行と列" : cutRows ? "行" : "列"}を表示`;
   render();
 }
 
+// 正解表示。人称代名詞は控えめに、動詞のほうを太くする
+function answerHtml(p, form) {
+  const s = withPronoun(p, form, verb.aspirate);
+  return `<span class="pr">${s.slice(0, -form.length)}</span>${form}`; // "je " / "j'" / "il/elle "
+}
+
 function render() {
-  grid.classList.toggle("checked", checked); // 消去ボタンの行は採点まで畳んでおく
+  grid.classList.toggle("checked", checked); // 消去ボタンは採点まで畳んでおく
   inputs.forEach((el, n) => {
     const k = canon[n];
+    const done = checked && answered(k);
     el.value = values[k];
-    const good = checked && isCorrect(values[k], answers[k]);
-    el.classList.toggle("ok", good);
-    el.classList.toggle("ng", checked && !good);
-    reveals[n].textContent = checked
-      ? withPronoun(Math.floor(k / T), answers[k], verb.aspirate)
-      : "";
+    el.classList.toggle("ok", done && isCorrect(values[k], answers[k]));
+    el.classList.toggle("ng", done && !isCorrect(values[k], answers[k]));
+    el.classList.toggle("skip", checked && !done); // 空欄は採点対象外
+    el.disabled = checked; // 採点中は触れない。やり直すと入力に戻る
+    // 答えは空欄のセルにも出す。行の高さが揃って背景がずれない
+    reveals[n].innerHTML = checked ? answerHtml(Math.floor(k / T), answers[k]) : "";
   });
 
   renderStats();
 
-  // 全部正解した行・列だけ、末尾に消去ボタンを出す。最後の1本は消せない
-  const allOk = (ns) => checked && ns.every((n) => isCorrect(values[canon[n]], answers[canon[n]]));
-  cutR.forEach((cell, r) => {
-    const ns = colKeys.map((_, c) => r * cols() + c);
-    cell.innerHTML = rows() > 1 && allOk(ns) ? cutButton("row", rowKeys[r]) : "";
-  });
-  cutC.forEach((cell, c) => {
-    const ns = rowKeys.map((_, r) => r * cols() + c);
-    cell.innerHTML = cols() > 1 && allOk(ns) ? cutButton("col", colKeys[c]) : "";
-  });
+  // 答え合わせのあと、行・列の末尾に消去ボタンを出す。最後の1本は消せない
+  footR.forEach((cell, r) => { cell.innerHTML = checked && rows() > 1 ? cutButton("row", r) : ""; });
+  footC.forEach((cell, c) => { cell.innerHTML = checked && cols() > 1 ? cutButton("col", c) : ""; });
 }
 
-// 左端の人称列は sticky で浮いているため、ブラウザは「見えている」と判断してしまう。
-// その幅ぶんを差し引いて自前で横スクロールさせる
-function reveal(el) {
-  const sticky = el.closest("tr").querySelector("th").offsetWidth;
-  const cell = el.getBoundingClientRect();
-  const view = scroller.getBoundingClientRect();
-  const over = Math.min(cell.left - view.left - sticky, 0) || Math.max(cell.right - view.right, 0);
-  if (over) scroller.scrollLeft += over + Math.sign(over) * 8;
-  el.scrollIntoView({ block: "nearest" });
-}
+const setValue = (n, v) => {
+  inputs[n].value = v;
+  values[canon[n]] = v;
+};
 
-// ソフトキーボードの高さは iframe の中からは測れない(visualViewport が縮まない)。
-// 表と操作バーごと画面の上端に寄せて、鍵盤に隠れない位置に収める。
-// body の padding-bottom がそのためのスクロール余地。
-function pinTable() {
-  if (!touch) return;
-  const top = scroller.getBoundingClientRect().top;
-  if (Math.abs(top - 8) > 4) scrollBy({ top: top - 8 });
-}
+const focusCell = (n) => { inputs[n].focus(); inputs[n].select(); };
 
-function move(dir) {
-  const clamp = (v, max) => Math.min(Math.max(v, 0), max);
-  const r = clamp(Math.floor(cur / cols()) + (dir === "down") - (dir === "up"), rows() - 1);
-  const c = clamp((cur % cols()) + (dir === "right") - (dir === "left"), cols() - 1);
-  const next = r * cols() + c;
-  if (next === cur) return;
-  if (!inputs[next].value) { // 空セルだけ直前の答えで補助
-    inputs[next].value = inputs[cur].value;
-    values[canon[next]] = inputs[next].value;
-  }
-  inputs[next].focus();
-  inputs[next].select();
-}
-
-// Enter は「次のセル」。列の一番下まで来たら次の列の一番上へ折り返す。
-// 折り返し先は隣の時制(転置時は隣の人称)なので、move() の直前の答えを写す補助はしない
+// Enter は「次のセル」。列の一番下まで来たら次の列の一番上へ折り返す
 function nextCell() {
-  if (Math.floor(cur / cols()) < rows() - 1) return move("down");
-  const c = cur % cols();
-  if (c === cols() - 1) return; // 右下の最後のセルで止まる
-  inputs[c + 1].focus();
-  inputs[c + 1].select();
+  const down = cur + cols();
+  if (down < inputs.length) {
+    // 縦に進むときだけ、空セルを直前の答えで埋めて補助する
+    if (!inputs[down].value) setValue(down, inputs[cur].value);
+    return focusCell(down);
+  }
+  // 折り返し先は隣の時制(転置時は隣の人称)なので写さない。右下の最後のセルでは止まる
+  const c = (cur % cols()) + 1;
+  if (c < cols()) focusCell(c);
 }
-
-// ボタンにフォーカスを奪わせない。効かない環境でも cur は保持しているので復帰できる
-document.querySelectorAll(".pad button").forEach((b) => {
-  b.addEventListener("pointerdown", (e) => e.preventDefault());
-});
-document.querySelectorAll("[data-move]").forEach((b) => {
-  b.addEventListener("click", () => move(b.dataset.move));
-});
 
 // 表の中のボタンは build() のたびに作り直されるので委譲しておく
 grid.addEventListener("pointerdown", (e) => {
@@ -190,11 +161,14 @@ grid.addEventListener("pointerdown", (e) => {
 grid.addEventListener("click", (e) => {
   const cut = e.target.closest(".cut-btn");
   if (cut) {
-    const isRow = cut.dataset.cut === "row";
-    const axis = isRow !== transposed ? "p" : "t";
-    hidden[axis].add(+cut.dataset.key);
-    cuts.push([axis, +cut.dataset.key]);
-    return build();
+    const isRow = cut.dataset.axis === "row";
+    const i = +cut.dataset.i;
+    // 消す行・列だけ先に畳んで見せてから、作り直す
+    const at = cut.closest("td").cellIndex;
+    const gone = isRow ? [cut.closest("tr")] : [...grid.rows].map((tr) => tr.cells[at]);
+    gone.forEach((el) => el?.classList.add("leaving"));
+    hidden[isRow !== transposed ? "p" : "t"].add(isRow ? rowKeys[i] : colKeys[i]);
+    return setTimeout(() => build(), 200); // .leaving の transition と同じ長さ
   }
   if (!e.target.closest("#swap")) return;
   const k = canon[cur];
@@ -224,21 +198,23 @@ function load(v) {
   $("verb").textContent = v.infinitive;
   $("meaning").textContent = v.meaning ?? "";
   $("group").textContent = kind.label;
-  $("group").classList.toggle("irregular", kind.irregular);
   answers = PRONOUNS.flatMap((_, p) => TENSES.map((t) => conjugate(v, t.key, p)));
   values.fill("");
   hidden.p.clear();
   hidden.t.clear();
-  cuts.length = 0;
   setChecked(false);
   cur = 0;
   build(); // 消した行列を戻す
-  scrollTo({ top: 0 }); // 表を上端に寄せたままだと新しい動詞が画面外なので戻す
+  inputs[0].focus();
+  const url = new URL(location);
+  url.searchParams.set("v", v.infinitive);
+  history.replaceState(null, "", url);
 }
 
 $("check").addEventListener("click", () => {
   if (checked) return reset();
-  for (const k of canon) { // 消した行列は数えない
+  for (const k of canon) { // 消した行列と空欄は数えない
+    if (!answered(k)) continue;
     record(stats, {
       infinitive: verb.infinitive,
       p: Math.floor(k / T),
@@ -249,11 +225,12 @@ $("check").addEventListener("click", () => {
   }
   save(stats);
   setChecked(true);
+  grid.classList.add("grading");
   render();
 });
 
 // 通算の正答率を表の中に置く。セルは動詞×人称×時制、見出しは人称別・時制別(全動詞の合算)。
-// 答え合わせのときだけ出す
+// 採点したセルにだけ出す
 function renderStats() {
   const clean = (el) => { el.textContent = ""; el.title = ""; };
   if (!checked) return [...pcts, ...rowPct, ...colPct].forEach(clean);
@@ -266,6 +243,7 @@ function renderStats() {
   };
   pcts.forEach((el, n) => {
     const k = canon[n];
+    if (!answered(k)) return clean(el);
     put(el, stats.cells[cellKey(verb.infinitive, Math.floor(k / T), TENSES[k % T].key)]);
   });
   // 見出しには軸ごとの合算を出す。軸は転置で入れ替わる。通常は 行=人称 / 列=時制
@@ -276,17 +254,33 @@ function renderStats() {
 }
 
 $("reset-score").addEventListener("click", () => {
+  const all = merge(stats, () => true);
+  if (!all.n) return alert("まだ記録がありません。");
+  if (!confirm(`これまで ${all.n} 問中 ${all.ok} 問正解 (${rate(all)}%) です。\nスコアをすべて消しますか?`)) return;
   stats = clear();
   render();
 });
 
-$("undo").addEventListener("click", () => {
-  const [axis, key] = cuts.pop();
-  hidden[axis].delete(key);
+$("restore").addEventListener("click", () => {
+  hidden.p.clear();
+  hidden.t.clear();
   build();
 });
 
 const pick = () => verbs[Math.floor(Math.random() * verbs.length)];
 $("next").addEventListener("click", () => load(pick()));
 
-load(pick());
+// ?v=parler で動詞を指す。リロードしても同じ表に戻る
+const wanted = new URLSearchParams(location.search).get("v");
+// 表を作る前に出す。描画はこのタスクの終わりまで起きないので、まだちらつかない
+document.querySelector("main").hidden = false;
+load(verbs.find((v) => v.infinitive === wanted) ?? pick());
+
+// 表が右に見切れていたら、横スクロールできることを一度だけ知らせる
+if (scroller.scrollWidth > scroller.clientWidth + 4) {
+  const hint = $("hint");
+  const hide = () => hint.classList.add("gone");
+  hint.hidden = false;
+  scroller.addEventListener("scroll", hide, { once: true });
+  setTimeout(hide, 2800);
+}

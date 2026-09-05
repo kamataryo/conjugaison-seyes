@@ -74,11 +74,11 @@ export function conjugate(verb, tense, i) {
 
 /** 第1群(-er) / 第2群(-ir, -issons型) / 第3群。forms を持つものは不規則 */
 export function classify(verb) {
-  if (verb.forms) return { group: 3, label: "第3群・不規則動詞", irregular: true };
+  if (verb.forms) return { group: 3, label: "第3群・不規則動詞" };
   const g = group(verb.infinitive);
-  if (g === "er") return { group: 1, label: "第1群・-er 規則動詞", irregular: false };
-  if (g === "ir") return { group: 2, label: "第2群・-ir 規則動詞", irregular: false };
-  return { group: 3, label: "第3群・-re 規則活用", irregular: false };
+  if (g === "er") return { group: 1, label: "第1群・-er 規則動詞" };
+  if (g === "ir") return { group: 2, label: "第2群・-ir 規則動詞" };
+  return { group: 3, label: "第3群・-re 規則活用" };
 }
 
 /** 表示上の (行, 列) から正準インデックス(人称 * 時制数 + 時制)へ。転置時は行が時制 */
