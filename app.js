@@ -15,6 +15,8 @@ let answers = [];
 const values = new Array(P * T).fill("");
 // 採点後に消した人称と時制。やり直しても残り、次の動詞と「消した◯を表示」で戻る
 const hidden = { p: new Set(), t: new Set() };
+// 表示順。シャッフルで並び替わる。これも動詞をまたいで残る
+const order = { p: [...Array(P).keys()], t: [...Array(T).keys()] };
 let transposed = false;
 let checked = false;
 let cur = 0; // 表示上の位置 (row-major)
@@ -40,21 +42,36 @@ const SWAP_BUTTON = `<button id="swap" aria-label="行と列を入れ替え" tit
   </svg>
 </button>`;
 
+// その隣。行と列をまとめて並び替える
+const SHUFFLE_BUTTON = `<button id="shuffle" aria-label="行と列をシャッフル" title="行と列をシャッフル">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+       stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/>
+  </svg>
+</button>`;
+
 const cutButton = (axis, i) => {
   const what = axis === "row" ? "この行" : "この列";
   return `<button class="cut-btn" data-axis="${axis}" data-i="${i}" title="${what}を消す" aria-label="${what}を消す">✕</button>`;
 };
 
-const range = (n) => [...Array(n).keys()];
-const visible = (set, n) => range(n).filter((i) => !set.has(i));
+const visible = (axis) => order[axis].filter((i) => !hidden[axis].has(i));
+
+// Fisher-Yates。sort(() => Math.random() - .5) は偏るので使わない
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+}
 const rows = () => rowKeys.length;
 const cols = () => colKeys.length;
 // 空欄は採点しない。正解にも誤答にも数えず、灰色のまま残す
 const answered = (k) => values[k].trim() !== "";
 
 function build() {
-  const ps = visible(hidden.p, P);
-  const ts = visible(hidden.t, T);
+  const ps = visible("p");
+  const ts = visible("t");
   rowKeys = transposed ? ts : ps;
   colKeys = transposed ? ps : ts;
   // 時制にはフランス語名を添える。aria-label には日本語名だけを使う
@@ -69,7 +86,7 @@ function build() {
   const colLabel = (i) => (transposed ? PRONOUNS[i] : TENSES[i].label);
 
   grid.innerHTML =
-    `<thead><tr><th>${SWAP_BUTTON}</th>${colKeys.map((i) => `<th class="${colCls}">${colHead(i)}</th>`).join("")}<th class="foot"></th></tr></thead><tbody>` +
+    `<thead><tr><th><div class="corner">${SWAP_BUTTON}${SHUFFLE_BUTTON}</div></th>${colKeys.map((i) => `<th class="${colCls}">${colHead(i)}</th>`).join("")}<th class="foot"></th></tr></thead><tbody>` +
     rowKeys.map((r, y) =>
       `<tr><th class="${rowCls}">${rowHead(r)}</th>${colKeys.map((c, x) =>
         `<td style="--i:${y * cols() + x}"><input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" aria-label="${rowLabel(r)} ${colLabel(c)}"><small class="ans"></small><small class="pct"></small></td>`,
@@ -156,7 +173,7 @@ function nextCell() {
 
 // 表の中のボタンは build() のたびに作り直されるので委譲しておく
 grid.addEventListener("pointerdown", (e) => {
-  if (e.target.closest("#swap, .cut-btn")) e.preventDefault();
+  if (e.target.closest("#swap, #shuffle, .cut-btn")) e.preventDefault();
 });
 grid.addEventListener("click", (e) => {
   const cut = e.target.closest(".cut-btn");
@@ -170,12 +187,15 @@ grid.addEventListener("click", (e) => {
     hidden[isRow !== transposed ? "p" : "t"].add(isRow ? rowKeys[i] : colKeys[i]);
     return setTimeout(() => build(), 200); // .leaving の transition と同じ長さ
   }
-  if (!e.target.closest("#swap")) return;
+  const swap = e.target.closest("#swap");
+  if (!swap && !e.target.closest("#shuffle")) return;
   const k = canon[cur];
   const wasFocused = document.activeElement === inputs[cur];
-  transposed = !transposed;
+  if (swap) transposed = !transposed;
+  else { shuffle(order.p); shuffle(order.t); }
   build();
-  cur = Math.max(canon.indexOf(k), 0); // 同じセルに留まる
+  // 転置は中身を追って同じセルに留まる。シャッフルは表の同じマスに留まる
+  if (swap) cur = Math.max(canon.indexOf(k), 0);
   if (wasFocused) inputs[cur].focus();
 });
 
@@ -200,11 +220,9 @@ function load(v) {
   $("group").textContent = kind.label;
   answers = PRONOUNS.flatMap((_, p) => TENSES.map((t) => conjugate(v, t.key, p)));
   values.fill("");
-  hidden.p.clear();
-  hidden.t.clear();
   setChecked(false);
   cur = 0;
-  build(); // 消した行列を戻す
+  build(); // 消した行列も並び順も、動詞をまたいでそのまま
   inputs[0].focus();
   const url = new URL(location);
   url.searchParams.set("v", v.infinitive);

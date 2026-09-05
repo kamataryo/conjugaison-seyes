@@ -201,17 +201,18 @@
   button:hover { background: var(--focus-bg); }
   button:active { background: var(--focus-bg); }
   button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-  /* 行列入れ替えは表の左上の空欄に置く */
-  #swap {
-    width: 1.9rem; height: 1.9rem; min-width: 0; padding: 0; margin: 0 auto;
+  /* 行列入れ替えとシャッフルは表の左上の空欄に並べる */
+  .corner { display: flex; justify-content: flex-end; gap: .3rem; }
+  #swap, #shuffle {
+    width: 1.9rem; height: 1.9rem; min-width: 0; padding: 0; margin: 0;
     display: grid; place-items: center;
     border-radius: 50%; color: var(--margin); border-color: var(--margin);
-    margin-inline: auto 0;
     transition: transform .12s ease, background .12s ease;
   }
-  #swap:hover { background: var(--ng-bg); }
-  #swap:active { background: var(--ng-bg); transform: scale(.88); }
-  #swap svg { width: 1.05rem; height: 1.05rem; transform: translate(1px, 1px); }
+  #swap:hover, #shuffle:hover { background: var(--ng-bg); }
+  #swap:active, #shuffle:active { background: var(--ng-bg); transform: scale(.88); }
+  #swap svg, #shuffle svg { width: 1.05rem; height: 1.05rem; }
+  #swap svg { transform: translate(1px, 1px); }
   #check { color: var(--focus); border-color: var(--focus); background: var(--focus-bg); }
   #check:hover { background: color-mix(in srgb, var(--focus) 16%, transparent); }
   #next { color: var(--margin); border-color: var(--margin); }
