@@ -165,3 +165,24 @@ test("メジャーバージョンが違うスコアは捨てる", async () => {
   assert.deepEqual(clear(store), blank());
   assert.equal(store.getItem(KEY), null);
 });
+
+test("代名動詞は再帰代名詞を前に置き、複合時制は être になる", async () => {
+  const { infinitiveLabel, auxOf, withPronoun } = await import("./conjugate.js");
+  assert.deepEqual(row("lever", "present"),
+    ["me lève", "te lèves", "se lève", "nous levons", "vous levez", "se lèvent"]);
+  // 母音の前で m'/t'/s' になる。nous/vous は縮まない
+  assert.deepEqual(row("appeler", "present"),
+    ["m'appelle", "t'appelles", "s'appelle", "nous appelons", "vous appelez", "s'appellent"]);
+  // 再帰代名詞は複合時制でも助動詞の前。aux は data に書かなくても être
+  assert.equal(conjugate(find("coucher"), "passeCompose", 0), "me suis couché");
+  assert.equal(conjugate(find("coucher"), "passeCompose", 3), "nous sommes couchés");
+  assert.equal(conjugate(find("souvenir"), "plusQueParfait", 2), "s'était souvenu");
+  assert.equal(auxOf(find("coucher")), "être");
+  // 見出しの se も母音の前で s' になる
+  assert.equal(infinitiveLabel(find("lever")), "se lever");
+  assert.equal(infinitiveLabel(find("appeler")), "s'appeler");
+  assert.equal(infinitiveLabel(find("parler")), "parler");
+  // je は代名詞が子音始まりなのでエリジオンしない
+  assert.equal(withPronoun(0, "m'appelle"), "je m'appelle");
+  assert.equal(withPronoun(0, "me lève"), "je me lève");
+});

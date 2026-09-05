@@ -39,6 +39,20 @@ const ENDINGS = {
 
 const group = (inf) => inf.slice(-2);
 
+// 母音と無音の h。je の j' と、代名動詞の m'/t'/s' で同じ判定を使う
+const VOWEL = /^[aeiouyàâäéèêëîïôöùûüh]/i;
+
+/** 代名動詞の再帰代名詞。me/te/se だけが母音の前で m'/t'/s' になる */
+const REFL = ["me", "te", "se", "nous", "vous", "se"];
+const reflex = (i, form) =>
+  REFL[i].length === 2 && VOWEL.test(form) ? `${REFL[i][0]}'${form}` : `${REFL[i]} ${form}`;
+
+/** 複合時制の助動詞。代名動詞は必ず être */
+export const auxOf = (verb) => (verb.pron ? "être" : verb.aux ?? "avoir");
+
+/** 見出しに出す不定詞。代名動詞は se を添える (se lever / s'appeler) */
+export const infinitiveLabel = (verb) => (verb.pron ? reflex(2, verb.infinitive) : verb.infinitive);
+
 function stem(inf, tense) {
   const g = group(inf);
   const base = inf.slice(0, -2);
@@ -58,22 +72,30 @@ const participle = (inf) =>
 /** verb.forms に書いてあればそれを、なければ規則活用から導出する */
 export function conjugate(verb, tense, i) {
   const auxTense = COMPOUND[tense];
+  let form;
   if (auxTense) {
-    const aux = verb.aux ?? "avoir";
+    const aux = auxOf(verb);
     const pp = verb.pp ?? participle(verb.infinitive);
     // ponytail: 主語は男性扱い固定。女性形の性一致が要るなら人称ごとに性を持たせる
-    return `${AUX[aux][auxTense][i]} ${aux === "être" && i >= 3 ? pp + "s" : pp}`;
+    form = `${AUX[aux][auxTense][i]} ${aux === "être" && i >= 3 ? pp + "s" : pp}`;
+  } else {
+    // 語尾は forms が無いときだけ引く。haïr のように群から外れる綴りがある
+    const given = verb.forms?.[tense];
+    form = given ? given[i] : stem(verb.infinitive, tense) + (tense === "present"
+      ? ENDINGS.present[group(verb.infinitive)][i]
+      : ENDINGS[tense][i]);
   }
-  const given = verb.forms?.[tense];
-  if (given) return given[i];
-  const ending = tense === "present"
-    ? ENDINGS.present[group(verb.infinitive)][i]
-    : ENDINGS[tense][i];
-  return stem(verb.infinitive, tense) + ending;
+  // 再帰代名詞は複合時制でも助動詞の前 (je me suis levé)
+  return verb.pron ? reflex(i, form) : form;
 }
 
-/** 第1群(-er) / 第2群(-ir, -issons型) / 第3群。forms を持つものは不規則 */
+/**
+ * 第1群(-er) / 第2群(-ir, -issons型) / 第3群。forms を持つものは不規則。
+ * ただし語幹が変わるだけの -er 動詞 (lever → lève) も forms を持つので、
+ * data 側の group で本来の群に引き戻せるようにする
+ */
 export function classify(verb) {
+  if (verb.group) return { group: verb.group, label: `第${verb.group}群・語幹変化` };
   if (verb.forms) return { group: 3, label: "第3群・不規則動詞" };
   const g = group(verb.infinitive);
   if (g === "er") return { group: 1, label: "第1群・-er 規則動詞" };
@@ -90,7 +112,7 @@ export const cellIndex = (r, c, transposed) =>
  * 有音の h (haïr など) は動詞データの aspirate: true で除外する
  */
 export const withPronoun = (i, form, aspirate = false) =>
-  i === 0 && !aspirate && /^[aeiouyàâäéèêëîïôöùûüh]/i.test(form) ? `j'${form}` : `${PRONOUNS[i]} ${form}`;
+  i === 0 && !aspirate && VOWEL.test(form) ? `j'${form}` : `${PRONOUNS[i]} ${form}`;
 
 export const normalize = (s) =>
   s.trim().toLowerCase().replace(/[’´]/g, "'").replace(/\s+/g, " ");

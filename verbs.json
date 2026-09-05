@@ -1,19 +1,91 @@
 [
-  { "infinitive": "parler", "meaning": "話す" },
-  { "infinitive": "aimer", "meaning": "好む・愛する" },
-  { "infinitive": "chanter", "meaning": "歌う" },
-  { "infinitive": "regarder", "meaning": "見る" },
-  { "infinitive": "rester", "meaning": "とどまる", "aux": "être" },
-  { "infinitive": "habiter", "meaning": "住む" },
-  { "infinitive": "finir", "meaning": "終える" },
-  { "infinitive": "choisir", "meaning": "選ぶ" },
-  { "infinitive": "réussir", "meaning": "成功する" },
-  { "infinitive": "vendre", "meaning": "売る" },
-  { "infinitive": "attendre", "meaning": "待つ" },
-  { "infinitive": "répondre", "meaning": "答える" },
+  {
+    "infinitive": "parler",
+    "kind": "vi/vt",
+    "meaning": "話す",
+    "usage": "à qn・de qc",
+    "ex": ["Il parle à sa sœur.", "彼は妹に話しかける"]
+  },
+  {
+    "infinitive": "aimer",
+    "kind": "vt",
+    "meaning": "好む・愛する",
+    "usage": "+ 不定詞",
+    "ex": ["Elle aime chanter.", "彼女は歌うのが好きだ"]
+  },
+  {
+    "infinitive": "chanter",
+    "kind": "vi/vt",
+    "meaning": "歌う",
+    "ex": ["Il chante une vieille chanson.", "彼は古い歌を歌う"]
+  },
+  {
+    "infinitive": "regarder",
+    "kind": "vt",
+    "meaning": "見る",
+    "ex": ["Elle regarde la mer.", "彼女は海を眺める"]
+  },
+  {
+    "infinitive": "rester",
+    "kind": "vi",
+    "meaning": "とどまる",
+    "ex": ["Il reste à la maison.", "彼は家にとどまる"],
+    "aux": "être"
+  },
+  {
+    "infinitive": "habiter",
+    "kind": "vi/vt",
+    "meaning": "住む",
+    "usage": "(à) + 場所",
+    "ex": ["Elle habite à Lyon.", "彼女はリヨンに住んでいる"]
+  },
+  {
+    "infinitive": "finir",
+    "kind": "vi/vt",
+    "meaning": "終える",
+    "usage": "de + 不定詞",
+    "ex": ["Il finit de manger.", "彼は食べ終える"]
+  },
+  {
+    "infinitive": "choisir",
+    "kind": "vt",
+    "meaning": "選ぶ",
+    "usage": "de + 不定詞",
+    "ex": ["Elle choisit de partir.", "彼女は出発することを選ぶ"]
+  },
+  {
+    "infinitive": "réussir",
+    "kind": "vi/vt",
+    "meaning": "成功する",
+    "usage": "à + 不定詞",
+    "ex": ["Il réussit à ouvrir la porte.", "彼はドアを開けることに成功する"]
+  },
+  {
+    "infinitive": "vendre",
+    "kind": "vt",
+    "meaning": "売る",
+    "usage": "qc à qn",
+    "ex": ["Elle vend sa voiture à un ami.", "彼女は車を友人に売る"]
+  },
+  {
+    "infinitive": "attendre",
+    "kind": "vt",
+    "meaning": "待つ",
+    "usage": "de + 不定詞",
+    "ex": ["Il attend le train.", "彼は電車を待つ"]
+  },
+  {
+    "infinitive": "répondre",
+    "kind": "vi/vt",
+    "meaning": "答える",
+    "usage": "à qn・à qc",
+    "ex": ["Elle répond à ma question.", "彼女は私の質問に答える"]
+  },
   {
     "infinitive": "être",
+    "kind": "vi",
     "meaning": "〜である",
+    "ex": ["Il est professeur.", "彼は教師だ"],
     "pp": "été",
     "aux": "avoir",
     "forms": {
@@ -26,7 +98,9 @@
   },
   {
     "infinitive": "avoir",
+    "kind": "vt",
     "meaning": "持つ",
+    "ex": ["Elle a deux chats.", "彼女は猫を2匹飼っている"],
     "pp": "eu",
     "aux": "avoir",
     "forms": {
@@ -39,7 +113,10 @@
   },
   {
     "infinitive": "aller",
+    "kind": "vi",
     "meaning": "行く",
+    "usage": "+ 不定詞 (近接未来)",
+    "ex": ["Il va à la gare.", "彼は駅へ行く"],
     "pp": "allé",
     "aux": "être",
     "forms": {
@@ -52,7 +129,10 @@
   },
   {
     "infinitive": "faire",
+    "kind": "vt",
     "meaning": "する・作る",
+    "usage": "+ 不定詞 (使役)",
+    "ex": ["Elle fait un gâteau.", "彼女はケーキを作る"],
     "pp": "fait",
     "aux": "avoir",
     "forms": {
@@ -65,7 +145,10 @@
   },
   {
     "infinitive": "pouvoir",
+    "kind": "vt",
     "meaning": "〜できる",
+    "usage": "+ 不定詞",
+    "ex": ["Il peut venir demain.", "彼は明日来ることができる"],
     "pp": "pu",
     "aux": "avoir",
     "forms": {
@@ -78,7 +161,10 @@
   },
   {
     "infinitive": "vouloir",
+    "kind": "vt",
     "meaning": "欲する",
+    "usage": "+ 不定詞",
+    "ex": ["Elle veut un café.", "彼女はコーヒーが欲しい"],
     "pp": "voulu",
     "aux": "avoir",
     "forms": {
@@ -91,7 +177,10 @@
   },
   {
     "infinitive": "devoir",
+    "kind": "vt",
     "meaning": "〜しなければならない",
+    "usage": "+ 不定詞",
+    "ex": ["Il doit travailler ce soir.", "彼は今晩働かなければならない"],
     "pp": "dû",
     "aux": "avoir",
     "forms": {
@@ -104,7 +193,10 @@
   },
   {
     "infinitive": "savoir",
+    "kind": "vt",
     "meaning": "知る",
+    "usage": "+ 不定詞",
+    "ex": ["Elle sait nager.", "彼女は泳ぐことができる"],
     "pp": "su",
     "aux": "avoir",
     "forms": {
@@ -117,7 +209,10 @@
   },
   {
     "infinitive": "venir",
+    "kind": "vi",
     "meaning": "来る",
+    "usage": "de + 不定詞 (近接過去)",
+    "ex": ["Il vient chez moi.", "彼は私の家に来る"],
     "pp": "venu",
     "aux": "être",
     "forms": {
@@ -130,7 +225,10 @@
   },
   {
     "infinitive": "partir",
+    "kind": "vi",
     "meaning": "出発する",
+    "usage": "pour・à + 場所",
+    "ex": ["Elle part pour Rome.", "彼女はローマへ出発する"],
     "pp": "parti",
     "aux": "être",
     "forms": {
@@ -143,7 +241,9 @@
   },
   {
     "infinitive": "prendre",
+    "kind": "vt",
     "meaning": "取る",
+    "ex": ["Il prend le métro.", "彼は地下鉄に乗る"],
     "pp": "pris",
     "aux": "avoir",
     "forms": {
@@ -156,7 +256,9 @@
   },
   {
     "infinitive": "voir",
+    "kind": "vt",
     "meaning": "見る・会う",
+    "ex": ["Elle voit ses parents le dimanche.", "彼女は日曜に両親に会う"],
     "pp": "vu",
     "aux": "avoir",
     "forms": {
@@ -169,7 +271,10 @@
   },
   {
     "infinitive": "dire",
+    "kind": "vt",
     "meaning": "言う",
+    "usage": "à qn de + 不定詞",
+    "ex": ["Il dit la vérité.", "彼は本当のことを言う"],
     "pp": "dit",
     "aux": "avoir",
     "forms": {
@@ -182,16 +287,76 @@
   },
   {
     "infinitive": "haïr",
+    "kind": "vt",
     "meaning": "憎む",
+    "ex": ["Elle hait le mensonge.", "彼女は嘘を憎む"],
     "pp": "haï",
     "aux": "avoir",
-    "aspirate": true,
     "forms": {
       "present": ["hais", "hais", "hait", "haïssons", "haïssez", "haïssent"],
       "imparfait": ["haïssais", "haïssais", "haïssait", "haïssions", "haïssiez", "haïssaient"],
       "futur": ["haïrai", "haïras", "haïra", "haïrons", "haïrez", "haïront"],
       "conditionnel": ["haïrais", "haïrais", "haïrait", "haïrions", "haïriez", "haïraient"],
       "subjonctif": ["haïsse", "haïsses", "haïsse", "haïssions", "haïssiez", "haïssent"]
+    },
+    "aspirate": true
+  },
+  {
+    "infinitive": "coucher",
+    "pron": true,
+    "kind": "vpr",
+    "meaning": "寝る・床につく",
+    "ex": ["Il se couche tôt.", "彼は早く寝る"]
+  },
+  {
+    "infinitive": "laver",
+    "pron": true,
+    "kind": "vpr",
+    "meaning": "体を洗う",
+    "ex": ["Elle se lave les mains.", "彼女は手を洗う"]
+  },
+  {
+    "infinitive": "lever",
+    "pron": true,
+    "kind": "vpr",
+    "meaning": "起きる",
+    "ex": ["Il se lève à six heures.", "彼は6時に起きる"],
+    "group": 1,
+    "forms": {
+      "present": ["lève", "lèves", "lève", "levons", "levez", "lèvent"],
+      "futur": ["lèverai", "lèveras", "lèvera", "lèverons", "lèverez", "lèveront"],
+      "conditionnel": ["lèverais", "lèverais", "lèverait", "lèverions", "lèveriez", "lèveraient"],
+      "subjonctif": ["lève", "lèves", "lève", "levions", "leviez", "lèvent"]
+    }
+  },
+  {
+    "infinitive": "appeler",
+    "pron": true,
+    "kind": "vpr",
+    "meaning": "〜という名前だ",
+    "ex": ["Elle s'appelle Marie.", "彼女はマリーという名前だ"],
+    "group": 1,
+    "forms": {
+      "present": ["appelle", "appelles", "appelle", "appelons", "appelez", "appellent"],
+      "futur": ["appellerai", "appelleras", "appellera", "appellerons", "appellerez", "appelleront"],
+      "conditionnel": ["appellerais", "appellerais", "appellerait", "appellerions", "appelleriez", "appelleraient"],
+      "subjonctif": ["appelle", "appelles", "appelle", "appelions", "appeliez", "appellent"]
+    }
+  },
+  {
+    "infinitive": "souvenir",
+    "pron": true,
+    "kind": "vpr",
+    "meaning": "覚えている・思い出す",
+    "usage": "de qc",
+    "ex": ["Il se souvient de ce jour.", "彼はその日のことを覚えている"],
+    "pp": "souvenu",
+    "forms": {
+      "present": ["souviens", "souviens", "souvient", "souvenons", "souvenez", "souviennent"],
+      "imparfait": ["souvenais", "souvenais", "souvenait", "souvenions", "souveniez", "souvenaient"],
+      "futur": ["souviendrai", "souviendras", "souviendra", "souviendrons", "souviendrez", "souviendront"],
+      "conditionnel": ["souviendrais", "souviendrais", "souviendrait", "souviendrions", "souviendriez", "souviendraient"],
+      "subjonctif": ["souvienne", "souviennes", "souvienne", "souvenions", "souveniez", "souviennent"]
     }
   }
 ]

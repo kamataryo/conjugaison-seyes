@@ -85,6 +85,33 @@
     font-family: var(--body); font-style: normal; font-weight: 400;
     font-size: 1rem; letter-spacing: .01em; color: var(--ink-soft);
   }
+  /* 辞書の見出しにあたる行。品詞・語法・助動詞 */
+  .gloss { margin: .5rem 0 0; font-size: .82rem; line-height: 1.9; color: var(--ink-soft); }
+  .gloss i {
+    font-family: var(--display); font-style: italic; font-weight: 500;
+    font-size: .95rem; color: var(--margin);
+  }
+  .gloss .sep { margin: 0 .5rem; color: var(--rule); }
+  /* 伏せた助動詞。破線の枠で「まだ出していない」ことを示す */
+  #aux-hint {
+    display: inline-grid; place-items: center; vertical-align: middle;
+    width: 1.4rem; height: 1.4rem; padding: 0; min-width: 0;
+    font: 500 .78rem/1 var(--body);
+    border-style: dashed; color: var(--margin); border-color: var(--margin);
+  }
+  #aux-hint:hover, #aux-hint:active { background: var(--ng-bg); }
+  /* 用例。活用形を含むので答え合わせのあとだけ出る */
+  .ex {
+    margin: .6rem 0 0; font-family: var(--display); font-style: italic;
+    font-size: .95rem; line-height: 1.5;
+    border-left: 2px solid var(--rule); padding-left: .7rem;
+    animation: pop-in .3s ease both;
+  }
+  .ex:empty { display: none; }
+  .ex small {
+    display: block; font-family: var(--body); font-style: normal;
+    font-size: .78rem; color: var(--ink-soft); margin-top: .15rem;
+  }
   .eyebrow-row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem; }
   /* 余白線と同じ赤で目立たせる */
   .chip {
@@ -157,7 +184,7 @@
   .ans .pr { font-weight: 400; }
   .ans:empty { display: none; }
 
-  /* 行・列の出し入れ、採点の走り。どれもセルの --i でわずかにずらす */
+  /* 行・列の出し入れ、採点の走り、用例。どれもセルの --i でわずかにずらす */
   @keyframes pop-in { from { opacity: 0; transform: translateY(-.35rem); } }
   .leaving { opacity: 0; transform: scale(.85); transition: opacity .2s ease, transform .2s ease; }
   #grid.grading input { transition: background .25s ease, color .25s ease; transition-delay: calc(var(--i, 0) * 9ms); }
@@ -184,7 +211,7 @@
 
   @media (prefers-reduced-motion: reduce) {
     .leaving, #grid.grading input, #grid.grading .ans, #grid.grading td .pct,
-    #grid.grading .cut-btn, #hint span::after { animation: none; transition: none; }
+    #grid.grading .cut-btn, #hint span::after, .ex { animation: none; transition: none; }
   }
 
   /* 主なボタンは横並びで等分。消した行列がなければ2つ、あれば3つ */
@@ -242,6 +269,8 @@
       <span class="chip" id="group"></span>
     </div>
     <h1><span id="verb"></span> <small id="meaning"></small></h1>
+    <p class="gloss" id="gloss"></p>
+    <p class="ex" id="ex"></p>
   </header>
 
   <div class="scroll-wrap">

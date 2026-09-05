@@ -1,7 +1,7 @@
-import { PRONOUNS, TENSES, cellIndex, conjugate, classify, isCorrect, withPronoun } from "./conjugate.js";
+import { PRONOUNS, TENSES, auxOf, cellIndex, conjugate, classify, infinitiveLabel, isCorrect, withPronoun } from "./conjugate.js";
 import { cellKey, load as loadStats, save, clear, record, merge, rate, topWrong } from "./stats.js";
 
-const verbs = await fetch("./verbs.json").then((r) => r.json());
+const verbs = await fetch("./verbs.json", { cache: "no-cache" }).then((r) => r.json());
 
 const P = PRONOUNS.length;
 const T = TENSES.length;
@@ -19,6 +19,7 @@ const hidden = { p: new Set(), t: new Set() };
 const order = { p: [...Array(P).keys()], t: [...Array(T).keys()] };
 let transposed = false;
 let checked = false;
+let auxShown = false; // 助動詞を出したか
 let cur = 0; // 表示上の位置 (row-major)
 let inputs = [];
 let reveals = [];
@@ -124,6 +125,28 @@ function build() {
   render();
 }
 
+// 辞書の見出しにならって、品詞・語法・複合時制の助動詞を1行に並べる。
+// 助動詞は複合過去・大過去の答えそのものなので、押すまで伏せておく
+function renderGloss() {
+  const aux = auxOf(verb);
+  $("gloss").innerHTML = [
+    verb.kind && `<i>${verb.kind}</i>`,
+    verb.usage,
+    auxShown
+      ? `aux. <i>${aux}</i>`
+      : `aux. <button id="aux-hint" aria-label="助動詞を表示" title="助動詞を表示">?</button>`,
+  ].filter(Boolean).join('<span class="sep">·</span>');
+  // 用例は必ず活用形を含むので、答え合わせのあとだけ出す
+  $("ex").innerHTML = checked && verb.ex
+    ? `${verb.ex[0]}<small>${verb.ex[1]}</small>` : "";
+}
+
+$("gloss").addEventListener("click", (e) => {
+  if (!e.target.closest("#aux-hint")) return;
+  auxShown = true;
+  renderGloss();
+});
+
 // 正解表示。人称代名詞は控えめに、動詞のほうを太くする
 function answerHtml(p, form) {
   const s = withPronoun(p, form, verb.aspirate);
@@ -201,7 +224,9 @@ grid.addEventListener("click", (e) => {
 
 function setChecked(v) {
   checked = v;
+  auxShown = v; // 答え合わせで出し、やり直すとまた伏せる
   $("check").textContent = v ? "やり直す" : "答え合わせ";
+  renderGloss();
 }
 
 function reset() {
@@ -215,7 +240,7 @@ function reset() {
 function load(v) {
   verb = v;
   const kind = classify(v);
-  $("verb").textContent = v.infinitive;
+  $("verb").textContent = infinitiveLabel(v);
   $("meaning").textContent = v.meaning ?? "";
   $("group").textContent = kind.label;
   answers = PRONOUNS.flatMap((_, p) => TENSES.map((t) => conjugate(v, t.key, p)));
@@ -225,7 +250,7 @@ function load(v) {
   build(); // 消した行列も並び順も、動詞をまたいでそのまま
   inputs[0].focus();
   const url = new URL(location);
-  url.searchParams.set("v", v.infinitive);
+  url.searchParams.set("v", infinitiveLabel(v));
   history.replaceState(null, "", url);
 }
 
@@ -292,7 +317,7 @@ $("next").addEventListener("click", () => load(pick()));
 const wanted = new URLSearchParams(location.search).get("v");
 // 表を作る前に出す。描画はこのタスクの終わりまで起きないので、まだちらつかない
 document.querySelector("main").hidden = false;
-load(verbs.find((v) => v.infinitive === wanted) ?? pick());
+load(verbs.find((v) => infinitiveLabel(v) === wanted) ?? pick());
 
 // 表が右に見切れていたら、横スクロールできることを一度だけ知らせる
 if (scroller.scrollWidth > scroller.clientWidth + 4) {
