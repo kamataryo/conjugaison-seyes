@@ -363,10 +363,19 @@ const pick = () => verbs[Math.floor(Math.random() * verbs.length)];
 $("next").addEventListener("click", () => load(pick()));
 
 // ドロップダウンからの直接指定。並び順・消した行列はそのまま引き継ぐ
-$("pick").innerHTML = verbs
-  .map((v, i) => [i, v])
-  .sort(([, a], [, b]) => a.infinitive.localeCompare(b.infinitive, "fr"))
-  .map(([i, v]) => `<option value="${i}">${infinitiveLabel(v)}</option>`)
+// classify() の分類ごとに optgroup。群の番号順に並べ、分類の中はアルファベット順
+const byKind = Object.groupBy(
+  verbs
+    .map((v, i) => [i, v])
+    .sort(([, a], [, b]) =>
+      classify(a).group - classify(b).group ||
+      a.infinitive.localeCompare(b.infinitive, "fr")),
+  ([, v]) => classify(v).label,
+);
+$("pick").innerHTML = Object.entries(byKind)
+  .map(([label, vs]) => `<optgroup label="${label}">${
+    vs.map(([i, v]) => `<option value="${i}">${infinitiveLabel(v)}</option>`).join("")
+  }</optgroup>`)
   .join("");
 $("pick").addEventListener("change", (e) => load(verbs[+e.target.value]));
 
