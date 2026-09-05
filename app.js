@@ -138,6 +138,7 @@ function build() {
   $("shuffle").disabled = rows() === 1 && cols() === 1;
   $("reorder").hidden = plain();
   syncUrl();
+  renderPins();
   render();
 }
 
@@ -150,7 +151,7 @@ function renderGloss() {
     verb.usage,
     auxShown
       ? `aux. <i>${aux}</i>`
-      : `aux. <button id="aux-hint" aria-label="助動詞を表示" title="助動詞を表示">?</button>`,
+      : `aux. <button id="aux-hint" aria-label="助動詞を表示" title="助動詞を表示"><span>?</span></button>`,
   ].filter(Boolean).join('<span class="sep">·</span>');
   // 用例は必ず活用形を含むので、答え合わせのあとだけ出す
   $("ex").innerHTML = checked && verb.ex
@@ -359,6 +360,81 @@ $("reorder").addEventListener("click", () => {
 
 const pick = () => verbs[Math.floor(Math.random() * verbs.length)];
 $("next").addEventListener("click", () => load(pick()));
+
+// ピン留め。動詞・並び順(シャッフルと転置)・消した行列を1件としてまとめる。
+// URL の ?v=&p=&t=&op=&ot=&x= と同じ中身なので、戻すのも同じ経路で済む
+const PINS_KEY = "conjugaison.pins";
+const DEFAULT_ORDER = { p: iota(P).join(""), t: iota(T).join("") };
+let pins = loadPins();
+
+const state = () => ({
+  v: infinitiveLabel(verb),
+  p: [...hidden.p].sort().join(""),
+  t: [...hidden.t].sort().join(""),
+  op: order.p.join(""),
+  ot: order.t.join(""),
+  x: transposed ? 1 : 0,
+});
+const stateKey = (s) => [s.v, s.p, s.t, s.op, s.ot, s.x].join("|");
+
+function loadPins(storage = localStorage) {
+  try {
+    const a = JSON.parse(storage.getItem(PINS_KEY));
+    return Array.isArray(a) ? a.filter((s) => s?.v) : [];
+  } catch {
+    return []; // 壊れた JSON や storage 不可。ドリル自体は動く
+  }
+}
+function savePins(storage = localStorage) {
+  try { storage.setItem(PINS_KEY, JSON.stringify(pins)); } catch { /* プライベートモード等 */ }
+}
+
+// 一覧に出す一言。並びをいじっていない全体表なら「標準」
+const pinLabel = (s) => [
+  s.x && "転置",
+  (s.op !== DEFAULT_ORDER.p || s.ot !== DEFAULT_ORDER.t) && "シャッフル",
+  s.p && `人称 ${P - s.p.length}/${P}`,
+  s.t && `時制 ${T - s.t.length}/${T}`,
+].filter(Boolean).join(" · ") || "標準";
+
+function renderPins() {
+  const here = stateKey(state());
+  $("pin").setAttribute("aria-pressed", pins.some((s) => stateKey(s) === here));
+  $("pins").innerHTML = pins.map((s, i) =>
+    `<li><button class="pin-open" data-i="${i}" title="この表に戻る"><b>${s.v}</b><small>${pinLabel(s)}</small></button>` +
+    `<button class="pin-del" data-i="${i}" aria-label="${s.v} のピンを外す" title="ピンを外す">✕</button></li>`).join("");
+  $("pins").hidden = !pins.length;
+}
+
+// 消した行列も並び順も、URL から読むときと同じ検算にかける
+function applyPin(s) {
+  hidden.p = parseCut(s.p, P);
+  hidden.t = parseCut(s.t, T);
+  order.p = parseOrder(s.op, P);
+  order.t = parseOrder(s.ot, T);
+  transposed = !!s.x;
+  load(verbs.find((v) => infinitiveLabel(v) === s.v) ?? pick());
+}
+
+$("pin").addEventListener("click", () => {
+  const here = stateKey(state());
+  const i = pins.findIndex((s) => stateKey(s) === here);
+  if (i < 0) pins.push(state());
+  else pins.splice(i, 1); // 留めてある表をもう一度押したら外す
+  savePins();
+  renderPins();
+});
+
+$("pins").addEventListener("click", (e) => {
+  const del = e.target.closest(".pin-del");
+  if (del) {
+    pins.splice(+del.dataset.i, 1);
+    savePins();
+    return renderPins();
+  }
+  const open = e.target.closest(".pin-open");
+  if (open) applyPin(pins[+open.dataset.i]);
+});
 
 // ?v=parler で動詞を指す。リロードしても同じ表に戻る
 const query = new URLSearchParams(location.search);

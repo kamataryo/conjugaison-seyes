@@ -124,8 +124,10 @@
     display: inline-grid; place-items: center; vertical-align: middle;
     width: 1.4rem; height: 1.4rem; padding: 0; min-width: 0;
     font: 500 .78rem/1 var(--body);
+    position: relative; top: -2px; /* aux. の字面に合わせて少し上げる */
     border-style: dashed; color: var(--margin); border-color: var(--margin);
   }
+  #aux-hint span { transform: translateY(1px); } /* 点線の円の中で ? を下げる */
   #aux-hint:hover, #aux-hint:active { background: var(--ng-bg); }
   /* 用例。活用形を含むので答え合わせのあとだけ出る */
   .ex {
@@ -278,6 +280,34 @@
   #shuffle:disabled:hover, #shuffle:disabled:active { background: var(--card); transform: none; }
   #swap svg, #shuffle svg { width: 1.05rem; height: 1.05rem; }
   #swap svg { transform: translate(1px, 1px); }
+  /* 動詞の左。今の動詞と並び順・消した行列をまとめてピン留めする */
+  #pin {
+    width: 1.7rem; height: 1.7rem; min-width: 0; padding: 0; align-self: center;
+    position: relative; top: 7px; /* h1 の字面に対して少し下げる */
+    display: grid; place-items: center; border-radius: 50%;
+    color: var(--margin); border-color: var(--margin);
+    transition: transform .12s ease, background .12s ease;
+  }
+  #pin svg { width: .9rem; height: .9rem; transform: translateY(1px); } /* ピンの頭が上に張るぶん、円の中で下げる */
+  #pin:hover, #pin:active { background: var(--ng-bg); }
+  #pin:active { transform: scale(.88); }
+  /* 留めてあるあいだは塗りつぶす */
+  #pin[aria-pressed="true"] { background: var(--ng-bg); }
+  #pin[aria-pressed="true"] svg { fill: currentColor; }
+
+  /* ピン留めした表の一覧。1件1行ではなく、収まるだけ横に並べる */
+  .pins { flex: 1 0 100%; list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .4rem; }
+  .pins[hidden] { display: none; }
+  .pins li {
+    display: flex; background: var(--card);
+    border: 1px solid var(--rule); border-radius: 999px; overflow: hidden;
+  }
+  .pins button { border: 0; border-radius: 0; padding: .4rem .7rem; min-width: 0; }
+  .pins .pin-open { display: flex; align-items: baseline; gap: .4rem; }
+  .pins .pin-open b { font-family: var(--display); font-style: italic; font-weight: 500; font-size: .95rem; }
+  .pins .pin-open small { font-size: .7rem; color: var(--ink-soft); }
+  .pins .pin-del { color: var(--margin); padding-inline: .55rem; border-left: 1px solid var(--rule-faint); }
+
   #check { color: var(--focus); border-color: var(--focus); background: var(--focus-bg); }
   #check:hover { background: color-mix(in srgb, var(--focus) 16%, transparent); }
   #next { color: var(--margin); border-color: var(--margin); }
@@ -309,7 +339,12 @@
       <p class="eyebrow">conjugaison</p>
       <span class="chip" id="group"></span>
     </div>
-    <h1><span id="verb"></span> <small id="meaning"></small></h1>
+    <h1><button id="pin" aria-pressed="false" aria-label="この表をピン留め" title="この表をピン留め">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 17v5"/><path d="M9 2h6l-1 6 3 3v3H7v-3l3-3z"/>
+      </svg>
+    </button><span id="verb"></span> <small id="meaning"></small></h1>
     <p class="gloss" id="gloss"></p>
     <p class="ex" id="ex"></p>
   </header>
@@ -324,8 +359,9 @@
     <button id="restore" hidden></button>
     <button id="reorder" hidden>並び順を戻す<small class="fr">Ordre initial</small></button>
     <button id="next">次の動詞<small class="fr">Verbe suivant</small></button>
+    <ul class="pins" id="pins" hidden></ul>
     <a class="feedback" href="https://github.com/kamataryo/conjugaison-seyes/issues/new"
-       target="_blank" rel="noopener">feedback</a>
+       target="_blank" rel="noopener">Signaler un problème</a>
   </div>
   <!-- 今回のリリースでは出さない。app.js のリスナと対で戻す
   <button id="reset-score">スコアをリセット</button>
