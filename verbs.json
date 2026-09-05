@@ -1,0 +1,197 @@
+[
+  { "infinitive": "parler", "meaning": "話す" },
+  { "infinitive": "aimer", "meaning": "好む・愛する" },
+  { "infinitive": "chanter", "meaning": "歌う" },
+  { "infinitive": "regarder", "meaning": "見る" },
+  { "infinitive": "rester", "meaning": "とどまる", "aux": "être" },
+  { "infinitive": "habiter", "meaning": "住む" },
+  { "infinitive": "finir", "meaning": "終える" },
+  { "infinitive": "choisir", "meaning": "選ぶ" },
+  { "infinitive": "réussir", "meaning": "成功する" },
+  { "infinitive": "vendre", "meaning": "売る" },
+  { "infinitive": "attendre", "meaning": "待つ" },
+  { "infinitive": "répondre", "meaning": "答える" },
+  {
+    "infinitive": "être",
+    "meaning": "〜である",
+    "pp": "été",
+    "aux": "avoir",
+    "forms": {
+      "present": ["suis", "es", "est", "sommes", "êtes", "sont"],
+      "imparfait": ["étais", "étais", "était", "étions", "étiez", "étaient"],
+      "futur": ["serai", "seras", "sera", "serons", "serez", "seront"],
+      "conditionnel": ["serais", "serais", "serait", "serions", "seriez", "seraient"],
+      "subjonctif": ["sois", "sois", "soit", "soyons", "soyez", "soient"]
+    }
+  },
+  {
+    "infinitive": "avoir",
+    "meaning": "持つ",
+    "pp": "eu",
+    "aux": "avoir",
+    "forms": {
+      "present": ["ai", "as", "a", "avons", "avez", "ont"],
+      "imparfait": ["avais", "avais", "avait", "avions", "aviez", "avaient"],
+      "futur": ["aurai", "auras", "aura", "aurons", "aurez", "auront"],
+      "conditionnel": ["aurais", "aurais", "aurait", "aurions", "auriez", "auraient"],
+      "subjonctif": ["aie", "aies", "ait", "ayons", "ayez", "aient"]
+    }
+  },
+  {
+    "infinitive": "aller",
+    "meaning": "行く",
+    "pp": "allé",
+    "aux": "être",
+    "forms": {
+      "present": ["vais", "vas", "va", "allons", "allez", "vont"],
+      "imparfait": ["allais", "allais", "allait", "allions", "alliez", "allaient"],
+      "futur": ["irai", "iras", "ira", "irons", "irez", "iront"],
+      "conditionnel": ["irais", "irais", "irait", "irions", "iriez", "iraient"],
+      "subjonctif": ["aille", "ailles", "aille", "allions", "alliez", "aillent"]
+    }
+  },
+  {
+    "infinitive": "faire",
+    "meaning": "する・作る",
+    "pp": "fait",
+    "aux": "avoir",
+    "forms": {
+      "present": ["fais", "fais", "fait", "faisons", "faites", "font"],
+      "imparfait": ["faisais", "faisais", "faisait", "faisions", "faisiez", "faisaient"],
+      "futur": ["ferai", "feras", "fera", "ferons", "ferez", "feront"],
+      "conditionnel": ["ferais", "ferais", "ferait", "ferions", "feriez", "feraient"],
+      "subjonctif": ["fasse", "fasses", "fasse", "fassions", "fassiez", "fassent"]
+    }
+  },
+  {
+    "infinitive": "pouvoir",
+    "meaning": "〜できる",
+    "pp": "pu",
+    "aux": "avoir",
+    "forms": {
+      "present": ["peux", "peux", "peut", "pouvons", "pouvez", "peuvent"],
+      "imparfait": ["pouvais", "pouvais", "pouvait", "pouvions", "pouviez", "pouvaient"],
+      "futur": ["pourrai", "pourras", "pourra", "pourrons", "pourrez", "pourront"],
+      "conditionnel": ["pourrais", "pourrais", "pourrait", "pourrions", "pourriez", "pourraient"],
+      "subjonctif": ["puisse", "puisses", "puisse", "puissions", "puissiez", "puissent"]
+    }
+  },
+  {
+    "infinitive": "vouloir",
+    "meaning": "欲する",
+    "pp": "voulu",
+    "aux": "avoir",
+    "forms": {
+      "present": ["veux", "veux", "veut", "voulons", "voulez", "veulent"],
+      "imparfait": ["voulais", "voulais", "voulait", "voulions", "vouliez", "voulaient"],
+      "futur": ["voudrai", "voudras", "voudra", "voudrons", "voudrez", "voudront"],
+      "conditionnel": ["voudrais", "voudrais", "voudrait", "voudrions", "voudriez", "voudraient"],
+      "subjonctif": ["veuille", "veuilles", "veuille", "voulions", "vouliez", "veuillent"]
+    }
+  },
+  {
+    "infinitive": "devoir",
+    "meaning": "〜しなければならない",
+    "pp": "dû",
+    "aux": "avoir",
+    "forms": {
+      "present": ["dois", "dois", "doit", "devons", "devez", "doivent"],
+      "imparfait": ["devais", "devais", "devait", "devions", "deviez", "devaient"],
+      "futur": ["devrai", "devras", "devra", "devrons", "devrez", "devront"],
+      "conditionnel": ["devrais", "devrais", "devrait", "devrions", "devriez", "devraient"],
+      "subjonctif": ["doive", "doives", "doive", "devions", "deviez", "doivent"]
+    }
+  },
+  {
+    "infinitive": "savoir",
+    "meaning": "知る",
+    "pp": "su",
+    "aux": "avoir",
+    "forms": {
+      "present": ["sais", "sais", "sait", "savons", "savez", "savent"],
+      "imparfait": ["savais", "savais", "savait", "savions", "saviez", "savaient"],
+      "futur": ["saurai", "sauras", "saura", "saurons", "saurez", "sauront"],
+      "conditionnel": ["saurais", "saurais", "saurait", "saurions", "sauriez", "sauraient"],
+      "subjonctif": ["sache", "saches", "sache", "sachions", "sachiez", "sachent"]
+    }
+  },
+  {
+    "infinitive": "venir",
+    "meaning": "来る",
+    "pp": "venu",
+    "aux": "être",
+    "forms": {
+      "present": ["viens", "viens", "vient", "venons", "venez", "viennent"],
+      "imparfait": ["venais", "venais", "venait", "venions", "veniez", "venaient"],
+      "futur": ["viendrai", "viendras", "viendra", "viendrons", "viendrez", "viendront"],
+      "conditionnel": ["viendrais", "viendrais", "viendrait", "viendrions", "viendriez", "viendraient"],
+      "subjonctif": ["vienne", "viennes", "vienne", "venions", "veniez", "viennent"]
+    }
+  },
+  {
+    "infinitive": "partir",
+    "meaning": "出発する",
+    "pp": "parti",
+    "aux": "être",
+    "forms": {
+      "present": ["pars", "pars", "part", "partons", "partez", "partent"],
+      "imparfait": ["partais", "partais", "partait", "partions", "partiez", "partaient"],
+      "futur": ["partirai", "partiras", "partira", "partirons", "partirez", "partiront"],
+      "conditionnel": ["partirais", "partirais", "partirait", "partirions", "partiriez", "partiraient"],
+      "subjonctif": ["parte", "partes", "parte", "partions", "partiez", "partent"]
+    }
+  },
+  {
+    "infinitive": "prendre",
+    "meaning": "取る",
+    "pp": "pris",
+    "aux": "avoir",
+    "forms": {
+      "present": ["prends", "prends", "prend", "prenons", "prenez", "prennent"],
+      "imparfait": ["prenais", "prenais", "prenait", "prenions", "preniez", "prenaient"],
+      "futur": ["prendrai", "prendras", "prendra", "prendrons", "prendrez", "prendront"],
+      "conditionnel": ["prendrais", "prendrais", "prendrait", "prendrions", "prendriez", "prendraient"],
+      "subjonctif": ["prenne", "prennes", "prenne", "prenions", "preniez", "prennent"]
+    }
+  },
+  {
+    "infinitive": "voir",
+    "meaning": "見る・会う",
+    "pp": "vu",
+    "aux": "avoir",
+    "forms": {
+      "present": ["vois", "vois", "voit", "voyons", "voyez", "voient"],
+      "imparfait": ["voyais", "voyais", "voyait", "voyions", "voyiez", "voyaient"],
+      "futur": ["verrai", "verras", "verra", "verrons", "verrez", "verront"],
+      "conditionnel": ["verrais", "verrais", "verrait", "verrions", "verriez", "verraient"],
+      "subjonctif": ["voie", "voies", "voie", "voyions", "voyiez", "voient"]
+    }
+  },
+  {
+    "infinitive": "dire",
+    "meaning": "言う",
+    "pp": "dit",
+    "aux": "avoir",
+    "forms": {
+      "present": ["dis", "dis", "dit", "disons", "dites", "disent"],
+      "imparfait": ["disais", "disais", "disait", "disions", "disiez", "disaient"],
+      "futur": ["dirai", "diras", "dira", "dirons", "direz", "diront"],
+      "conditionnel": ["dirais", "dirais", "dirait", "dirions", "diriez", "diraient"],
+      "subjonctif": ["dise", "dises", "dise", "disions", "disiez", "disent"]
+    }
+  },
+  {
+    "infinitive": "haïr",
+    "meaning": "憎む",
+    "pp": "haï",
+    "aux": "avoir",
+    "aspirate": true,
+    "forms": {
+      "present": ["hais", "hais", "hait", "haïssons", "haïssez", "haïssent"],
+      "imparfait": ["haïssais", "haïssais", "haïssait", "haïssions", "haïssiez", "haïssaient"],
+      "futur": ["haïrai", "haïras", "haïra", "haïrons", "haïrez", "haïront"],
+      "conditionnel": ["haïrais", "haïrais", "haïrait", "haïrions", "haïriez", "haïraient"],
+      "subjonctif": ["haïsse", "haïsses", "haïsse", "haïssions", "haïssiez", "haïssent"]
+    }
+  }
+]

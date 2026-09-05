@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content">
+<title>Conjugaison Seyès</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..600;1,6..96,400..500&display=swap">
+<style>
+  /* セイエス罫(フランスの学習ノート)の紙面: 薄紫の罫と、左端の赤い余白線 */
+  :root {
+    --paper: #FCFCFA;
+    --card: #FFFFFF;
+    --ink: #1A2440;
+    --ink-soft: #616A88;
+    --rule: #C3B8DC;
+    --rule-faint: #E9E4F3;
+    --margin: #DA6480;
+    --ok: #1E7A5B;
+    --ok-bg: rgba(30, 122, 91, .12);
+    --ng: #C4453C;
+    --ng-bg: rgba(196, 69, 60, .1);
+    --focus: #3B57C4;
+    --focus-bg: rgba(59, 87, 196, .08);
+    --display: "Bodoni Moda", "Hiragino Mincho ProN", serif;
+    --body: "Archivo", system-ui, "Hiragino Sans", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #11131C;
+      --card: #191C28;
+      --ink: #E9EAF3;
+      --ink-soft: #9098B4;
+      --rule: #4C4569;
+      --rule-faint: #2A2C3C;
+      --margin: #DE7B92;
+      --ok: #55C296;
+      --ok-bg: rgba(85, 194, 150, .16);
+      --ng: #F07C72;
+      --ng-bg: rgba(240, 124, 114, .14);
+      --focus: #8FA3FF;
+      --focus-bg: rgba(143, 163, 255, .12);
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #11131C;
+    --card: #191C28;
+    --ink: #E9EAF3;
+    --ink-soft: #9098B4;
+    --rule: #4C4569;
+    --rule-faint: #2A2C3C;
+    --margin: #DE7B92;
+    --ok: #55C296;
+    --ok-bg: rgba(85, 194, 150, .16);
+    --ng: #F07C72;
+    --ng-bg: rgba(240, 124, 114, .14);
+    --focus: #8FA3FF;
+    --focus-bg: rgba(143, 163, 255, .12);
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    -webkit-text-size-adjust: 100%;
+    padding: 1.75rem 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-height: 100dvh;
+    box-sizing: border-box;
+  }
+  @media (pointer: coarse) { body { padding-bottom: 45vh; } }
+  main { width: 100%; max-width: 64rem; margin-inline: auto; display: flex; flex-direction: column; gap: 1.25rem; }
+
+  .eyebrow {
+    font-size: .7rem; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--margin); font-weight: 600; margin: 0 0 .4rem;
+  }
+  #verb {
+    font-family: var(--display); font-style: italic; font-weight: 500;
+    font-size: clamp(2.75rem, 13vw, 4.5rem); line-height: 1; margin: 0;
+    text-wrap: balance;
+  }
+  #meaning { margin: .5rem 0 0; color: var(--ink-soft); font-size: .95rem; }
+  .eyebrow-row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem; }
+  .chip {
+    font-size: .72rem; letter-spacing: .04em; color: var(--ink-soft);
+    border: 1px solid var(--rule-faint); border-radius: 999px; padding: .2rem .7rem;
+    white-space: nowrap;
+  }
+  /* 不規則動詞は余白線と同じ赤で目立たせる */
+  .chip.irregular { color: var(--margin); border-color: var(--margin); }
+
+  .scroll { overflow-x: auto; scroll-behavior: smooth; background: var(--card); border: 1px solid var(--rule-faint); border-radius: 2px; }
+  @media (prefers-reduced-motion: reduce) { .scroll { scroll-behavior: auto; } }
+  table { border-collapse: collapse; width: 100%; }
+  th { font-weight: 500; text-align: left; }
+  thead th {
+    font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink-soft); padding: .45rem .5rem; white-space: nowrap;
+    border-bottom: 1px solid var(--rule);
+  }
+  tbody th {
+    position: sticky; left: 0; z-index: 1; background: var(--card);
+    font-family: var(--display); font-size: 1.05rem;
+    padding: 0 .6rem; white-space: nowrap;
+    border-right: 2px solid var(--margin);
+  }
+  thead th:first-child { position: sticky; left: 0; z-index: 2; background: var(--card); border-right: 2px solid var(--margin); }
+  td { position: relative; border-bottom: 1px solid var(--rule-faint); border-right: 1px solid var(--rule-faint); padding: 0; }
+  tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
+  /* 人称の行、時制の列に印をつけて現在地を示す */
+  tr:has(input:focus) th { color: var(--focus); }
+
+  input {
+    /* 16px 未満だと iOS がフォーカス時にズームする */
+    font: 400 1.0625rem/1 var(--body);
+    border: 0; background: transparent; color: inherit;
+    padding: .55rem .5rem; width: 8rem; display: block;
+    scroll-margin: 1rem 0;
+  }
+  input:focus { outline: 0; background: var(--focus-bg); box-shadow: inset 0 -2px 0 var(--focus); }
+  input.ok { color: var(--ok); background: var(--ok-bg); }
+  input.ng { color: var(--ng); background: var(--ng-bg); }
+  /* 答え合わせで全セルに出る正解。採点前は空なので行の高さは変わらない */
+  .ans {
+    display: block; padding: 0 .5rem .4rem; font-size: .8rem; line-height: 1.3;
+    font-family: var(--display); font-style: italic; color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  .ans:empty { display: none; }
+
+  #score { margin: 0; font-size: .9rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; min-height: 1.4em; }
+  #score b { color: var(--ink); font-weight: 600; }
+
+  .bar {
+    display: flex; flex-wrap: wrap; gap: .75rem; justify-content: center; align-items: center;
+    background: var(--card); border: 1px solid var(--rule-faint);
+    border-radius: 2px; padding: .5rem;
+  }
+  button {
+    font: 500 .95rem var(--body); color: var(--ink);
+    background: var(--card); border: 1px solid var(--rule);
+    border-radius: 2px; padding: .7rem .75rem; min-width: 2.9rem; cursor: pointer;
+    touch-action: manipulation;
+  }
+  button:active { background: var(--focus-bg); }
+  button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .pad { display: grid; grid-template-columns: repeat(3, 3rem); gap: .35rem; }
+  .pad button { font-size: 1.1rem; padding: .55rem 0; min-width: 0; }
+  /* 1つだけ明示配置すると残りが自動配置で1行目に流れ込むので、4つとも位置を指定する */
+  .pad button:nth-child(1) { grid-area: 1 / 2; } /* ↑ */
+  .pad button:nth-child(2) { grid-area: 2 / 1; } /* ← */
+  .pad button:nth-child(3) { grid-area: 2 / 2; } /* ↓ */
+  .pad button:nth-child(4) { grid-area: 2 / 3; } /* → */
+  .pad button:nth-child(5) { grid-area: 1 / 1; color: var(--ink-soft); border-color: var(--rule-faint); } /* ⇄ */
+  .acts { display: flex; flex-direction: column; gap: .35rem; }
+  .acts button { width: 100%; min-width: 6rem; }
+  #next { border-color: var(--margin); color: var(--margin); }
+</style>
+
+<main>
+  <header>
+    <div class="eyebrow-row">
+      <p class="eyebrow">conjugaison</p>
+      <span class="chip" id="group"></span>
+    </div>
+    <h1 id="verb"></h1>
+    <p id="meaning"></p>
+  </header>
+
+  <div class="scroll"><table id="grid"></table></div>
+
+  <div class="bar">
+    <div class="pad">
+      <button data-move="up" aria-label="上のセルへ">↑</button>
+      <button data-move="left" aria-label="左のセルへ">←</button>
+      <button data-move="down" aria-label="下のセルへ">↓</button>
+      <button data-move="right" aria-label="右のセルへ">→</button>
+      <button id="swap" aria-label="行と列を入れ替え" title="行と列を入れ替え">⇄</button>
+    </div>
+    <div class="acts">
+      <button id="check">答え合わせ</button>
+      <button id="next">次の動詞</button>
+    </div>
+  </div>
+
+  <p id="score" role="status"></p>
+</main>
+
+<script type="module" src="app.js"></script>
