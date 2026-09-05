@@ -4,20 +4,6 @@
 
 ## デプロイ（Cloudflare Pages）
 
-### 1. GitHub 連携
-
-Cloudflare ダッシュボード → Workers & Pages → Create → Pages → Connect to Git でこのリポジトリを選び、以下を設定する。
-
-| 項目 | 値 |
-| --- | --- |
-| Framework preset | None |
-| Build command | （空欄） |
-| Build output directory | `/` |
-
-以降は `main` への push で自動デプロイされる。
-
-### 2. CLI から直接
-
 ```bash
 pnpm dlx wrangler@latest pages deploy . --project-name=conjugaison-seyes
 ```
