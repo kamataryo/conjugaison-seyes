@@ -95,6 +95,8 @@
     box-sizing: border-box;
   }
   main[hidden] { display: none; }
+  /* main は app.js が出すので、JS が動かないと白紙になる。その2通りの断りだけは HTML 側に置く */
+  #fallback, noscript { width: 100%; max-width: 64rem; margin-inline: auto; color: var(--ink-soft); }
   main { width: 100%; max-width: 64rem; margin-inline: auto; display: flex; flex-direction: column; gap: 1.25rem; }
 
   .eyebrow {
@@ -286,6 +288,9 @@
   th .pct:empty, td .pct:empty { display: none; }
 
 </style>
+
+<p id="fallback" hidden>動詞データを読み込めませんでした。ページを再読み込みしてください。</p>
+<noscript><p>このドリルは JavaScript が必要です。ブラウザの設定で有効にしてください。</p></noscript>
 
 <main hidden>
   <header>

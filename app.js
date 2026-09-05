@@ -1,7 +1,10 @@
 import { PRONOUNS, TENSES, auxOf, cellIndex, conjugate, classify, infinitiveLabel, isCorrect, withPronoun } from "./conjugate.js";
 import { cellKey, load as loadStats, save, clear, record, merge, rate, topWrong } from "./stats.js";
 
-const verbs = await fetch("./verbs.json", { cache: "no-cache" }).then((r) => r.json());
+const verbs = await fetch("./verbs.json", { cache: "no-cache" })
+  .then((r) => r.ok ? r.json() : Promise.reject(new Error(r.status)))
+  // ここで落ちると main が hidden のまま = 白紙。断りを出してから止まる
+  .catch((e) => { document.getElementById("fallback").hidden = false; throw e; });
 
 const P = PRONOUNS.length;
 const T = TENSES.length;
