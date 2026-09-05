@@ -4,10 +4,9 @@
 
 ## デプロイ（Cloudflare Pages）
 
-### 1. GitHub 連携（推奨）
+### 1. GitHub 連携
 
-Cloudflare ダッシュボード → Workers & Pages → Create → Pages → Connect to Git
-でこのリポジトリを選び、以下を設定する。
+Cloudflare ダッシュボード → Workers & Pages → Create → Pages → Connect to Git でこのリポジトリを選び、以下を設定する。
 
 | 項目 | 値 |
 | --- | --- |
@@ -25,13 +24,11 @@ pnpm dlx wrangler@latest pages deploy . --project-name=conjugaison-seyes
 
 ### デプロイ後
 
-独自ドメインを使う場合は、`index.html` の `og:url` / `og:image` / `canonical`
-のホスト名を差し替える（既定は `https://conjugaison-seyes.pages.dev`）。
+独自ドメインを使う場合は、`index.html` の `og:url` / `og:image` / `canonical` のホスト名を差し替える（既定は `https://conjugaison-seyes.pages.dev`）。
 
 ## OGP 画像
 
-`ogp.html` が版下。編集したら 1200×630 で撮り直して `ogp.png` として置く。
-文字のベースラインが背景の罫からずれていたら、`ogp.html` の `--drop` だけを調整する。
+`ogp.html` が版下。
 
 ```bash
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
@@ -42,11 +39,7 @@ pnpm dlx wrangler@latest pages deploy . --project-name=conjugaison-seyes
 
 ## アイコン
 
-`icon.svg` が唯一の版下。SVG のまま favicon に使い、PNG が要る先（iOS のホーム画面、
-Android のインストール）向けに3枚を書き出す。中身を直したら撮り直す。
-
-ヘッドレス Chrome は `--window-size` を 500px 未満にすると無視するので、
-512 で1枚だけ撮って `sips` で縮める。
+`icon.svg` が版下。
 
 ```bash
 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
