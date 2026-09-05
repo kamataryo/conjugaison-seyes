@@ -1,0 +1,18 @@
+{
+  "id": "/",
+  "name": "Conjugaison Seyès",
+  "short_name": "Conjugaison",
+  "description": "人称・時制の表に書き込んで覚える、フランス語動詞の活用ドリル。",
+  "lang": "ja",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FCFCFA",
+  "theme_color": "#FCFCFA",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" },
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

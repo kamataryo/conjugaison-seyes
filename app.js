@@ -9,7 +9,7 @@ const $ = (id) => document.getElementById(id);
 const grid = $("grid");
 const scroller = document.querySelector(".scroll");
 
-// 答えと入力は常に「人称 × 時制」の正準順 (p * T + t) で保持し、表示だけ転置する
+// 答えと入力は常に「人称*時制」の正準順 (p * T + t) で保持し、表示だけ転置する
 let verb;
 let answers = [];
 const values = new Array(P * T).fill("");
@@ -167,7 +167,8 @@ function render() {
     reveals[n].innerHTML = checked ? answerHtml(Math.floor(k / T), answers[k]) : "";
   });
 
-  renderStats();
+  // 今回のリリースでは通算正答率を出さない。記録は続けているので、この行を戻せば表示される
+  // renderStats();
 
   // 答え合わせのあと、行・列の末尾に消去ボタンを出す。最後の1本は消せない
   footR.forEach((cell, r) => { cell.innerHTML = checked && rows() > 1 ? cutButton("row", r) : ""; });
@@ -296,13 +297,14 @@ function renderStats() {
   colPct.forEach((el, c) => put(el, axis(colKeys[c], transposed)));
 }
 
-$("reset-score").addEventListener("click", () => {
-  const all = merge(stats, () => true);
-  if (!all.n) return alert("まだ記録がありません。");
-  if (!confirm(`これまで ${all.n} 問中 ${all.ok} 問正解 (${rate(all)}%) です。\nスコアをすべて消しますか?`)) return;
-  stats = clear();
-  render();
-});
+// 今回のリリースではスコアのリセットを出さない。index.html の #reset-score と対で戻す
+// $("reset-score").addEventListener("click", () => {
+//   const all = merge(stats, () => true);
+//   if (!all.n) return alert("まだ記録がありません。");
+//   if (!confirm(`これまで ${all.n} 問中 ${all.ok} 問正解 (${rate(all)}%) です。\nスコアをすべて消しますか?`)) return;
+//   stats = clear();
+//   render();
+// });
 
 $("restore").addEventListener("click", () => {
   hidden.p.clear();

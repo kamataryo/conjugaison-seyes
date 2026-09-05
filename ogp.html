@@ -1,0 +1,94 @@
+<!doctype html>
+<!-- OGP 画像の版下。1200×630 で撮って ogp.png として置く。作り方は README を参照 -->
+<html lang="ja">
+<meta charset="utf-8">
+<title>OGP</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..600;1,6..96,400..500&family=Zen+Old+Mincho:wght@400&display=swap">
+<style>
+  :root {
+    --paper: #FCFCFA; --ink: #1A2440; --ink-soft: #616A88;
+    --rule: #C3B8DC; --rule-faint: #E9E4F3; --margin: #DA6480;
+    --display: "Bodoni Moda", serif;
+    /* 日本語はサブタイトルのみ。高コントラストの Bodoni に明朝を合わせる */
+    --body: "Archivo", "Zen Old Mincho", "Hiragino Mincho ProN", serif;
+
+    /* 罫の間隔。この版下の座標はすべてこの倍数で置く */
+    --pitch: 42px;
+
+    /* 文字のベースラインを罫の上に乗せるための下げ幅。
+       flex/grid の下端揃えだと、ベースラインはディセンダのぶんだけ罫より上に来る。
+       em 指定なので、字の大きさが違っても同じ値で揃う。
+       ★ 撮って罫とベースラインがずれていたら、ここだけ 0.01em 刻みで動かす */
+    --drop: .21em;
+
+    /* 罫と内容をまとめて下げる量。上下の余白の釣り合いだけを決める。
+       罫の柄は --pitch 周期なので、半分ずらしても罫自体の見えかたは変わらない。
+       0 にすると内容が上に寄る */
+    --shift: calc(var(--pitch) / 2);
+
+    /* 罫の上でも字が読めるように、紙と同じ色の淡いにじみを敷く。
+       同じ影を重ねて濃さを稼いでいる */
+    --halo:
+      0 0 4px var(--paper), 0 0 4px var(--paper),
+      0 0 9px var(--paper), 0 0 9px var(--paper);
+  }
+  * { margin: 0; box-sizing: border-box; }
+  body { background: #888; }
+
+  /* セイエス罫: 太い横罫 (--pitch ごと)、その間を4等分する細い横罫、同じ間隔の縦罫 */
+  #og {
+    position: relative; width: 1200px; height: 630px; overflow: hidden;
+    background:
+      repeating-linear-gradient(to bottom, var(--rule) 0 1px, transparent 1px var(--pitch)),
+      repeating-linear-gradient(to bottom, var(--rule-faint) 0 1px, transparent 1px calc(var(--pitch) / 4)),
+      repeating-linear-gradient(to right, var(--rule-faint) 0 1px, transparent 1px var(--pitch)),
+      var(--paper);
+    background-position: 0 var(--shift), 0 var(--shift), 0 0;
+    font-family: var(--body); color: var(--ink);
+    text-shadow: var(--halo);
+  }
+  /* 左端の赤い余白線。縦罫の1本 (--pitch * 2) に重ねる */
+  #og::before { content: ""; position: absolute; inset: 0 auto 0 calc(var(--pitch) * 2); width: 2px; background: var(--margin); }
+
+  /* 1行ぶんの箱。下端が --y の罫に一致し、そこに文字のベースラインが乗る */
+  .rule {
+    position: absolute; left: var(--x); top: calc(var(--y) - var(--pitch) + var(--shift));
+    height: var(--pitch); display: flex; align-items: flex-end; line-height: 1;
+  }
+  .rule > span { display: block; transform: translateY(var(--drop)); }
+
+  h1 { font-family: var(--display); font-style: italic; font-weight: 500; font-size: 84px; }
+  .sub { font-size: 27px; color: var(--ink-soft); }
+  /* être の活用。枠は持たず、紙の罫にそのまま書く。
+     代名詞列 + 3時制。列の間隔も罫に合わせて --pitch 単位で置く */
+  .conj {
+    position: absolute; left: 0; top: calc(168px - var(--pitch) + var(--shift));
+    display: grid;
+    grid-template-columns: 714px repeat(3, calc(var(--pitch) * 2));
+    column-gap: var(--pitch);
+    grid-auto-rows: var(--pitch); align-items: end; line-height: 1;
+    font-family: var(--display); font-style: italic;
+  }
+  /* 列幅より長い語は隣の余白へはみ出させる。gap が受け止めるので重ならない */
+  .conj > * { transform: translateY(var(--drop)); white-space: nowrap; }
+  .conj b { font-size: 22px; font-weight: 400; color: var(--ink-soft); text-align: right; }
+  .conj i { font-size: 17px; color: var(--ink-soft); }
+  .conj span { font-size: 24px; }
+</style>
+<div id="og">
+  <h1 class="rule" style="--x: 126px; --y: 210px"><span>Conjugaison</span></h1>
+  <h1 class="rule" style="--x: 126px; --y: 294px"><span>Seyès</span></h1>
+  <p class="sub rule" style="--x: 126px; --y: 378px"><span>人称・時制の表に書き込んで覚える,</span></p>
+  <p class="sub rule" style="--x: 126px; --y: 420px"><span>フランス語動詞の活用ドリル</span></p>
+
+  <div class="conj">
+    <b></b><i>présent</i><i>imparfait</i><i>futur simple</i>
+    <b>je</b><span>suis</span><span>étais</span><span>serai</span>
+    <b>tu</b><span>es</span><span>étais</span><span>seras</span>
+    <b>il/elle</b><span>est</span><span>était</span><span>sera</span>
+    <b>nous</b><span>sommes</span><span>étions</span><span>serons</span>
+    <b>vous</b><span>êtes</span><span>étiez</span><span>serez</span>
+    <b>ils/elles</b><span>sont</span><span>étaient</span><span>seront</span>
+  </div>
+</div>
