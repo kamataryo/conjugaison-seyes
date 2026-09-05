@@ -175,9 +175,9 @@
   th.tense { font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
   thead th:first-child { position: sticky; left: 0; z-index: 2; background: var(--card); border-right: 2px solid var(--margin); padding: .25rem .4rem; }
   /* 見出し列は幅を固定。人称と時制を入れ替えても表の位置がずれない。
-     下限を決めているのは転置したときの "plus-que-parfait"。これ以上詰めると
-     人称のときだけ列が細くなって、入れ替えるたびに表が横に動く */
-  tbody th, thead th:first-child { box-sizing: border-box; width: 6.5rem; min-width: 6.5rem; text-align: right; }
+     下限を決めているのは転置したときの "conditionnel" と 直説法現在(5文字)。
+     これ以上詰めると人称のときだけ列が細くなって、入れ替えるたびに表が横に動く */
+  tbody th, thead th:first-child { box-sizing: border-box; width: 5.5rem; min-width: 5.5rem; text-align: right; }
   /* 行・列を消すボタンの置き場。採点したら出す */
   th.foot, td.foot {
     box-sizing: border-box; width: 2.6rem; min-width: 2.6rem; padding: .2rem;
@@ -197,6 +197,9 @@
     font-size: .72rem; letter-spacing: 0; text-transform: none;
     color: var(--ink-soft); font-weight: 400;
   }
+  /* 行見出しに来たフランス語名だけは折り返す。ハイフンは自動で折り返し候補になるので
+     plus-que-parfait は plus-que- / parfait で折れる。列見出しは幅が足りるので1行のまま */
+  tbody th .fr { white-space: normal; line-height: 1.2; }
   .cut-btn:hover { background: var(--ng-bg); }
   .cut-btn:active { background: var(--ng-bg); transform: scale(.88); }
   td { position: relative; border-bottom: 1px solid var(--rule-faint); border-right: 1px solid var(--rule-faint); padding: 0; }
