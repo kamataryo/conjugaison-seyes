@@ -266,6 +266,7 @@ function load(v) {
   verb = v;
   const kind = classify(v);
   $("verb").textContent = infinitiveLabel(v);
+  $("pick").value = verbs.indexOf(v); // 「次の動詞」やピンで動いたときも選択を合わせる
   $("meaning").textContent = v.meaning ?? "";
   $("group").textContent = kind.label;
   answers = PRONOUNS.flatMap((_, p) => TENSES.map((t) => conjugate(v, t.key, p)));
@@ -360,6 +361,14 @@ $("reorder").addEventListener("click", () => {
 
 const pick = () => verbs[Math.floor(Math.random() * verbs.length)];
 $("next").addEventListener("click", () => load(pick()));
+
+// ドロップダウンからの直接指定。並び順・消した行列はそのまま引き継ぐ
+$("pick").innerHTML = verbs
+  .map((v, i) => [i, v])
+  .sort(([, a], [, b]) => a.infinitive.localeCompare(b.infinitive, "fr"))
+  .map(([i, v]) => `<option value="${i}">${infinitiveLabel(v)}</option>`)
+  .join("");
+$("pick").addEventListener("change", (e) => load(verbs[+e.target.value]));
 
 // ピン留め。動詞・並び順(シャッフルと転置)・消した行列を1件としてまとめる。
 // URL の ?v=&p=&t=&op=&ot=&x= と同じ中身なので、戻すのも同じ経路で済む

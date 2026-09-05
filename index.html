@@ -112,6 +112,17 @@
     font-family: var(--body); font-style: normal; font-weight: 400;
     font-size: 1rem; letter-spacing: .01em; color: var(--ink-soft);
   }
+  /* 動詞の右の ▾。押すとブラウザ標準の一覧が開く */
+  .pick {
+    position: relative; top: -.15em; /* 動詞のベースラインに対して少し上げる */
+    display: inline-grid; place-items: center;
+    font-family: var(--body); font-style: normal; font-size: .42em; line-height: 1;
+    color: var(--margin); cursor: pointer;
+  }
+  /* 三角は小さいので、当たり判定だけ指の幅まで広げる */
+  .pick select { position: absolute; inset: -.6em -.9em; width: auto; height: auto; opacity: 0; cursor: pointer; }
+  .pick:has(select:focus-visible) { outline: 2px solid var(--focus); outline-offset: .25em; border-radius: 2px; }
+
   /* 辞書の見出しにあたる行。品詞・語法・助動詞 */
   .gloss { margin: .5rem 0 0; font-size: .82rem; line-height: 1.9; color: var(--ink-soft); }
   .gloss i {
@@ -344,7 +355,7 @@
            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M12 17v5"/><path d="M9 2h6l-1 6 3 3v3H7v-3l3-3z"/>
       </svg>
-    </button><span id="verb"></span> <small id="meaning"></small></h1>
+    </button><span id="verb"></span><span class="pick">▾<select id="pick" aria-label="動詞を選ぶ"></select></span> <small id="meaning"></small></h1>
     <p class="gloss" id="gloss"></p>
     <p class="ex" id="ex"></p>
   </header>
