@@ -1,18 +1,28 @@
-export const PRONOUNS = ["je", "tu", "il", "nous", "vous", "ils"];
+export const PRONOUNS = ["je", "tu", "il/elle", "nous", "vous", "ils/elles"];
 
 export const TENSES = [
-  { key: "present", label: "直説法現在" },
-  { key: "imparfait", label: "半過去" },
-  { key: "futur", label: "単純未来" },
-  { key: "conditionnel", label: "条件法現在" },
-  { key: "subjonctif", label: "接続法現在" },
-  { key: "passeCompose", label: "複合過去" },
+  { key: "present", label: "直説法現在", fr: "présent" },
+  { key: "imparfait", label: "半過去", fr: "imparfait" },
+  { key: "futur", label: "単純未来", fr: "futur simple" },
+  { key: "conditionnel", label: "条件法現在", fr: "conditionnel" },
+  { key: "subjonctif", label: "接続法現在", fr: "subjonctif" },
+  { key: "passeCompose", label: "複合過去", fr: "passé composé" },
+  { key: "plusQueParfait", label: "大過去", fr: "plus-que-parfait" },
 ];
 
-// 助動詞の現在形。verbs.json を参照すると循環するのでここに置く
+// 複合時制 → 助動詞をどの時制に活用するか
+const COMPOUND = { passeCompose: "present", plusQueParfait: "imparfait" };
+
+// 助動詞。verbs.json を参照すると循環するのでここに置く
 const AUX = {
-  avoir: ["ai", "as", "a", "avons", "avez", "ont"],
-  être: ["suis", "es", "est", "sommes", "êtes", "sont"],
+  avoir: {
+    present: ["ai", "as", "a", "avons", "avez", "ont"],
+    imparfait: ["avais", "avais", "avait", "avions", "aviez", "avaient"],
+  },
+  être: {
+    present: ["suis", "es", "est", "sommes", "êtes", "sont"],
+    imparfait: ["étais", "étais", "était", "étions", "étiez", "étaient"],
+  },
 };
 
 const ENDINGS = {
@@ -47,11 +57,12 @@ const participle = (inf) =>
 
 /** verb.forms に書いてあればそれを、なければ規則活用から導出する */
 export function conjugate(verb, tense, i) {
-  if (tense === "passeCompose") {
+  const auxTense = COMPOUND[tense];
+  if (auxTense) {
     const aux = verb.aux ?? "avoir";
     const pp = verb.pp ?? participle(verb.infinitive);
     // ponytail: 主語は男性扱い固定。女性形の性一致が要るなら人称ごとに性を持たせる
-    return `${AUX[aux][i]} ${aux === "être" && i >= 3 ? pp + "s" : pp}`;
+    return `${AUX[aux][auxTense][i]} ${aux === "être" && i >= 3 ? pp + "s" : pp}`;
   }
   const given = verb.forms?.[tense];
   if (given) return given[i];
