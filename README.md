@@ -1,14 +1,6 @@
 # Conjugaison Seyès
 
-フランス語動詞の活用ドリル。ビルド不要の静的サイト（HTML + ES modules）。
-
-## ローカルで動かす
-
-`fetch` と ES modules を使うので、file:// では動かない。
-
-```bash
-pnpm dlx serve .
-```
+フランス語動詞の活用ドリル。
 
 ## デプロイ（Cloudflare Pages）
 
@@ -53,13 +45,15 @@ pnpm dlx wrangler@latest pages deploy . --project-name=conjugaison-seyes
 `icon.svg` が唯一の版下。SVG のまま favicon に使い、PNG が要る先（iOS のホーム画面、
 Android のインストール）向けに3枚を書き出す。中身を直したら撮り直す。
 
+ヘッドレス Chrome は `--window-size` を 500px 未満にすると無視するので、
+512 で1枚だけ撮って `sips` で縮める。
+
 ```bash
-CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-for s in 180:apple-touch-icon 192:icon-192 512:icon-512; do
-  "$CHROME" --headless --disable-gpu --hide-scrollbars \
-    --force-device-scale-factor=1 --default-background-color=00000000 \
-    --window-size="${s%%:*},${s%%:*}" --screenshot="${s##*:}.png" "file://$PWD/icon.svg"
-done
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --headless --disable-gpu --hide-scrollbars --force-device-scale-factor=1 \
+  --window-size=512,512 --screenshot=icon-512.png "file://$PWD/icon.svg"
+sips -Z 192 icon-512.png --out icon-192.png
+sips -Z 180 icon-512.png --out apple-touch-icon.png
 ```
 
 ## テスト
