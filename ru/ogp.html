@@ -1,0 +1,96 @@
+<!doctype html>
+<!-- OGP 画像の版下。1200×630 で撮って ru/ogp.png として置く。作り方は README を参照 -->
+<html lang="ja">
+<meta charset="utf-8">
+<title>OGP</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,400..600;1,400..500&family=Zen+Old+Mincho:wght@400&display=swap">
+<style>
+  :root {
+    --paper: #FCFCFA; --ink: #1A2440; --ink-soft: #616A88;
+    --rule: #C3B8DC; --rule-faint: #E9E4F3; --margin: #DA6480;
+    /* キリルを持つ書体だけを使う。Bodoni Moda / Archivo にキリルはない */
+    --display: "Playfair Display", serif;
+    /* 日本語はサブタイトルのみ。高コントラストの Playfair に明朝を合わせる */
+    --body: "Noto Sans", "Zen Old Mincho", "Hiragino Mincho ProN", serif;
+
+    /* 罫の間隔。この版下の座標はすべてこの倍数で置く */
+    --pitch: 42px;
+
+    /* 文字のベースラインを罫の上に乗せるための下げ幅。
+       flex/grid の下端揃えだと、ベースラインはディセンダのぶんだけ罫より上に来る。
+       em 指定なので、字の大きさが違っても同じ値で揃う。
+       ★ 撮って罫とベースラインがずれていたら、ここだけ 0.01em 刻みで動かす */
+    --drop: .21em;
+
+    /* 罫と内容をまとめて下げる量。上下の余白の釣り合いだけを決める。
+       罫の柄は --pitch 周期なので、半分ずらしても罫自体の見えかたは変わらない。
+       0 にすると内容が上に寄る */
+    --shift: calc(var(--pitch) / 2);
+
+    /* 罫の上でも字が読めるように、紙と同じ色の淡いにじみを敷く。
+       同じ影を重ねて濃さを稼いでいる */
+    --halo:
+      0 0 4px var(--paper), 0 0 4px var(--paper),
+      0 0 9px var(--paper), 0 0 9px var(--paper);
+  }
+  * { margin: 0; box-sizing: border-box; }
+  body { background: #888; }
+
+  /* косая линейка: 太い横罫 (--pitch ごと) と、右上がりの細い斜線。
+     斜線の角度は手書きの傾き (水平から約65度)。CSS の角度は縞に直交する向きで指定するので 115deg */
+  #og {
+    position: relative; width: 1200px; height: 630px; overflow: hidden;
+    background:
+      repeating-linear-gradient(to bottom, var(--rule) 0 1px, transparent 1px var(--pitch)),
+      repeating-linear-gradient(115deg, var(--rule-faint) 0 1px, transparent 1px calc(var(--pitch) / 2)),
+      var(--paper);
+    background-position: 0 var(--shift), 0 0, 0 0;
+    font-family: var(--body); color: var(--ink);
+    text-shadow: var(--halo);
+  }
+  /* 左端の赤い余白線。斜線ではなく、ノートと同じようにまっすぐ引く */
+  #og::before { content: ""; position: absolute; inset: 0 auto 0 calc(var(--pitch) * 2); width: 2px; background: var(--margin); }
+
+  /* 1行ぶんの箱。下端が --y の罫に一致し、そこに文字のベースラインが乗る */
+  .rule {
+    position: absolute; left: var(--x); top: calc(var(--y) - var(--pitch) + var(--shift));
+    height: var(--pitch); display: flex; align-items: flex-end; line-height: 1;
+  }
+  .rule > span { display: block; transform: translateY(var(--drop)); }
+
+  /* キリルは字数のわりに横に長いので、フランス語版(84px)より少し小さくする */
+  h1 { font-family: var(--display); font-style: italic; font-weight: 500; font-size: 76px; }
+  .sub { font-size: 27px; color: var(--ink-soft); }
+  /* читать の活用。枠は持たず、紙の罫にそのまま書く。
+     代名詞列 + 3時制。列の間隔も罫に合わせて --pitch 単位で置く */
+  .conj {
+    position: absolute; left: 0; top: calc(168px - var(--pitch) + var(--shift));
+    display: grid;
+    grid-template-columns: 660px repeat(3, calc(var(--pitch) * 2));
+    column-gap: var(--pitch);
+    grid-auto-rows: var(--pitch); align-items: end; line-height: 1;
+    font-family: var(--display); font-style: italic;
+  }
+  /* 列幅より長い語は隣の余白へはみ出させる。gap が受け止めるので重ならない */
+  .conj > * { transform: translateY(var(--drop)); white-space: nowrap; }
+  .conj b { font-size: 22px; font-weight: 400; color: var(--ink-soft); text-align: right; }
+  .conj i { font-size: 17px; color: var(--ink-soft); }
+  .conj span { font-size: 24px; }
+</style>
+<div id="og">
+  <h1 class="rule" style="--x: 126px; --y: 210px"><span>Спряжение</span></h1>
+  <h1 class="rule" style="--x: 126px; --y: 294px"><span>в косую линейку</span></h1>
+  <p class="sub rule" style="--x: 126px; --y: 378px"><span>人称・時制の表に書き込んで覚える,</span></p>
+  <p class="sub rule" style="--x: 126px; --y: 420px"><span>ロシア語動詞の活用ドリル</span></p>
+
+  <div class="conj">
+    <b></b><i>настоящее</i><i>прошедшее</i><i>будущее</i>
+    <b>я</b><span>читаю</span><span>читал</span><span>буду читать</span>
+    <b>ты</b><span>читаешь</span><span>читал</span><span>будешь читать</span>
+    <b>он/она</b><span>читает</span><span>читал</span><span>будет читать</span>
+    <b>мы</b><span>читаем</span><span>читали</span><span>будем читать</span>
+    <b>вы</b><span>читаете</span><span>читали</span><span>будете читать</span>
+    <b>они</b><span>читают</span><span>читали</span><span>будут читать</span>
+  </div>
+</div>

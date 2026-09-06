@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Спряжение">
+  <!-- ロシアの学習ノート(косая линейка)の紙面。薄紫の横罫と、左端の赤い余白線 -->
+  <rect width="32" height="32" fill="#FCFCFA"/>
+  <g stroke="#C3B8DC" stroke-width="1.4"><path d="M0 8h32M0 16h32M0 24h32"/></g>
+  <path d="M9 0v32" stroke="#DA6480" stroke-width="1.6"/>
+  <!-- я。キリルにしかない字形で、活用表の1行目そのもの。
+       paint-order で塗りの下に紙と同じ色の縁取りを回し、罫の上でも字形が抜けて見えるようにする。
+       Georgia のキリルは環境によって欠けるので Times New Roman を先に置く -->
+  <text x="17" y="24" text-anchor="middle" font-family="'Times New Roman', Georgia, serif"
+        font-style="italic" font-size="21" fill="#1A2440"
+        paint-order="stroke" stroke="#FCFCFA" stroke-width="2.4" stroke-linejoin="round">я</text>
+</svg>
