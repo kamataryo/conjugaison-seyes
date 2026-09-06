@@ -3,14 +3,14 @@
     "infinitive": "parler",
     "kind": "vi/vt",
     "meaning": "話す",
-    "usage": "à qn・de qc",
+    "usage": ["à qn", "de qc"],
     "ex": ["Il parle à sa sœur.", "彼は妹に話しかける"]
   },
   {
     "infinitive": "aimer",
     "kind": "vt",
     "meaning": "好む・愛する",
-    "usage": "+ 不定詞",
+    "usage": ["+ 不定詞"],
     "ex": ["Elle aime chanter.", "彼女は歌うのが好きだ"]
   },
   {
@@ -36,49 +36,49 @@
     "infinitive": "habiter",
     "kind": "vi/vt",
     "meaning": "住む",
-    "usage": "(à) + 場所",
+    "usage": ["(à) + 場所"],
     "ex": ["Elle habite à Lyon.", "彼女はリヨンに住んでいる"]
   },
   {
     "infinitive": "finir",
     "kind": "vi/vt",
     "meaning": "終える",
-    "usage": "de + 不定詞",
+    "usage": ["de + 不定詞"],
     "ex": ["Il finit de manger.", "彼は食べ終える"]
   },
   {
     "infinitive": "choisir",
     "kind": "vt",
     "meaning": "選ぶ",
-    "usage": "de + 不定詞",
+    "usage": ["de + 不定詞"],
     "ex": ["Elle choisit de partir.", "彼女は出発することを選ぶ"]
   },
   {
     "infinitive": "réussir",
     "kind": "vi/vt",
     "meaning": "成功する",
-    "usage": "à + 不定詞",
+    "usage": ["à + 不定詞"],
     "ex": ["Il réussit à ouvrir la porte.", "彼はドアを開けることに成功する"]
   },
   {
     "infinitive": "vendre",
     "kind": "vt",
     "meaning": "売る",
-    "usage": "qc à qn",
+    "usage": ["qc à qn"],
     "ex": ["Elle vend sa voiture à un ami.", "彼女は車を友人に売る"]
   },
   {
     "infinitive": "attendre",
     "kind": "vt",
     "meaning": "待つ",
-    "usage": "de + 不定詞",
+    "usage": ["de + 不定詞"],
     "ex": ["Il attend le train.", "彼は電車を待つ"]
   },
   {
     "infinitive": "répondre",
     "kind": "vi/vt",
     "meaning": "答える",
-    "usage": "à qn・à qc",
+    "usage": ["à qn", "à qc"],
     "ex": ["Elle répond à ma question.", "彼女は私の質問に答える"]
   },
   {
@@ -115,7 +115,7 @@
     "infinitive": "aller",
     "kind": "vi",
     "meaning": "行く",
-    "usage": "+ 不定詞 (近接未来)",
+    "usage": ["+ 不定詞 (近接未来)"],
     "ex": ["Il va à la gare.", "彼は駅へ行く"],
     "pp": "allé",
     "aux": "être",
@@ -131,7 +131,7 @@
     "infinitive": "faire",
     "kind": "vt",
     "meaning": "する・作る",
-    "usage": "+ 不定詞 (使役)",
+    "usage": ["+ 不定詞 (使役)"],
     "ex": ["Elle fait un gâteau.", "彼女はケーキを作る"],
     "pp": "fait",
     "aux": "avoir",
@@ -147,7 +147,7 @@
     "infinitive": "pouvoir",
     "kind": "vt",
     "meaning": "〜できる",
-    "usage": "+ 不定詞",
+    "usage": ["+ 不定詞"],
     "ex": ["Il peut venir demain.", "彼は明日来ることができる"],
     "pp": "pu",
     "aux": "avoir",
@@ -163,7 +163,7 @@
     "infinitive": "vouloir",
     "kind": "vt",
     "meaning": "欲する",
-    "usage": "+ 不定詞",
+    "usage": ["+ 不定詞"],
     "ex": ["Elle veut un café.", "彼女はコーヒーが欲しい"],
     "pp": "voulu",
     "aux": "avoir",
@@ -179,7 +179,7 @@
     "infinitive": "devoir",
     "kind": "vt",
     "meaning": "〜しなければならない",
-    "usage": "+ 不定詞",
+    "usage": ["+ 不定詞"],
     "ex": ["Il doit travailler ce soir.", "彼は今晩働かなければならない"],
     "pp": "dû",
     "aux": "avoir",
@@ -195,7 +195,7 @@
     "infinitive": "savoir",
     "kind": "vt",
     "meaning": "知る",
-    "usage": "+ 不定詞",
+    "usage": ["+ 不定詞"],
     "ex": ["Elle sait nager.", "彼女は泳ぐことができる"],
     "pp": "su",
     "aux": "avoir",
@@ -211,7 +211,7 @@
     "infinitive": "venir",
     "kind": "vi",
     "meaning": "来る",
-    "usage": "de + 不定詞 (近接過去)",
+    "usage": ["de + 不定詞 (近接過去)"],
     "ex": ["Il vient chez moi.", "彼は私の家に来る"],
     "pp": "venu",
     "aux": "être",
@@ -227,7 +227,7 @@
     "infinitive": "partir",
     "kind": "vi",
     "meaning": "出発する",
-    "usage": "pour・à + 場所",
+    "usage": ["pour", "à + 場所"],
     "ex": ["Elle part pour Rome.", "彼女はローマへ出発する"],
     "pp": "parti",
     "aux": "être",
@@ -273,7 +273,7 @@
     "infinitive": "dire",
     "kind": "vt",
     "meaning": "言う",
-    "usage": "à qn de + 不定詞",
+    "usage": ["à qn de + 不定詞"],
     "ex": ["Il dit la vérité.", "彼は本当のことを言う"],
     "pp": "dit",
     "aux": "avoir",
@@ -348,7 +348,7 @@
     "pron": true,
     "kind": "vpr",
     "meaning": "覚えている・思い出す",
-    "usage": "de qc",
+    "usage": ["de qc"],
     "ex": ["Il se souvient de ce jour.", "彼はその日のことを覚えている"],
     "pp": "souvenu",
     "forms": {
@@ -369,7 +369,7 @@
     "infinitive": "donner",
     "kind": "vt",
     "meaning": "与える",
-    "usage": "qc à qn",
+    "usage": ["qc à qn"],
     "ex": ["Il donne un cadeau à sa mère.", "彼は母に贈り物を渡す"]
   },
   {
@@ -388,21 +388,21 @@
     "infinitive": "penser",
     "kind": "vi/vt",
     "meaning": "思う・考える",
-    "usage": "à qc・que + 直説法",
+    "usage": ["à qc", "que + 直説法"],
     "ex": ["Elle pense à son voyage.", "彼女は旅行のことを考えている"]
   },
   {
     "infinitive": "jouer",
     "kind": "vi",
     "meaning": "遊ぶ・演奏する",
-    "usage": "à + 競技・de + 楽器",
+    "usage": ["à + 競技", "de + 楽器"],
     "ex": ["Il joue du piano.", "彼はピアノを弾く"]
   },
   {
     "infinitive": "arriver",
     "kind": "vi",
     "meaning": "到着する",
-    "usage": "à + 場所",
+    "usage": ["à + 場所"],
     "ex": ["Elle arrive à la gare.", "彼女は駅に着く"],
     "aux": "être"
   },
@@ -410,7 +410,7 @@
     "infinitive": "entrer",
     "kind": "vi",
     "meaning": "入る",
-    "usage": "dans + 場所",
+    "usage": ["dans + 場所"],
     "ex": ["Il entre dans la salle.", "彼は部屋に入る"],
     "aux": "être"
   },
@@ -431,14 +431,14 @@
     "infinitive": "remplir",
     "kind": "vt",
     "meaning": "満たす",
-    "usage": "qc de qc",
+    "usage": ["qc de qc"],
     "ex": ["Il remplit son verre d'eau.", "彼はコップを水で満たす"]
   },
   {
     "infinitive": "obéir",
     "kind": "vi",
     "meaning": "従う",
-    "usage": "à qn",
+    "usage": ["à qn"],
     "ex": ["Elle obéit à ses parents.", "彼女は両親に従う"]
   },
   {
@@ -457,7 +457,7 @@
     "infinitive": "descendre",
     "kind": "vi",
     "meaning": "降りる",
-    "usage": "de + 場所",
+    "usage": ["de + 場所"],
     "ex": ["Il descend du train.", "彼は電車を降りる"],
     "aux": "être"
   },
@@ -476,7 +476,7 @@
     "infinitive": "commencer",
     "kind": "vi/vt",
     "meaning": "始める・始まる",
-    "usage": "à + 不定詞",
+    "usage": ["à + 不定詞"],
     "ex": ["Nous commençons à travailler.", "私たちは働き始める"],
     "group": 1,
     "forms": {
@@ -488,7 +488,7 @@
     "infinitive": "acheter",
     "kind": "vt",
     "meaning": "買う",
-    "usage": "qc à qn",
+    "usage": ["qc à qn"],
     "ex": ["Elle achète du pain.", "彼女はパンを買う"],
     "group": 1,
     "forms": {
@@ -515,7 +515,7 @@
     "infinitive": "préférer",
     "kind": "vt",
     "meaning": "より好む",
-    "usage": "+ 不定詞",
+    "usage": ["+ 不定詞"],
     "ex": ["Elle préfère le thé.", "彼女は紅茶のほうが好きだ"],
     "group": 1,
     "forms": {
@@ -540,7 +540,7 @@
     "infinitive": "envoyer",
     "kind": "vt",
     "meaning": "送る",
-    "usage": "qc à qn",
+    "usage": ["qc à qn"],
     "ex": ["Elle envoie une lettre à son ami.", "彼女は友人に手紙を送る"],
     "group": 1,
     "forms": {
@@ -584,7 +584,7 @@
     "infinitive": "écrire",
     "kind": "vt",
     "meaning": "書く",
-    "usage": "à qn",
+    "usage": ["à qn"],
     "ex": ["Il écrit à sa famille.", "彼は家族に手紙を書く"],
     "pp": "écrit",
     "aux": "avoir",
@@ -630,7 +630,7 @@
     "infinitive": "sortir",
     "kind": "vi",
     "meaning": "出る・外出する",
-    "usage": "de + 場所",
+    "usage": ["de + 場所"],
     "ex": ["Elle sort de la maison.", "彼女は家を出る"],
     "pp": "sorti",
     "aux": "être",
@@ -706,7 +706,7 @@
     "infinitive": "vivre",
     "kind": "vi",
     "meaning": "生きる・暮らす",
-    "usage": "à + 場所",
+    "usage": ["à + 場所"],
     "ex": ["Il vit à Marseille.", "彼はマルセイユで暮らしている"],
     "pp": "vécu",
     "aux": "avoir",
@@ -722,7 +722,7 @@
     "infinitive": "croire",
     "kind": "vi/vt",
     "meaning": "信じる・思う",
-    "usage": "à qc・que + 直説法",
+    "usage": ["à qc", "que + 直説法"],
     "ex": ["Elle croit à cette histoire.", "彼女はその話を信じている"],
     "pp": "cru",
     "aux": "avoir",
@@ -753,7 +753,7 @@
     "infinitive": "tenir",
     "kind": "vt",
     "meaning": "持つ・保つ",
-    "usage": "à qc (執着する)",
+    "usage": ["à qc (執着する)"],
     "ex": ["Elle tient son sac.", "彼女はかばんを持っている"],
     "pp": "tenu",
     "aux": "avoir",
@@ -815,7 +815,7 @@
     "pron": true,
     "kind": "vpr",
     "meaning": "急ぐ",
-    "usage": "de + 不定詞",
+    "usage": ["de + 不定詞"],
     "ex": ["Il se dépêche de partir.", "彼は急いで出発する"]
   },
   {

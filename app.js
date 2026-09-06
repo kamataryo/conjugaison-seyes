@@ -151,13 +151,13 @@ function build() {
 // 助動詞は複合過去・大過去の答えそのものなので、押すまで伏せておく
 function renderGloss() {
   const aux = auxOf(verb);
-  $("gloss").innerHTML = [
+  $("gloss").innerHTML = `<span class="chip">${classify(verb).label}</span>` + [
     verb.kind && `<i>${verb.kind}</i>`,
-    verb.usage,
+    verb.usage?.join(" / "), // 語法の中の並列は / 。項目の区切り(,)と混ざらないように
     auxShown
       ? `aux. <i>${aux}</i>`
       : `aux. <button id="aux-hint" aria-label="助動詞を表示" title="助動詞を表示"><span>?</span></button>`,
-  ].filter(Boolean).join('<span class="sep">·</span>');
+  ].filter(Boolean).join('<span class="sep">,</span>');
   // 用例は必ず活用形を含むので、答え合わせのあとだけ出す
   $("ex").innerHTML = checked && verb.ex
     ? `${verb.ex[0]}<small>${verb.ex[1]}</small>` : "";
@@ -269,11 +269,9 @@ function reset() {
 
 function load(v) {
   verb = v;
-  const kind = classify(v);
   $("verb").textContent = infinitiveLabel(v);
   $("pick").value = verbs.indexOf(v); // 「次の動詞」やピンで動いたときも選択を合わせる
   $("meaning").textContent = v.meaning ?? "";
-  $("group").textContent = kind.label;
   answers = PRONOUNS.flatMap((_, p) => TENSES.map((t) => conjugate(v, t.key, p)));
   femAnswers = PRONOUNS.flatMap((_, p) => TENSES.map((t) => conjugate(v, t.key, p, true)));
   values.fill("");
