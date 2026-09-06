@@ -137,7 +137,8 @@ h1 {
   white-space: nowrap;
 }
 /* 表の上の断り書き。消した行列とシャッフルを .chip で並べる */
-.state { margin: .6rem 0 .4rem; display: flex; flex-wrap: wrap; gap: .3rem; }
+.state[hidden] { display: none; }
+.state { margin: -.7rem 0 .3rem; /* main の gap を食い、header に寄せる */ display: flex; flex-wrap: wrap; gap: .3rem; }
 .state .chip { margin-right: 0; }
 
 .scroll { overflow-x: auto; background: var(--card); border: 1px solid var(--rule-faint); border-radius: 2px; }
@@ -226,10 +227,12 @@ input::placeholder { color: var(--rule); opacity: 1; }
 #grid.grading .cut-btn { animation: pop-in .25s ease both; animation-delay: .3s; }
 
 /* 3. 読み込み時、表が右に見切れていたら横スクロールできることを知らせる */
-.scroll-wrap { position: relative; }
+/* state / 表 / hint を1つの箱に。hint は表と同じマスに重ねる */
+.scroll-wrap { display: grid; grid-template-rows: auto 1fr; }
+.scroll-wrap > .scroll, .scroll-wrap > #hint { grid-area: 2 / 1; min-width: 0; }
 #hint[hidden] { display: none; }
 #hint {
-  position: absolute; inset: 0; display: grid; place-items: center;
+  display: grid; place-items: center;
   pointer-events: none; transition: opacity .45s ease;
   background: linear-gradient(90deg, transparent 40%, color-mix(in srgb, var(--card) 85%, transparent));
 }
