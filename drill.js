@@ -231,9 +231,11 @@ export async function start(lang) {
     // 今回のリリースでは通算正答率を出さない。記録は続けているので、この行を戻せば表示される
     // renderStats();
 
-    // 答え合わせのあと、行・列の末尾に消去ボタンを出す。最後の1本は消せない
-    footR.forEach((cell, r) => { cell.innerHTML = checked && rows() > 1 ? cutButton("row", r) : ""; });
-    footC.forEach((cell, c) => { cell.innerHTML = checked && cols() > 1 ? cutButton("col", c) : ""; });
+    // 答え合わせのあと、行・列の末尾に消去ボタンを出す。最後の1本は消せない。
+    // 出題中は今の表をピンが決めているので、戻せる ✕ を出さないのと対で、消すほうも出さない
+    const cuttable = checked && !quizMode;
+    footR.forEach((cell, r) => { cell.innerHTML = cuttable && rows() > 1 ? cutButton("row", r) : ""; });
+    footC.forEach((cell, c) => { cell.innerHTML = cuttable && cols() > 1 ? cutButton("col", c) : ""; });
   }
 
   const setValue = (n, v) => {
@@ -333,8 +335,9 @@ export async function start(lang) {
     focusStart();
   }
 
-  // ?v=parler&p=05&t=13 = 動詞と、消した人称・時制。リロードや共有で同じ表に戻る
-  function syncUrl() {
+  // ?v=parler&p=05&t=13 = 動詞と、消した人称・時制。リロードや共有で同じ表に戻る。
+  // push=true のときだけ履歴に1段積む。取り消せない操作 (ピンを外す) の前後を残すため
+  function syncUrl(push = false) {
     const url = new URL(location);
     url.searchParams.set("v", infinitiveLabel(verb));
     for (const a of ["p", "t"]) {
@@ -354,8 +357,13 @@ export async function start(lang) {
       url.searchParams.delete("pins");
       url.searchParams.delete("q");
     }
-    history.replaceState(null, "", url);
+    history[push ? "pushState" : "replaceState"](null, "", url);
   }
+
+  // 表の状態は全部 URL に入っているので、戻る/進むは読み直しで足りる。
+  // ponytail: popstate から状態を組み直さず reload で済ませる。書きかけの答えは消えるが、
+  // 積んだ履歴はピンを外す取り消しだけなので、そこで消えて困る入力はない
+  addEventListener("popstate", () => location.reload());
 
   $("check").addEventListener("click", () => {
     if (checked) return reset();
@@ -579,7 +587,7 @@ export async function start(lang) {
     if (del) {
       pins.splice(+del.dataset.i, 1);
       renderPins(); // 最後の1件を外すと出題モードも落ちるので、URL はそのあとで揃える
-      return syncUrl();
+      return syncUrl(true); // 外す前の一覧に戻れるよう履歴に積む
     }
     const copy = e.target.closest("#copy-pins");
     if (copy) {
@@ -591,18 +599,19 @@ export async function start(lang) {
     }
     const wipe = e.target.closest("#clear-pins");
     if (wipe) {
-      pins = []; // 戻したいときはブラウザの戻るで直前の ?pins= に戻れる
+      pins = [];
       renderPins(); // 出題モードもここで落ちる
-      return syncUrl();
+      return syncUrl(true); // 戻したいときはブラウザの戻るで直前の ?pins= に戻れる
     }
     const mode = e.target.closest("#quiz-mode");
     if (mode) {
       quizMode = !quizMode;
       return reflowPins(() => {
         // 出題モードに入ったのに問題集の外の表のまま、では出題が始まらない
-        if (quizMode && !pinned()) applyPin(sample(pins));
-        syncUrl(); // 出題モードも URL に残す。リロードでも共有先でも続く
-        renderPins();
+        if (quizMode && !pinned()) return applyPin(sample(pins));
+        // 断りの ✕ と消去ボタンは出題中かどうかで変わるので、表ごと作り直す。
+        // URL (出題モードも残す) とピン一覧も build() が揃える
+        build();
       });
     }
     const open = e.target.closest(".pin-open");
