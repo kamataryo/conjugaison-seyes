@@ -97,6 +97,8 @@ h1 {
 }
 /* 三角は小さいので、当たり判定だけ指の幅まで広げる */
 .pick select { position: absolute; inset: -.6em -.9em; width: auto; height: auto; opacity: 0; cursor: pointer; }
+/* 出題モードでは問題集が動詞を決めるので、▾ ごと引っ込める */
+.pick:has(select:disabled) { display: none; }
 .pick:has(select:focus-visible) { outline: 2px solid var(--focus); outline-offset: .25em; border-radius: 2px; }
 
 /* 辞書の見出しにあたる行。品詞・語法・助動詞 */
@@ -110,8 +112,7 @@ h1 {
 /* 伏せた助動詞。破線の枠で「まだ出していない」ことを示す */
 #aux-hint {
   display: inline-grid; place-items: center; vertical-align: middle;
-  width: 2.4rem; height: 1.4rem; padding: 0; min-width: 0; /* 出てくる avoir / être の横長に合わせる。角丸は button 既定のカプセル */
-  font: 500 .78rem/1 var(--body);
+  box-sizing: border-box; width: 2.4rem; min-width: 0; margin-right: 0; /* 幅だけ avoir / être に合わせる。字と余白は .chip のまま */
   position: relative; top: -2px; /* aux. の字面に合わせて少し上げる */
   border-style: dashed; color: var(--margin); border-color: var(--margin);
 }
@@ -135,6 +136,9 @@ h1 {
   border: 1px solid var(--margin); border-radius: 999px; padding: .2rem .7rem;
   white-space: nowrap;
 }
+/* 表の上の断り書き。消した行列とシャッフルを .chip で並べる */
+.state { margin: .6rem 0 .4rem; display: flex; flex-wrap: wrap; gap: .3rem; }
+.state .chip { margin-right: 0; }
 
 .scroll { overflow-x: auto; background: var(--card); border: 1px solid var(--rule-faint); border-radius: 2px; }
 table { border-collapse: collapse; width: 100%; }

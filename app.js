@@ -9,7 +9,7 @@ const gloss = (verb, revealed) => [
   verb.usage?.join(" / "), // 語法の中の並列は / 。項目の区切り(,)と混ざらないように
   revealed
     ? `aux. <i>${grammar.auxOf(verb)}</i>`
-    : `aux. <button id="aux-hint" aria-label="助動詞を表示" title="助動詞を表示"><span>?</span></button>`,
+    : `aux. <button id="aux-hint" class="chip" aria-label="助動詞を表示" title="助動詞を表示"><span>?</span></button>`,
 ];
 
 start({

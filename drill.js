@@ -173,9 +173,20 @@ export async function start(lang) {
     // 1セルだけになったら並べ替える先がない
     $("shuffle").disabled = rows() === 1 && cols() === 1;
     $("reorder").hidden = plain();
+    renderState();
     syncUrl();
     renderPins();
     render();
+  }
+
+  // 表の上に出す今の表の断り。消した行列とシャッフルだけ。転置は表を見ればわかる
+  function renderState() {
+    const axis = (name, a, n) =>
+      hidden[a].size ? `<span class="chip">${name} ${n - hidden[a].size}/${n}</span>` : "";
+    const html = axis("人称", "p", P) + axis("時制", "t", T) +
+      (sorted(order.p) && sorted(order.t) ? "" : `<span class="chip">シャッフル</span>`);
+    $("state").innerHTML = html;
+    $("state").hidden = !html;
   }
 
   // 辞書の見出しにならった1行。中身は言語ごとに違うので lang.gloss に任せる
@@ -495,6 +506,8 @@ export async function start(lang) {
       : chips;
     $("pins").hidden = !pins.length;
     $("pins").classList.toggle("quiz", quizMode);
+    // 出題中の動詞は問題集が決める。自分で選べると出題が崩れる
+    $("pick").disabled = quizMode;
   }
 
   // 並べ替えを見せる (FLIP)。動いた分だけ元の位置に戻してから、新しい位置へ流す
