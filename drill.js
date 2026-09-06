@@ -4,7 +4,7 @@
 // lang に要るもの:
 //   conjugate.js の一式 (PRONOUNS / TENSES / conjugate / classify / infinitiveLabel /
 //                        isCorrect / withPronoun / cellIndex / normalizeWrong)
-//   storage  localStorage キーの接頭辞 ("conjugaison" → conjugaison.stats / .pins)
+//   storage  localStorage キーの接頭辞 ("conjugaison" → conjugaison.stats)
 //   locale   ドロップダウンの並び順に使う ("fr" / "ru")
 //   ui       ボタンに添える原語の文言
 //   gloss    見出し行の項目を並べた配列。falsy は捨てられる
@@ -56,7 +56,6 @@ export async function start(lang) {
     infinitiveLabel, isCorrect, withPronoun, normalizeWrong, ui,
   } = lang;
   const STATS_KEY = `${lang.storage}.stats`;
-  const PINS_KEY = `${lang.storage}.pins`;
 
   // 相対 URL は document 基準で解決されるので、/ru/ から読んだときは ru/verbs.json になる
   const verbs = await fetch("./verbs.json")
@@ -235,7 +234,9 @@ export async function start(lang) {
     values[canon[n]] = v;
   };
 
-  const focusCell = (n) => { inputs[n].focus(); inputs[n].select(); };
+  // preventScroll: こちらから当てるフォーカスで表を動かさない。
+  // 画面外のセルは指で送ってもらう。Enter で1マス進むたびに紙面が跳ねるほうが読みにくい
+  const focusCell = (n) => { inputs[n].focus({ preventScroll: true }); inputs[n].select(); };
 
   // 形のないマスは入力できないので、移動では飛ばす
   const live = (n) => n < inputs.length && !none(canon[n]);
@@ -291,7 +292,7 @@ export async function start(lang) {
     build();
     // 転置は中身を追って同じセルに留まる。シャッフルは表の同じマスに留まる
     if (swap) cur = Math.max(canon.indexOf(k), 0);
-    if (wasFocused) inputs[cur].focus();
+    if (wasFocused) inputs[cur].focus({ preventScroll: true });
   });
 
   function setChecked(v) {
@@ -338,9 +339,14 @@ export async function start(lang) {
     }
     if (transposed) url.searchParams.set("x", "1");
     else url.searchParams.delete("x");
-    if (quizMode) url.searchParams.set("q", "1");
-    else url.searchParams.delete("q");
-    url.searchParams.delete("pins"); // 取り込んだら用済み。共有は「問題集をコピー」で作り直す
+    // 問題集は URL が唯一の置き場。リロードでも共有先でも同じ一覧に戻る
+    if (pins.length) {
+      url.searchParams.set("pins", pins.map(stateKey).join(","));
+      url.searchParams.set("q", quizMode ? "1" : "0"); // 0 も書く。既存の共有リンク(q なし)は出題モードで開く
+    } else {
+      url.searchParams.delete("pins");
+      url.searchParams.delete("q");
+    }
     history.replaceState(null, "", url);
   }
 
@@ -438,11 +444,9 @@ export async function start(lang) {
   // ピン留め。動詞・並び順(シャッフルと転置)・消した行列を1件としてまとめる。
   // URL の ?v=&p=&t=&op=&ot=&x= と同じ中身なので、戻すのも同じ経路で済む
   const DEFAULT_ORDER = { p: iota(P).join(""), t: iota(T).join("") };
-  let pins = loadPins();
+  let pins = []; // 中身は下の ?pins= から入る
   // 「問題集から出題」。次の動詞をピンの中からだけ引く
   let quizMode = false;
-  // 共有 URL から入っているあいだは localStorage を書かない。相手のピンを消さないため
-  let ephemeral = false;
 
   const state = () => ({
     v: infinitiveLabel(verb),
@@ -453,19 +457,8 @@ export async function start(lang) {
     x: transposed ? 1 : 0,
   });
   const stateKey = (s) => [s.v, s.p, s.t, s.op, s.ot, s.x].join("|");
-
-  function loadPins(storage = localStorage) {
-    try {
-      const a = JSON.parse(storage.getItem(PINS_KEY));
-      return Array.isArray(a) ? a.filter((s) => s?.v) : [];
-    } catch {
-      return []; // 壊れた JSON や storage 不可。ドリル自体は動く
-    }
-  }
-  function savePins(storage = localStorage) {
-    if (ephemeral) return; // 共有 URL の問題集はこの画面かぎり
-    try { storage.setItem(PINS_KEY, JSON.stringify(pins)); } catch { /* プライベートモード等 */ }
-  }
+  // 今の表が問題集の1件か
+  const pinned = () => pins.some((s) => stateKey(s) === stateKey(state()));
 
   // 残っている人称・時制。1本だけならその名前、そうでなければ本数
   const TENSE_LABELS = TENSES.map((t) => t.label);
@@ -485,19 +478,38 @@ export async function start(lang) {
 
   function renderPins() {
     if (!pins.length) quizMode = false; // 出題元がなくなったら勝手にオフ
-    const here = stateKey(state());
-    $("pin").setAttribute("aria-pressed", pins.some((s) => stateKey(s) === here));
-    $("pins").innerHTML = pins.map((s, i) => {
+    $("pin").setAttribute("aria-pressed", pinned());
+    const chips = pins.map((s, i) => {
       const label = pinLabel(s);
       return `<li><button class="pin-open" data-i="${i}" title="この表に戻る"><b>${s.v}</b>${label ? `<small>${label}</small>` : ""}</button>` +
         `<button class="pin-del" data-i="${i}" aria-label="${s.v} のピンを外す" title="ピンを外す">✕</button></li>`;
-    }).join("") + (pins.length
-      ? `<li class="br"></li>` + // 問題集の操作はピンとは別の行に置く
-        `<li class="mode"><button id="quiz-mode" aria-pressed="${quizMode}" title="「次の動詞」をピン留めの中からだけ引く">問題集から出題</button></li>` +
-        `<li class="copy"><button id="copy-pins" title="ピン留めをまとめた URL をコピー">${COPY_ICON}問題集をコピー</button></li>`
-      : "");
+    }).join("");
+    const ctrl = pins.length
+      ? `<li class="mode"><button id="quiz-mode" aria-pressed="${quizMode}" title="「次の動詞」をピン留めの中からだけ引く">問題集（ピン留め）から出題</button></li>` +
+        `<li class="copy"><button id="copy-pins" title="ピン留めをまとめた URL をコピー">${COPY_ICON}問題集をコピー</button></li>` +
+        `<li class="clear"><button id="clear-pins" title="ピン留めをすべて外す">すべて外す</button></li>`
+      : "";
+    // 操作とチップは別の行 (.br が改行係)。出題中はチップが上、そうでなければ操作が上
+    $("pins").innerHTML = pins.length
+      ? (quizMode ? chips + `<li class="br"></li>` + ctrl : ctrl + `<li class="br"></li>` + chips)
+      : chips;
     $("pins").hidden = !pins.length;
     $("pins").classList.toggle("quiz", quizMode);
+  }
+
+  // 並べ替えを見せる (FLIP)。動いた分だけ元の位置に戻してから、新しい位置へ流す
+  function reflowPins(fn) {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return fn();
+    const key = (li) => li.querySelector("button")?.id || li.querySelector("[data-i]")?.dataset.i;
+    const before = new Map([...$("pins").children].map((li) => [key(li), li.getBoundingClientRect()]));
+    fn();
+    for (const li of $("pins").children) {
+      const a = before.get(key(li));
+      if (!a) continue; // 新しく出た項目は動かしようがない
+      const b = li.getBoundingClientRect();
+      const [dx, dy] = [a.left - b.left, a.top - b.top];
+      if (dx || dy) li.animate([{ transform: `translate(${dx}px,${dy}px)` }, { transform: "none" }], 220);
+    }
   }
 
   // http://192.168.x.x のような非セキュアな文脈では navigator.clipboard ごと存在しない。
@@ -516,13 +528,7 @@ export async function start(lang) {
     return ok ? Promise.resolve() : Promise.reject(new Error("copy"));
   }
 
-  // ピン一覧をまとめた ?pins=。1件を stateKey のまま "," でつなぐだけ
-  const pinsUrl = () => {
-    const url = new URL(location);
-    url.searchParams.set("pins", pins.map(stateKey).join(","));
-    return String(url);
-  };
-  // 受け取った側は localStorage を見ずにこれで一覧を作る
+  // ?pins= を一覧に戻す。1件は stateKey のまま "," でつないである
   function parsePins(v) {
     return (v ?? "").split(",").filter(Boolean).map((s) => {
       const [inf, p, t, op, ot, x] = s.split("|");
@@ -553,7 +559,7 @@ export async function start(lang) {
     const i = pins.findIndex((s) => stateKey(s) === here);
     if (i < 0) pins.push(state());
     else pins.splice(i, 1); // 留めてある表をもう一度押したら外す
-    savePins();
+    syncUrl();
     renderPins();
   });
 
@@ -567,22 +573,32 @@ export async function start(lang) {
     const del = e.target.closest(".pin-del");
     if (del) {
       pins.splice(+del.dataset.i, 1);
-      savePins();
-      return renderPins();
+      renderPins(); // 最後の1件を外すと出題モードも落ちるので、URL はそのあとで揃える
+      return syncUrl();
     }
     const copy = e.target.closest("#copy-pins");
     if (copy) {
       // iOS Safari は click の中から直に呼ぶかぎり通る。await を挟むと弾かれるので then で受ける
-      return copyText(pinsUrl()).then(
+      return copyText(location.href).then(
         () => flash(copy, DONE_ICON, "コピーしました"),
         () => flash(copy, COPY_ICON, "コピーできません"),
       );
     }
+    const wipe = e.target.closest("#clear-pins");
+    if (wipe) {
+      pins = []; // 戻したいときはブラウザの戻るで直前の ?pins= に戻れる
+      renderPins(); // 出題モードもここで落ちる
+      return syncUrl();
+    }
     const mode = e.target.closest("#quiz-mode");
     if (mode) {
       quizMode = !quizMode;
-      syncUrl(); // 出題モードも URL に残す。リロードでも共有先でも続く
-      return renderPins();
+      return reflowPins(() => {
+        // 出題モードに入ったのに問題集の外の表のまま、では出題が始まらない
+        if (quizMode && !pinned()) applyPin(sample(pins));
+        syncUrl(); // 出題モードも URL に残す。リロードでも共有先でも続く
+        renderPins();
+      });
     }
     const open = e.target.closest(".pin-open");
     if (open) applyPin(pins[+open.dataset.i]);
@@ -604,20 +620,15 @@ export async function start(lang) {
   order.p = parseOrder(query.get("op"), P);
   order.t = parseOrder(query.get("ot"), T);
   transposed = query.get("x") === "1";
-  // ?pins= があればそれを一覧にする。この画面かぎりで、localStorage は読みも書きもしない
-  const shared = parsePins(query.get("pins"));
-  if (shared.length) {
-    pins = shared; // 手元のピンは localStorage に残したまま、この画面だけ差し替える
-    ephemeral = true;
-  }
-  // 問題集の URL から入ったら出題モードで始める
-  quizMode = (shared.length > 0 || query.get("q") === "1") && pins.length > 0;
+  pins = parsePins(query.get("pins"));
+  // 問題集の URL から入ったら出題モードで始める。自分で切ったときだけ q=0 が書いてある
+  quizMode = pins.length > 0 && query.get("q") !== "0";
   // 表を作る前に出す。描画はこのタスクの終わりまで起きないので、まだちらつかない
   document.querySelector("main").hidden = false;
   load(verbs.find((v) => infinitiveLabel(v) === wanted) ?? pick());
   // 問題集リンクから入ったのに今の表がピンに無い = URL の指す表は問題集の外。
   // 「次の動詞」を待たせず、最初から問題集の中身を出す
-  if (quizMode && !pins.some((s) => stateKey(s) === stateKey(state()))) applyPin(sample(pins));
+  if (quizMode && !pinned()) applyPin(sample(pins));
 
   // 表が右に見切れていたら、横スクロールできることを一度だけ知らせる
   if (scroller.scrollWidth > scroller.clientWidth + 4) {
