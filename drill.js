@@ -89,7 +89,7 @@ export async function start(lang) {
   let canon = []; // canon[表示上の位置] = 正準インデックス
   let rowKeys = []; // 表示行 → 人称番号(転置時は時制番号)
   let colKeys = [];
-  let footR = []; // 各行の末尾、各列の下にある消去ボタンの置き場
+  let footR = []; // 行見出しの中、列見出しの中にある消去ボタンの置き場
   let footC = [];
   let pcts = []; // 各セルの通算正答率
   let rowPct = []; // 行・列の見出しに出す、人称別・時制別の通算正答率
@@ -131,14 +131,12 @@ export async function start(lang) {
     const colLabel = (i) => (transposed ? PRONOUNS[i] : TENSES[i].label);
 
     grid.innerHTML =
-      `<thead><tr><th><div class="corner">${SWAP_BUTTON}${SHUFFLE_BUTTON}</div></th>${colKeys.map((i) => `<th class="${colCls}">${colHead(i)}</th>`).join("")}<th class="foot"></th></tr></thead><tbody>` +
+      `<thead><tr><th><div class="corner">${SWAP_BUTTON}${SHUFFLE_BUTTON}</div></th>${colKeys.map((i) => `<th class="${colCls}">${colHead(i)}<span class="cut-slot"></span></th>`).join("")}</tr></thead><tbody>` +
       rowKeys.map((r, y) =>
-        `<tr><th class="${rowCls}">${rowHead(r)}</th>${colKeys.map((c, x) =>
+        `<tr><th class="${rowCls}">${rowHead(r)}<span class="cut-slot"></span></th>${colKeys.map((c, x) =>
           `<td style="--i:${y * cols() + x}"><input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" aria-label="${rowLabel(r)} ${colLabel(c)}"><small class="ans"></small><small class="pct"></small></td>`,
-        ).join("")}<td class="foot"></td></tr>`,
+        ).join("")}</tr>`,
       ).join("") +
-      // 列の消去ボタンを置くためだけの行
-      `<tr class="footrow"><th></th>${colKeys.map(() => `<td class="foot"></td>`).join("")}<td class="foot"></td></tr>` +
       "</tbody>";
 
     inputs = [...grid.querySelectorAll("input")];
@@ -148,8 +146,8 @@ export async function start(lang) {
     pcts = [...grid.querySelectorAll("td .pct")];
     rowPct = [...grid.querySelectorAll("tbody th .pct")];
     colPct = [...grid.querySelectorAll("thead .pct")];
-    footR = [...grid.querySelectorAll("tbody tr:not(.footrow) td.foot")];
-    footC = [...grid.querySelectorAll(".footrow td.foot")].slice(0, cols());
+    footR = [...grid.querySelectorAll("tbody th .cut-slot")];
+    footC = [...grid.querySelectorAll("thead .cut-slot")];
     grid.classList.remove("grading"); // 走りは答え合わせの一回きり
 
     inputs.forEach((el, n) => {
@@ -209,7 +207,6 @@ export async function start(lang) {
   }
 
   function render() {
-    grid.classList.toggle("checked", checked); // 消去ボタンは採点まで畳んでおく
     inputs.forEach((el, n) => {
       const k = canon[n];
       const gap = none(k); // 形のないマスは最初から伏せる。書く場所がないことも文法の一部
@@ -231,11 +228,16 @@ export async function start(lang) {
     // 今回のリリースでは通算正答率を出さない。記録は続けているので、この行を戻せば表示される
     // renderStats();
 
-    // 答え合わせのあと、行・列の末尾に消去ボタンを出す。最後の1本は消せない。
+    // 答え合わせのあと、行・列の見出しの中に消去ボタンを出す。最後の1本は消せない。
     // 出題中は今の表をピンが決めているので、戻せる ✕ を出さないのと対で、消すほうも出さない
     const cuttable = checked && !quizMode;
-    footR.forEach((cell, r) => { cell.innerHTML = cuttable && rows() > 1 ? cutButton("row", r) : ""; });
-    footC.forEach((cell, c) => { cell.innerHTML = cuttable && cols() > 1 ? cutButton("col", c) : ""; });
+    const cutR = cuttable && rows() > 1;
+    const cutC = cuttable && cols() > 1;
+    // 見出しはボタンが出るときだけ、その置き場のぶん広げる
+    grid.classList.toggle("cut-r", cutR);
+    grid.classList.toggle("cut-c", cutC);
+    footR.forEach((cell, r) => { cell.innerHTML = cutR ? cutButton("row", r) : ""; });
+    footC.forEach((cell, c) => { cell.innerHTML = cutC ? cutButton("col", c) : ""; });
   }
 
   const setValue = (n, v) => {
@@ -286,7 +288,7 @@ export async function start(lang) {
       const isRow = cut.dataset.axis === "row";
       const i = +cut.dataset.i;
       // 消す行・列だけ先に畳んで見せてから、作り直す
-      const at = cut.closest("td").cellIndex;
+      const at = cut.closest("th").cellIndex;
       const gone = isRow ? [cut.closest("tr")] : [...grid.rows].map((tr) => tr.cells[at]);
       gone.forEach((el) => el?.classList.add("leaving"));
       hidden[isRow !== transposed ? "p" : "t"].add(isRow ? rowKeys[i] : colKeys[i]);

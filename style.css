@@ -168,16 +168,19 @@ thead th:first-child { position: sticky; left: 0; z-index: 2; background: var(--
    下限を決めているのは転置したときの "conditionnel" と 直説法現在(5文字)。
    これ以上詰めると人称のときだけ列が細くなって、入れ替えるたびに表が横に動く */
 tbody th, thead th:first-child { box-sizing: border-box; width: 5.5rem; min-width: 5.5rem; text-align: right; }
-/* 行・列を消すボタンの置き場。採点したら出す */
-th.foot, td.foot {
-  box-sizing: border-box; width: 2.6rem; min-width: 2.6rem; padding: .2rem;
-  border-right: 1px solid var(--rule-faint);
-}
-.footrow th, .footrow td { border-bottom: 0; height: 2.2rem; }
-#grid:not(.checked) .footrow, #grid:not(.checked) .foot { display: none; }
+/* 行・列を消すボタンの置き場。採点したら見出しの中に出す。
+   列は最前行の見出しの右端、行は最前列の見出しの左端 */
+th { position: relative; }
+.cut-slot { position: absolute; top: 50%; transform: translateY(-50%); line-height: 0; }
+thead .cut-slot { right: .3rem; }
+tbody .cut-slot { left: .3rem; }
+/* ボタンのぶんだけ場所を空ける。見出し列は詰めずに広げる */
+#grid.cut-r tbody th, #grid.cut-r thead th:first-child { width: 7rem; min-width: 7rem; }
+#grid.cut-r tbody th { padding-left: 1.7rem; }
+#grid.cut-c thead th:not(:first-child) { padding-right: 1.7rem; }
 .cut-btn {
-  width: 1.8rem; height: 1.8rem; min-width: 0; padding: 0; margin: 0 auto;
-  display: grid; place-items: center; border-radius: 50%; font-size: .9rem;
+  width: 1.35rem; height: 1.35rem; min-width: 0; padding: 0;
+  display: grid; place-items: center; border-radius: 50%; font-size: .7rem;
   color: var(--margin); border-color: var(--margin);
   transition: transform .12s ease, background .12s ease;
 }
