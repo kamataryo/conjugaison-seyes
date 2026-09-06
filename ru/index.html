@@ -292,6 +292,8 @@
   }
   #swap:hover, #shuffle:hover { background: var(--ng-bg); }
   #swap:active, #shuffle:active { background: var(--ng-bg); transform: scale(.88); }
+  /* 出題中は並べ替えも止める。表の並びごと 1 件なので触らせない */
+  body:has(.pins.quiz) :is(#swap, #shuffle) { display: none; }
   /* 1セルだけになったシャッフル。押せないことを見せて、そのまま置いておく */
   #shuffle:disabled { opacity: .3; cursor: default; }
   #shuffle:disabled:hover, #shuffle:disabled:active { background: var(--card); transform: none; }
@@ -344,6 +346,8 @@
   #check:hover { background: color-mix(in srgb, var(--focus) 16%, transparent); }
   #next { color: var(--margin); border-color: var(--margin); }
   #restore, #reorder { color: var(--ink-soft); }
+  /* 問題集から出題している間は、表の並びと消した行列ごと 1 件。取り消しは出さない */
+  .bar:has(.pins.quiz) :is(#restore, #reorder) { display: none; }
   #next:hover { background: var(--ng-bg); }
   /* 通算スコアの全消しは日常の操作ではないので、小さく下に置く */
   #reset-score {
