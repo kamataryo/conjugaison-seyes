@@ -3,11 +3,11 @@ export const PRONOUNS = ["я", "ты", "он/она", "мы", "вы", "они"];
 // ロシア語に仏語のような時制の並びはない。人称で形が変わるのはこの5つだけ。
 // 命令法は ты と вы にしか形がないので、残りのセルは null (答えのないマス) になる
 export const TENSES = [
-  { key: "present", label: "現在", ru: "настоящее" },
-  { key: "past", label: "過去", ru: "прошедшее" },
-  { key: "future", label: "未来", ru: "будущее" },
-  { key: "conditional", label: "仮定法", ru: "сослагательное" },
-  { key: "imperative", label: "命令法", ru: "повелительное" },
+  { key: "present", label: "現在", sub: "настоящее" },
+  { key: "past", label: "過去", sub: "прошедшее" },
+  { key: "future", label: "未来", sub: "будущее" },
+  { key: "conditional", label: "仮定法", sub: "сослагательное" },
+  { key: "imperative", label: "命令法", sub: "повелительное" },
 ];
 
 export const ASPECTS = { нсв: "不完了体", св: "完了体" };
@@ -98,9 +98,15 @@ export const infinitiveLabel = (verb) => verb.infinitive;
 export const cellIndex = (r, c, transposed) =>
   transposed ? c * TENSES.length + r : r * TENSES.length + c;
 
-/** 正解表示用に人称代名詞を添える。命令法は主語を立てない (читай) */
-export const withPronoun = (i, form, tense) =>
-  tense === "imperative" ? form : `${PRONOUNS[i]} ${form}`;
+/**
+ * 正解表示用に人称代名詞を添える。命令法は主語を立てない (читай)。
+ * fem: 過去・仮定法を女性形で答えたとき。主語も女性に絞る (он/она → она)
+ * 第3引数の形は言語をまたいで共通。verb はロシア語版では使わない
+ */
+export const withPronoun = (i, form, { tense, fem = false } = {}) =>
+  tense === "imperative"
+    ? form
+    : `${fem ? PRONOUNS[i].replace(/^он\//, "") : PRONOUNS[i]} ${form}`;
 
 /**
  * 採点用の正規化。ё は日常の表記では е と書かれるので同一視する。
@@ -112,3 +118,18 @@ export const normalize = (s) =>
 
 export const isCorrect = (input, answer) =>
   answer != null && normalize(input) === normalize(answer);
+
+/**
+ * 通算集計で誤答をまとめるためのキー。採点(normalize)と同じ強さで畳む。
+ * 未来の助動詞と不定詞の間の空白、仮定法の бы の前の空白は意味を持つので潰さない。
+ * - Unicode 正規化(NFC)、小文字化、前後の空白と句読点を落とす
+ * - ё は е に畳み、力点記号は落とす。連続する空白は1つに
+ * - 先頭の人称代名詞 (я / ты / он ...) を落とす
+ */
+export const normalizeWrong = (s) =>
+  (s ?? "").normalize("NFC").toLowerCase()
+    .replace(/\u0301/g, "")
+    .replace(/ё/g, "е")
+    .replace(/\s+/g, " ")
+    .replace(/^[\s.,;:!?'"-]+|[\s.,;:!?'"-]+$/g, "")
+    .replace(/^(?:я |ты |он |она |оно |мы |вы |они )/, "");

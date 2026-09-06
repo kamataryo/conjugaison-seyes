@@ -80,8 +80,8 @@ test("正解表示に人称代名詞を添え、je はエリジオンする", as
 test("有音の h はエリジオンしない", async () => {
   const { withPronoun } = await import("./conjugate.js");
   assert.equal(withPronoun(0, "habite"), "j'habite");          // 無音の h
-  assert.equal(withPronoun(0, "hais", true), "je hais");       // 有音の h (haïr)
-  assert.equal(withPronoun(0, "haïssais", true), "je haïssais");
+  assert.equal(withPronoun(0, "hais", { verb: { aspirate: true } }), "je hais"); // 有音の h (haïr)
+  assert.equal(withPronoun(0, "haïssais", { verb: { aspirate: true } }), "je haïssais");
   assert.equal(find("haïr").aspirate, true);
   assert.equal(find("habiter").aspirate, undefined);
 });
@@ -101,7 +101,7 @@ test("転置してもセルと答えの対応が保たれる", async () => {
 });
 
 test("誤答は表記ゆれを畳んでから記録する", async () => {
-  const { normalizeWrong } = await import("./stats.js");
+  const { normalizeWrong } = await import("./conjugate.js");
   assert.equal(normalizeWrong(" J’ai  Parlé. "), "ai parlé"); // 連続する空白は1つに
   assert.notEqual(normalizeWrong("aiparlé"), "ai parlé");     // 助動詞との間の空白は残す
   assert.equal(normalizeWrong("je parle"), "parle");          // 先頭の人称代名詞は落とす
@@ -112,16 +112,18 @@ test("誤答は表記ゆれを畳んでから記録する", async () => {
 
 test("動詞×人称×時制のセル単位に集計し、軸ごとの成績は合算で出す", async () => {
   const { blank, record, merge, rate, topWrong, cellKey } = await import("./stats.js");
+  const { normalizeWrong } = await import("./conjugate.js");
   const s = blank();
-  record(s, { infinitive: "parler", p: 0, tense: "present", input: "parle", ok: true });
-  record(s, { infinitive: "parler", p: 0, tense: "imparfait", input: " Je  Parlai ", ok: false });
-  record(s, { infinitive: "finir", p: 3, tense: "present", input: "parlai", ok: false });
-  record(s, { infinitive: "finir", p: 3, tense: "present", input: "", ok: false });
+  const put = (o) => record(s, o, normalizeWrong);
+  put({ infinitive: "parler", pronoun: "je", tense: "present", input: "parle", ok: true });
+  put({ infinitive: "parler", pronoun: "je", tense: "imparfait", input: " Je  Parlai ", ok: false });
+  put({ infinitive: "finir", pronoun: "nous", tense: "present", input: "parlai", ok: false });
+  put({ infinitive: "finir", pronoun: "nous", tense: "present", input: "", ok: false });
 
-  assert.equal(rate(s.cells[cellKey("parler", 0, "present")]), 100);
-  assert.equal(rate(s.cells[cellKey("finir", 3, "present")]), 0);
-  assert.equal(s.cells[cellKey("finir", 3, "present")].n, 2);
-  assert.equal(s.cells[cellKey("parler", 3, "present")], undefined); // 解いていないセルは作らない
+  assert.equal(rate(s.cells[cellKey("parler", "je", "present")]), 100);
+  assert.equal(rate(s.cells[cellKey("finir", "nous", "present")]), 0);
+  assert.equal(s.cells[cellKey("finir", "nous", "present")].n, 2);
+  assert.equal(s.cells[cellKey("parler", "nous", "present")], undefined); // 解いていないセルは作らない
 
   // 動詞別・人称別・時制別はセルの合算で出す
   assert.equal(rate(merge(s, (c) => c.infinitive === "parler")), 50);
@@ -131,12 +133,13 @@ test("動詞×人称×時制のセル単位に集計し、軸ごとの成績は�
   assert.equal(rate(merge(s, (c) => c.pronoun === "tu")), null);  // まだ解いていない人称
 
   // 同じ誤答は合算でも1つにまとまる。空欄は中身を残さない
-  assert.deepEqual(topWrong(s.cells[cellKey("finir", 3, "present")]), [["parlai", 1]]);
+  assert.deepEqual(topWrong(s.cells[cellKey("finir", "nous", "present")]), [["parlai", 1]]);
   assert.deepEqual(topWrong(merge(s, () => true)), [["parlai", 2]]);
 });
 
 test("メジャーバージョンが違うスコアは捨てる", async () => {
-  const { SCHEMA, KEY, load, save, clear, blank } = await import("./stats.js");
+  const { SCHEMA, load, save, clear, blank } = await import("./stats.js");
+  const KEY = "conjugaison.stats"; // 各言語の app.js が `${lang.storage}.stats` で作るキー
   const mem = new Map();
   const store = {
     getItem: (k) => mem.get(k) ?? null,
@@ -146,23 +149,23 @@ test("メジャーバージョンが違うスコアは捨てる", async () => {
 
   const s = blank();
   s.cells["parler|je|present"] = { n: 3, ok: 2, wrong: { parlai: 1 } };
-  save(s, store);
-  assert.equal(load(store).cells["parler|je|present"].n, 3);
+  save(s, KEY, store);
+  assert.equal(load(KEY, store).cells["parler|je|present"].n, 3);
 
   // 構造の追加(マイナー/パッチ)は読み継ぐ
   mem.set(KEY, JSON.stringify({ ...s, version: `${SCHEMA.split(".")[0]}.99.99` }));
-  assert.equal(load(store).cells["parler|je|present"].n, 3);
-  assert.equal(load(store).version, SCHEMA);
+  assert.equal(load(KEY, store).cells["parler|je|present"].n, 3);
+  assert.equal(load(KEY, store).version, SCHEMA);
 
   // メジャーが変わったら白紙に戻す
   mem.set(KEY, JSON.stringify({ ...s, version: "99.0.0" }));
-  assert.deepEqual(load(store), blank());
+  assert.deepEqual(load(KEY, store), blank());
 
   mem.set(KEY, "{壊れた");
-  assert.deepEqual(load(store), blank());
+  assert.deepEqual(load(KEY, store), blank());
 
-  save(s, store);
-  assert.deepEqual(clear(store), blank());
+  save(s, KEY, store);
+  assert.deepEqual(clear(KEY, store), blank());
   assert.equal(store.getItem(KEY), null);
 });
 

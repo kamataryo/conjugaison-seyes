@@ -136,3 +136,23 @@ test("現在か未来のどちらかは必ず埋まる", () => {
     }
   }
 });
+
+test("正解表示に人称代名詞を添える。命令法は主語を立てない", async () => {
+  const { withPronoun } = await import("./conjugate.js");
+  assert.equal(withPronoun(0, "читаю", { tense: "present" }), "я читаю");
+  assert.equal(withPronoun(2, "читал", { tense: "past" }), "он/она читал");
+  // 女性形で答えたら主語も女性に絞る
+  assert.equal(withPronoun(2, "читала", { tense: "past", fem: true }), "она читала");
+  assert.equal(withPronoun(0, "читала", { tense: "past", fem: true }), "я читала");
+  assert.equal(withPronoun(1, "читай", { tense: "imperative" }), "читай");
+  assert.equal(withPronoun(4, "читайте", { tense: "imperative" }), "читайте");
+});
+
+test("誤答は表記ゆれを畳んでから記録する", async () => {
+  const { normalizeWrong } = await import("./conjugate.js");
+  assert.equal(normalizeWrong(" Он  Читал. "), "читал");        // 連続する空白は1つに
+  assert.equal(normalizeWrong("Я ЧИТАЮ"), "читаю");             // 先頭の人称代名詞は落とす
+  assert.equal(normalizeWrong("идёт"), normalizeWrong("идет")); // ё と е は同じ
+  assert.equal(normalizeWrong("бу́ду читать"), "буду читать");   // 力点記号は落とす
+  assert.notEqual(normalizeWrong("будучитать"), "буду читать"); // 助動詞との間の空白は残す
+});

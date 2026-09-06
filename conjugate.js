@@ -1,13 +1,13 @@
 export const PRONOUNS = ["je", "tu", "il/elle", "nous", "vous", "ils/elles"];
 
 export const TENSES = [
-  { key: "present", label: "直説法現在", fr: "présent" },
-  { key: "imparfait", label: "半過去", fr: "imparfait" },
-  { key: "futur", label: "単純未来", fr: "futur simple" },
-  { key: "conditionnel", label: "条件法現在", fr: "conditionnel" },
-  { key: "subjonctif", label: "接続法現在", fr: "subjonctif" },
-  { key: "passeCompose", label: "複合過去", fr: "passé composé" },
-  { key: "plusQueParfait", label: "大過去", fr: "plus-que-parfait" },
+  { key: "present", label: "直説法現在", sub: "présent" },
+  { key: "imparfait", label: "半過去", sub: "imparfait" },
+  { key: "futur", label: "単純未来", sub: "futur simple" },
+  { key: "conditionnel", label: "条件法現在", sub: "conditionnel" },
+  { key: "subjonctif", label: "接続法現在", sub: "subjonctif" },
+  { key: "passeCompose", label: "複合過去", sub: "passé composé" },
+  { key: "plusQueParfait", label: "大過去", sub: "plus-que-parfait" },
 ];
 
 // 複合時制 → 助動詞をどの時制に活用するか
@@ -112,13 +112,31 @@ export const cellIndex = (r, c, transposed) =>
   transposed ? c * TENSES.length + r : r * TENSES.length + c;
 
 /**
- * 正解表示用に人称代名詞を添える。je だけが母音と無音の h の前で j' になる
- * 有音の h (haïr など) は動詞データの aspirate: true で除外する
+ * 正解表示用に人称代名詞を添える。je だけが母音と無音の h の前で j' になる。
+ * 有音の h (haïr など) は動詞データの aspirate: true で除外する。
+ * fem: être の複合時制を女性形で答えたとき。主語も女性に絞る (il/elle → elle)
+ * 第3引数の形は言語をまたいで共通。tense はフランス語版では使わない
  */
-export const withPronoun = (i, form, aspirate = false) =>
-  i === 0 && !aspirate && VOWEL.test(form) ? `j'${form}` : `${PRONOUNS[i]} ${form}`;
+export const withPronoun = (i, form, { verb = {}, fem = false } = {}) => {
+  if (i === 0 && !verb.aspirate && VOWEL.test(form)) return `j'${form}`;
+  return `${fem ? PRONOUNS[i].replace(/^ils?\//, "") : PRONOUNS[i]} ${form}`;
+};
 
 export const normalize = (s) =>
   s.trim().toLowerCase().replace(/[’´]/g, "'").replace(/\s+/g, " ");
 
 export const isCorrect = (input, answer) => normalize(input) === normalize(answer);
+
+/**
+ * 通算集計で誤答をまとめるためのキー。採点(normalize)と同じ強さで畳む。
+ * 複合時制の助動詞との間の空白は意味を持つので潰さない。
+ * - Unicode 正規化(NFC)、小文字化、前後の空白と句読点を落とす
+ * - アポストロフィの字形を ' に統一、連続する空白は1つに
+ * - 先頭の人称代名詞 (je / j' / tu ...) を落とす
+ */
+export const normalizeWrong = (s) =>
+  (s ?? "").normalize("NFC").toLowerCase()
+    .replace(/[’‘`´]/g, "'")
+    .replace(/\s+/g, " ")
+    .replace(/^[\s.,;:!?'"-]+|[\s.,;:!?'"-]+$/g, "")
+    .replace(/^(?:j'|je |tu |il |elle |on |nous |vous |ils |elles )/, "");

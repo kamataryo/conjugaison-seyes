@@ -1,12 +1,11 @@
-import { PRONOUNS, TENSES } from "./conjugate.js";
+// 通算の正答率と誤答の集計。文法には触れないので両言語で共有する。
+// 言語ごとに違うのは保存キーと誤答の畳み方だけなので、呼ぶ側から渡す
 
 /**
  * 保存するデータ構造のバージョン。構造を変えたときだけ上げる(データの追加では上げない)。
  * メジャーが上がったら読み込み時に破棄する。マイナー/パッチはそのまま読み継ぐ。
  */
 export const SCHEMA = "0.0.1";
-
-export const KEY = "conjugaison.stats";
 
 const major = (v) => String(v).split(".")[0];
 
@@ -17,29 +16,17 @@ export const blank = () => ({ version: SCHEMA, cells: {} });
 const bucket = () => ({ n: 0, ok: 0, wrong: {} });
 
 /** 集計の単位は「動詞×人称×時制」。動詞別・人称別・時制別は merge() で合算して出す */
-export const cellKey = (infinitive, p, tense) => `${infinitive}|${PRONOUNS[p]}|${tense}`;
+export const cellKey = (infinitive, pronoun, tense) => `${infinitive}|${pronoun}|${tense}`;
 
 /**
- * 誤答をまとめるためのキー。採点(conjugate.js の normalize)と同じ強さで畳む。
- * 複合時制の助動詞との間の空白は意味を持つので潰さない。
- * - Unicode 正規化(NFC)、小文字化、前後の空白と句読点を落とす
- * - アポストロフィの字形を ' に統一、連続する空白は1つに
- * - 先頭の人称代名詞 (je / j' / tu ...) を落とす
+ * 1セル分の結果を足し込む。stats を破壊的に更新して返す。
+ * fold は誤答をまとめるためのキー関数 (conjugate.js の normalizeWrong)
  */
-export function normalizeWrong(s) {
-  return (s ?? "").normalize("NFC").toLowerCase()
-    .replace(/[’‘`´]/g, "'")
-    .replace(/\s+/g, " ")
-    .replace(/^[\s.,;:!?'"-]+|[\s.,;:!?'"-]+$/g, "")
-    .replace(/^(?:j'|je |tu |il |elle |on |nous |vous |ils |elles )/, "");
-}
-
-/** 1セル分の結果を足し込む。stats を破壊的に更新して返す */
-export function record(stats, { infinitive, p, tense, input, ok }) {
-  const b = (stats.cells[cellKey(infinitive, p, tense)] ??= bucket());
+export function record(stats, { infinitive, pronoun, tense, input, ok }, fold) {
+  const b = (stats.cells[cellKey(infinitive, pronoun, tense)] ??= bucket());
   b.n++;
   if (ok) return b.ok++, stats;
-  const key = normalizeWrong(input);
+  const key = fold(input);
   if (key) b.wrong[key] = (b.wrong[key] ?? 0) + 1; // 空欄は誤答の中身として残さない
   return stats;
 }
@@ -65,9 +52,9 @@ export const topWrong = (b, limit = 5) =>
     .sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0]))
     .slice(0, limit);
 
-export function load(storage = localStorage) {
+export function load(key, storage = localStorage) {
   try {
-    const raw = storage.getItem(KEY);
+    const raw = storage.getItem(key);
     if (!raw) return blank();
     const s = JSON.parse(raw);
     // メジャーが違う = 構造が非互換。作り直す
@@ -78,13 +65,13 @@ export function load(storage = localStorage) {
   }
 }
 
-export function save(stats, storage = localStorage) {
+export function save(stats, key, storage = localStorage) {
   try {
-    storage.setItem(KEY, JSON.stringify(stats));
+    storage.setItem(key, JSON.stringify(stats));
   } catch { /* プライベートモード等。集計が消えるだけで採点は動く */ }
 }
 
-export function clear(storage = localStorage) {
-  try { storage.removeItem(KEY); } catch { /* 同上 */ }
+export function clear(key, storage = localStorage) {
+  try { storage.removeItem(key); } catch { /* 同上 */ }
   return blank();
 }
