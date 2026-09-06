@@ -294,6 +294,9 @@ function syncUrl() {
   }
   if (transposed) url.searchParams.set("x", "1");
   else url.searchParams.delete("x");
+  if (quizMode) url.searchParams.set("q", "1");
+  else url.searchParams.delete("q");
+  url.searchParams.delete("pins"); // 取り込んだら用済み。共有は「問題集をコピー」で作り直す
   history.replaceState(null, "", url);
 }
 
@@ -362,8 +365,15 @@ $("reorder").addEventListener("click", () => {
   build();
 });
 
-const pick = () => verbs[Math.floor(Math.random() * verbs.length)];
-$("next").addEventListener("click", () => load(pick()));
+const sample = (a) => a[Math.floor(Math.random() * a.length)];
+const pick = () => sample(verbs);
+$("next").addEventListener("click", () => {
+  if (!quizMode) return load(pick());
+  // 問題集からは表ごと引く (動詞・並び順・消した行列で1件)。2件以上あれば今の表は避ける
+  const here = stateKey(state());
+  const rest = pins.filter((s) => stateKey(s) !== here);
+  applyPin(sample(rest.length ? rest : pins));
+});
 
 // ドロップダウンからの直接指定。並び順・消した行列はそのまま引き継ぐ
 // classify() の分類ごとに optgroup。群の番号順に並べ、分類の中はアルファベット順
@@ -387,6 +397,15 @@ $("pick").addEventListener("change", (e) => load(verbs[+e.target.value]));
 const PINS_KEY = "conjugaison.pins";
 const DEFAULT_ORDER = { p: iota(P).join(""), t: iota(T).join("") };
 let pins = loadPins();
+// 「問題集から出題」。次の動詞をピンの中からだけ引く
+let quizMode = false;
+// 共有 URL から入っているあいだは localStorage を書かない。相手のピンを消さないため
+let ephemeral = false;
+
+const icon = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const COPY_ICON = icon('<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>');
+const DONE_ICON = icon('<path d="M20 6 9 17l-5-5"/>');
 
 const state = () => ({
   v: infinitiveLabel(verb),
@@ -407,24 +426,79 @@ function loadPins(storage = localStorage) {
   }
 }
 function savePins(storage = localStorage) {
+  if (ephemeral) return; // 共有 URL の問題集はこの画面かぎり
   try { storage.setItem(PINS_KEY, JSON.stringify(pins)); } catch { /* プライベートモード等 */ }
 }
 
-// 一覧に出す一言。並びをいじっていない全体表なら「標準」
+// 残っている人称・時制。1本だけならその名前、そうでなければ本数
+const TENSE_LABELS = TENSES.map((t) => t.label);
+const axisLabel = (cut, labels, name) => {
+  if (!cut) return null;
+  const rest = labels.filter((_, i) => !cut.includes(`${i}`));
+  return rest.length === 1 ? rest[0] : `${name} ${rest.length}/${labels.length}`;
+};
+
+// 一覧に出す一言。並びをいじっていない全体表なら何も言わない
 const pinLabel = (s) => [
   s.x && "転置",
   (s.op !== DEFAULT_ORDER.p || s.ot !== DEFAULT_ORDER.t) && "シャッフル",
-  s.p && `人称 ${P - s.p.length}/${P}`,
-  s.t && `時制 ${T - s.t.length}/${T}`,
-].filter(Boolean).join(" · ") || "標準";
+  axisLabel(s.p, PRONOUNS, "人称"),
+  axisLabel(s.t, TENSE_LABELS, "時制"),
+].filter(Boolean).join(" · ");
 
 function renderPins() {
+  if (!pins.length) quizMode = false; // 出題元がなくなったら勝手にオフ
   const here = stateKey(state());
   $("pin").setAttribute("aria-pressed", pins.some((s) => stateKey(s) === here));
-  $("pins").innerHTML = pins.map((s, i) =>
-    `<li><button class="pin-open" data-i="${i}" title="この表に戻る"><b>${s.v}</b><small>${pinLabel(s)}</small></button>` +
-    `<button class="pin-del" data-i="${i}" aria-label="${s.v} のピンを外す" title="ピンを外す">✕</button></li>`).join("");
+  $("pins").innerHTML = pins.map((s, i) => {
+    const label = pinLabel(s);
+    return `<li><button class="pin-open" data-i="${i}" title="この表に戻る"><b>${s.v}</b>${label ? `<small>${label}</small>` : ""}</button>` +
+      `<button class="pin-del" data-i="${i}" aria-label="${s.v} のピンを外す" title="ピンを外す">✕</button></li>`;
+  }).join("") + (pins.length
+    ? `<li class="br"></li>` + // 問題集の操作はピンとは別の行に置く
+      `<li class="mode"><button id="quiz-mode" aria-pressed="${quizMode}" title="「次の動詞」をピン留めの中からだけ引く">問題集から出題</button></li>` +
+      `<li class="copy"><button id="copy-pins" title="ピン留めをまとめた URL をコピー">${COPY_ICON}問題集をコピー</button></li>`
+    : "");
   $("pins").hidden = !pins.length;
+  $("pins").classList.toggle("quiz", quizMode);
+}
+
+// http://192.168.x.x のような非セキュアな文脈では navigator.clipboard ごと存在しない。
+// 黙って失敗すると前のクリップボードの中身が残って紛らわしいので、旧 API に落とす
+function copyText(text) {
+  if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.readOnly = true;
+  ta.style.cssText = "position:fixed;top:0;opacity:0";
+  document.body.append(ta);
+  ta.select();
+  ta.setSelectionRange(0, text.length); // iOS は select() だけでは範囲が決まらない
+  const ok = document.execCommand("copy");
+  ta.remove();
+  return ok ? Promise.resolve() : Promise.reject(new Error("copy"));
+}
+
+// ピン一覧をまとめた ?pins=。1件を stateKey のまま "," でつなぐだけ
+const pinsUrl = () => {
+  const url = new URL(location);
+  url.searchParams.set("pins", pins.map(stateKey).join(","));
+  return String(url);
+};
+// 受け取った側は localStorage を見ずにこれで一覧を作る
+function parsePins(v) {
+  return (v ?? "").split(",").filter(Boolean).map((s) => {
+    const [inf, p, t, op, ot, x] = s.split("|");
+    // 中身は URL から読むときと同じ検算にかけ、今の表と stateKey が揃う形に直す
+    return {
+      v: inf,
+      p: [...parseCut(p, P)].sort().join(""),
+      t: [...parseCut(t, T)].sort().join(""),
+      op: parseOrder(op, P).join(""),
+      ot: parseOrder(ot, T).join(""),
+      x: x === "1" ? 1 : 0,
+    };
+  }).filter((s) => verbs.some((w) => infinitiveLabel(w) === s.v));
 }
 
 // 消した行列も並び順も、URL から読むときと同じ検算にかける
@@ -446,11 +520,31 @@ $("pin").addEventListener("click", () => {
   renderPins();
 });
 
+// 押した手応えをボタンの字で返す。次の renderPins() で元に戻る
+function flash(btn, svg, msg) {
+  btn.innerHTML = svg + msg;
+  setTimeout(renderPins, 1600);
+}
+
 $("pins").addEventListener("click", (e) => {
   const del = e.target.closest(".pin-del");
   if (del) {
     pins.splice(+del.dataset.i, 1);
     savePins();
+    return renderPins();
+  }
+  const copy = e.target.closest("#copy-pins");
+  if (copy) {
+    // iOS Safari は click の中から直に呼ぶかぎり通る。await を挟むと弾かれるので then で受ける
+    return copyText(pinsUrl()).then(
+      () => flash(copy, DONE_ICON, "コピーしました"),
+      () => flash(copy, COPY_ICON, "コピーできません"),
+    );
+  }
+  const mode = e.target.closest("#quiz-mode");
+  if (mode) {
+    quizMode = !quizMode;
+    syncUrl(); // 出題モードも URL に残す。リロードでも共有先でも続く
     return renderPins();
   }
   const open = e.target.closest(".pin-open");
@@ -473,6 +567,14 @@ const parseOrder = (v, n) => {
 order.p = parseOrder(query.get("op"), P);
 order.t = parseOrder(query.get("ot"), T);
 transposed = query.get("x") === "1";
+// ?pins= があればそれを一覧にする。この画面かぎりで、localStorage は読みも書きもしない
+const shared = parsePins(query.get("pins"));
+if (shared.length) {
+  pins = shared; // 手元のピンは localStorage に残したまま、この画面だけ差し替える
+  ephemeral = true;
+}
+// 問題集の URL から入ったら出題モードで始める
+quizMode = (shared.length > 0 || query.get("q") === "1") && pins.length > 0;
 // 表を作る前に出す。描画はこのタスクの終わりまで起きないので、まだちらつかない
 document.querySelector("main").hidden = false;
 load(verbs.find((v) => infinitiveLabel(v) === wanted) ?? pick());
