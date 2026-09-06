@@ -92,7 +92,7 @@ function build() {
   rowKeys = transposed ? ts : ps;
   colKeys = transposed ? ps : ts;
   // 時制にはフランス語名を添える。aria-label には日本語名だけを使う
-  const tense = (i) => `${TENSES[i].label}<small class="fr">${TENSES[i].fr}</small>`;
+  const tense = (i) => `${TENSES[i].label}<small class="sub">${TENSES[i].fr}</small>`;
   const pct = '<small class="pct"></small>';
   const rowHead = (i) => (transposed ? tense(i) : PRONOUNS[i]) + pct;
   const colHead = (i) => (transposed ? PRONOUNS[i] : tense(i)) + pct;
@@ -138,7 +138,7 @@ function build() {
   const cutCols = (transposed ? hidden.p : hidden.t).size;
   $("restore").hidden = !cutRows && !cutCols;
   const what = cutRows && cutCols ? ["行と列", "lignes et colonnes"] : cutRows ? ["行", "lignes"] : ["列", "colonnes"];
-  $("restore").innerHTML = `消した${what[0]}を表示<small class="fr">Afficher les ${what[1]}</small>`;
+  $("restore").innerHTML = `消した${what[0]}を表示<small class="sub">Afficher les ${what[1]}</small>`;
   // 1セルだけになったら並べ替える先がない
   $("shuffle").disabled = rows() === 1 && cols() === 1;
   $("reorder").hidden = plain();
@@ -254,8 +254,8 @@ function setChecked(v) {
   checked = v;
   auxShown = v; // 答え合わせで出し、やり直すとまた伏せる
   $("check").innerHTML = v
-    ? 'やり直す<small class="fr">Recommencer</small>'
-    : '答え合わせ<small class="fr">Corriger</small>';
+    ? 'やり直す<small class="sub">Recommencer</small>'
+    : '答え合わせ<small class="sub">Corriger</small>';
   renderGloss();
 }
 

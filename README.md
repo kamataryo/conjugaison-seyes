@@ -4,8 +4,9 @@
 
 ## ロシア語版 (`ru/`)
 
-同じ表・同じ操作で、中身をロシア語の文法に合わせたもの。フランス語版とは
-`conjugate.js` / `verbs.json` / `app.js` / `index.html` / `stats.js` を丸ごと分けている
+同じ表・同じ操作で、中身をロシア語の文法に合わせたもの。CSS はルートの `style.css` を
+両版で共有し、`ru/index.html` が書体と見出し列の幅だけを上書きする。
+`conjugate.js` / `verbs.json` / `app.js` / `index.html` / `stats.js` は丸ごと分けている
 (localStorage のキーも別)。ロシア語側でだけ効いている決めごと:
 
 - 列は 現在・過去・未来・仮定法・命令法 の5つ。時制ではなく体 (вид) が形を決める

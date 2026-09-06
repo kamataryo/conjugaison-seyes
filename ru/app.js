@@ -93,7 +93,7 @@ function build() {
   rowKeys = transposed ? ts : ps;
   colKeys = transposed ? ps : ts;
   // 時制にはロシア語名を添える。aria-label には日本語名だけを使う
-  const tense = (i) => `${TENSES[i].label}<small class="ru">${TENSES[i].ru}</small>`;
+  const tense = (i) => `${TENSES[i].label}<small class="sub">${TENSES[i].ru}</small>`;
   const pct = '<small class="pct"></small>';
   const rowHead = (i) => (transposed ? tense(i) : PRONOUNS[i]) + pct;
   const colHead = (i) => (transposed ? PRONOUNS[i] : tense(i)) + pct;
@@ -139,7 +139,7 @@ function build() {
   const cutCols = (transposed ? hidden.p : hidden.t).size;
   $("restore").hidden = !cutRows && !cutCols;
   const what = cutRows && cutCols ? ["行と列", "строки и столбцы"] : cutRows ? ["行", "строки"] : ["列", "столбцы"];
-  $("restore").innerHTML = `消した${what[0]}を表示<small class="ru">Показать ${what[1]}</small>`;
+  $("restore").innerHTML = `消した${what[0]}を表示<small class="sub">Показать ${what[1]}</small>`;
   // 1セルだけになったら並べ替える先がない
   $("shuffle").disabled = rows() === 1 && cols() === 1;
   $("reorder").hidden = plain();
@@ -264,8 +264,8 @@ grid.addEventListener("click", (e) => {
 function setChecked(v) {
   checked = v;
   $("check").innerHTML = v
-    ? 'やり直す<small class="ru">Заново</small>'
-    : '答え合わせ<small class="ru">Проверить</small>';
+    ? 'やり直す<small class="sub">Заново</small>'
+    : '答え合わせ<small class="sub">Проверить</small>';
   renderGloss();
 }
 
