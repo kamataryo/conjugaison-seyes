@@ -615,6 +615,9 @@ export async function start(lang) {
   // 表を作る前に出す。描画はこのタスクの終わりまで起きないので、まだちらつかない
   document.querySelector("main").hidden = false;
   load(verbs.find((v) => infinitiveLabel(v) === wanted) ?? pick());
+  // 問題集リンクから入ったのに今の表がピンに無い = URL の指す表は問題集の外。
+  // 「次の動詞」を待たせず、最初から問題集の中身を出す
+  if (quizMode && !pins.some((s) => stateKey(s) === stateKey(state()))) applyPin(sample(pins));
 
   // 表が右に見切れていたら、横スクロールできることを一度だけ知らせる
   if (scroller.scrollWidth > scroller.clientWidth + 4) {
