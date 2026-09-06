@@ -500,14 +500,14 @@ export async function start(lang) {
     const ctrl = pins.length
       ? `<li class="mode"><button id="quiz-mode" aria-pressed="${quizMode}" title="「次の動詞」をピン留めの中からだけ引く">問題集（ピン留め）から出題</button></li>` +
         `<li class="copy"><button id="copy-pins" title="ピン留めをまとめた URL をコピー">${COPY_ICON}問題集をコピー</button></li>` +
-        `<li class="clear"><button id="clear-pins" title="ピン留めをすべて外す">すべて外す</button></li>`
+        `<li class="clear"><button id="clear-pins" title="ピン留めをすべて外す">ピン留めをすべて外す</button></li>`
       : "";
-    // 操作とチップは別の行 (.br が改行係)。出題中はチップが上、そうでなければ操作が上
-    $("pins").innerHTML = pins.length
-      ? (quizMode ? chips + `<li class="br"></li>` + ctrl : ctrl + `<li class="br"></li>` + chips)
-      : chips;
-    $("pins").hidden = !pins.length;
-    $("pins").classList.toggle("quiz", quizMode);
+    $("pins").innerHTML = chips;
+    $("pin-ctrl").innerHTML = ctrl;
+    $("pin-ctrl").hidden = !pins.length;
+    $("pins-title").textContent = `問題集（${pins.length}問）`;
+    $("pins-box").hidden = !pins.length;
+    for (const id of ["pins", "pin-ctrl", "pins-box"]) $(id).classList.toggle("quiz", quizMode);
     // 出題中の動詞は問題集が決める。自分で選べると出題が崩れる
     $("pick").disabled = quizMode;
   }
@@ -584,7 +584,7 @@ export async function start(lang) {
     setTimeout(renderPins, 1600);
   }
 
-  $("pins").addEventListener("click", (e) => {
+  const onPinsClick = (e) => {
     const del = e.target.closest(".pin-del");
     if (del) {
       pins.splice(+del.dataset.i, 1);
@@ -618,7 +618,10 @@ export async function start(lang) {
     }
     const open = e.target.closest(".pin-open");
     if (open) applyPin(pins[+open.dataset.i]);
-  });
+  };
+  // チップ (details の中) と操作ボタン (外) で親が分かれたので、両方で拾う
+  $("pins").addEventListener("click", onPinsClick);
+  $("pin-ctrl").addEventListener("click", onPinsClick);
 
   // ?v=parler で動詞を指す。リロードしても同じ表に戻る
   const query = new URLSearchParams(location.search);

@@ -55,7 +55,11 @@
   <div class="bar">
     <button id="check">答え合わせ<small class="sub">Corriger</small></button>
     <button id="next">次の動詞<small class="sub">Verbe suivant</small></button>
-    <ul class="pins" id="pins" hidden></ul>
+    <details class="pins-box" id="pins-box" hidden>
+      <summary id="pins-title">問題集</summary>
+      <ul class="pins" id="pins"></ul>
+    </details>
+    <ul class="pins" id="pin-ctrl" hidden></ul>
     <a class="feedback" href="https://github.com/kamataryo/conjugaison-seyes/issues/new"
        target="_blank" rel="noopener">Signaler un problème</a>
   </div>
