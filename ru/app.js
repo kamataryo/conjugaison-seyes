@@ -18,8 +18,6 @@ start({
   ui: {
     check: "Проверить",
     recheck: "Заново",
-    restore: (kind) =>
-      `Показать ${{ both: "строки и столбцы", rows: "строки", cols: "столбцы" }[kind]}`,
   },
   gloss,
 });

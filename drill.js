@@ -98,8 +98,6 @@ export async function start(lang) {
   let stats = loadStats(STATS_KEY);
 
   const visible = (axis) => order[axis].filter((i) => !hidden[axis].has(i));
-  // 転置もシャッフルもしていない、まっさらな並び
-  const plain = () => !transposed && sorted(order.p) && sorted(order.t);
 
   // 行の見出しは CSS の :has で染まるが、同じ列の見出しは CSS から選べないので印をつける
   const markCol = (x) =>
@@ -164,15 +162,8 @@ export async function start(lang) {
     });
 
     cur = Math.min(cur, inputs.length - 1);
-    const cutRows = (transposed ? hidden.t : hidden.p).size;
-    const cutCols = (transposed ? hidden.p : hidden.t).size;
-    $("restore").hidden = !cutRows && !cutCols;
-    const kind = cutRows && cutCols ? "both" : cutRows ? "rows" : "cols";
-    const what = { both: "行と列", rows: "行", cols: "列" }[kind];
-    $("restore").innerHTML = `消した${what}を表示<small class="sub">${ui.restore(kind)}</small>`;
     // 1セルだけになったら並べ替える先がない
     $("shuffle").disabled = rows() === 1 && cols() === 1;
-    $("reorder").hidden = plain();
     renderState();
     syncUrl();
     renderPins();
@@ -180,11 +171,16 @@ export async function start(lang) {
   }
 
   // 表の上に出す今の表の断り。消した行列とシャッフルだけ。転置は表を見ればわかる
+  // 出題中は今の表をピンが決めているので、その場で戻せる ✕ は出さない
   function renderState() {
+    const undo = (r, label) => quizMode ? ""
+      : `<button class="chip-x" data-r="${r}" aria-label="${label}" title="${label}">✕</button>`;
     const axis = (name, a, n) =>
-      hidden[a].size ? `<span class="chip">${name} ${n - hidden[a].size}/${n}</span>` : "";
+      hidden[a].size
+        ? `<span class="chip"><span>${name} ${n - hidden[a].size}/${n}</span>${undo(a, `消した${name}を表示`)}</span>` : "";
     const html = axis("人称", "p", P) + axis("時制", "t", T) +
-      (sorted(order.p) && sorted(order.t) ? "" : `<span class="chip">シャッフル</span>`);
+      (sorted(order.p) && sorted(order.t) ? ""
+        : `<span class="chip"><span>シャッフル</span>${undo("o", "並び順を戻す")}</span>`);
     $("state").innerHTML = html;
     $("state").hidden = !html;
   }
@@ -412,17 +408,13 @@ export async function start(lang) {
   //   render();
   // });
 
-  $("restore").addEventListener("click", () => {
-    hidden.p.clear();
-    hidden.t.clear();
-    build();
-  });
-
-  // シャッフルと行列入れ替えをまとめて戻す。消した行列はそのまま (#restore の担当)
-  $("reorder").addEventListener("click", () => {
-    order.p = iota(P);
-    order.t = iota(T);
-    transposed = false;
+  // 断り書きの ✕ は、そのチップが言っている分だけを戻す。
+  // 転置はチップに出していない (表を見ればわかる) ので、戻すのは左上の ⇄ の担当
+  $("state").addEventListener("click", (e) => {
+    const r = e.target.closest(".chip-x")?.dataset.r;
+    if (!r) return;
+    if (r === "o") { order.p = iota(P); order.t = iota(T); }
+    else hidden[r].clear();
     build();
   });
 

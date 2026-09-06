@@ -140,6 +140,14 @@ h1 {
 .state[hidden] { display: none; }
 .state { margin: -.7rem 0 .3rem; /* main の gap を食い、header に寄せる */ display: flex; flex-wrap: wrap; gap: .3rem; }
 .state .chip { margin-right: 0; }
+/* ✕ 付きは .pins のピルにならう。余白は中の2つが持ち、境目は細い線 */
+.state .chip:has(.chip-x) { display: inline-flex; padding: 0; overflow: hidden; }
+.state .chip:has(.chip-x) > span { padding: .2rem .7rem; }
+.chip-x {
+  font: inherit; color: var(--margin); min-width: 0;
+  border: 0; border-left: 1px solid var(--rule-faint); border-radius: 0;
+  padding: .2rem .55rem;
+}
 
 .scroll { overflow-x: auto; background: var(--card); border: 1px solid var(--rule-faint); border-radius: 2px; }
 table { border-collapse: collapse; width: 100%; }
@@ -341,9 +349,6 @@ body:has(.pins.quiz) :is(#swap, #shuffle) { display: none; }
 #check { color: var(--focus); border-color: var(--focus); background: var(--focus-bg); }
 #check:hover { background: color-mix(in srgb, var(--focus) 16%, transparent); }
 #next { color: var(--margin); border-color: var(--margin); }
-#restore, #reorder { color: var(--ink-soft); }
-/* 問題集から出題している間は、表の並びと消した行列ごと 1 件。取り消しは出さない */
-.bar:has(.pins.quiz) :is(#restore, #reorder) { display: none; }
 #next:hover { background: var(--ng-bg); }
 /* 通算スコアの全消しは日常の操作ではないので、小さく下に置く */
 #reset-score {

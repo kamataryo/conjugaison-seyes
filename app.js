@@ -19,8 +19,6 @@ start({
   ui: {
     check: "Corriger",
     recheck: "Recommencer",
-    restore: (kind) =>
-      `Afficher les ${{ both: "lignes et colonnes", rows: "lignes", cols: "colonnes" }[kind]}`,
   },
   gloss,
 });
