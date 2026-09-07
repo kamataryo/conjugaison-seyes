@@ -28,6 +28,12 @@ const SHUFFLE_BUTTON = `<button id="shuffle" aria-label="行と列をシャッ�
   </svg>
 </button>`;
 
+// 正解のうしろに出る読み上げボタン。再生中は波を1本増やして音が出ていることを示す
+const sayButton = (flip) => '<button class="say' + (flip ? " flip" : "") + '" aria-label="読み上げ" title="読み上げ">' +
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+  '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M14.5 9a4 4 0 0 1 0 6"/>' +
+  '<path class="live" d="M17.5 6a8 8 0 0 1 0 12"/></svg></button>';
+
 const cutButton = (axis, i) => {
   const what = axis === "row" ? "この行" : "この列";
   return `<button class="cut-btn" data-axis="${axis}" data-i="${i}" title="${what}を消す" aria-label="${what}を消す">✕</button>`;
@@ -200,10 +206,54 @@ export async function start(lang) {
   });
 
   // 正解表示。人称代名詞は控えめに、動詞のほうを太くする
-  function answerHtml(p, form, fem, tense) {
+  // flip: 男性形と女性形が同じつづりのセル。読み上げの主語だけ性を入れ替えてよい
+  function answerHtml(p, form, fem, tense, flip) {
     const s = withPronoun(p, form, { verb, tense, fem });
     const pr = s.slice(0, -form.length); // "je " / "j'" / "она " / 命令法では ""
-    return `<span class="pr">${pr}</span>${form}`;
+    return `<span>${pr && `<span class="pr">${pr}</span>`}${form}</span>${canSpeak ? sayButton(flip) : ""}`;
+  }
+
+  // 読み上げ。声の在庫はブラウザ任せなので、言語と(選べれば)女性の声だけ指定する
+  const canSpeak = "speechSynthesis" in window;
+  const VOICE = { fr: "fr-FR", ru: "ru-RU" }[lang.locale];
+  // 性別は API から取れないので名前で当てる。よくある女性名を拾い、外れたら既定の声のまま。
+  // ponytail: 名前のべた書き。声の指定を細かくしたくなったら設定に出す
+  const FEMALE = /am[eé]lie|aur[eé]lie|audrey|julie|marie|c[eé]line|denise|hortense|elo[iï]se|charlotte|milena|katya|irina|svetlana|dariya|alyona|female|женск/i;
+  // getVoices() は最初の呼び出しで空を返すことがある (声の読み込みが非同期)。
+  // 空のまま声を選ばずに喋らせるとロシア語のように既定の声がない言語で無音になるので、控えておく
+  let voices = [];
+  const loadVoices = () => { voices = speechSynthesis.getVoices(); };
+  if (canSpeak) {
+    loadVoices();
+    speechSynthesis.addEventListener("voiceschanged", loadVoices);
+  }
+  const femaleVoice = () => {
+    const list = voices.filter((v) => v.lang.replace("_", "-").startsWith(lang.locale));
+    // Google の声は fr/ru とも女性。名前で当たらなかったときの受け皿にする
+    return list.find((v) => FEMALE.test(v.name)) ?? list.find((v) => v.name.includes("Google")) ?? list[0];
+  };
+  // il/elle のように性が畳んであるセルは、読み上げるたびに男女を入れ替える
+  let sayFem = false;
+
+  function speak(btn) {
+    const playing = btn.classList.contains("on");
+    speechSynthesis.cancel(); // 前の読み上げは切る。onend で向こうのボタンが戻る
+    if (playing) return; // 鳴っているボタンをもう一度押したら止めるだけ
+    // 性で形が変わるセル (elle est allée) は主語を動かすと一致が崩れるので、男性のまま読む
+    const text = btn.parentElement.textContent
+      .replace(/^(\S+)\/(\S+)/, (_, m, f) =>
+        btn.classList.contains("flip") && (sayFem = !sayFem) ? f : m);
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = VOICE;
+    u.rate = 0.85; // 活用を聞き取る用なので、既定より少し遅く
+    const v = femaleVoice();
+    if (v) u.voice = v;
+    u.onend = u.onerror = () => btn.classList.remove("on");
+    btn.classList.add("on");
+    // cancel() の直後に speak() すると読み上げが落ちることがある (Chrome)。
+    // 一拍おいてから積む。pause 状態のまま残ることもあるので resume() も添える
+    speechSynthesis.resume();
+    setTimeout(() => speechSynthesis.speak(u), 30);
   }
 
   function render() {
@@ -221,7 +271,7 @@ export async function start(lang) {
       // 答えは空欄のセルにも出す。行の高さが揃って背景がずれない
       const fem = isFem(k);
       reveals[n].innerHTML = checked && !gap
-        ? answerHtml(Math.floor(k / T), fem ? femAnswers[k] : answers[k], fem, TENSES[k % T].key)
+        ? answerHtml(Math.floor(k / T), fem ? femAnswers[k] : answers[k], fem, TENSES[k % T].key, femAnswers[k] === answers[k])
         : "";
     });
 
@@ -280,9 +330,11 @@ export async function start(lang) {
 
   // 表の中のボタンは build() のたびに作り直されるので委譲しておく
   grid.addEventListener("pointerdown", (e) => {
-    if (e.target.closest("#swap, #shuffle, .cut-btn")) e.preventDefault();
+    if (e.target.closest("#swap, #shuffle, .cut-btn, .say")) e.preventDefault();
   });
   grid.addEventListener("click", (e) => {
+    const say = e.target.closest(".say");
+    if (say) return speak(say);
     const cut = e.target.closest(".cut-btn");
     if (cut) {
       const isRow = cut.dataset.axis === "row";
