@@ -697,6 +697,7 @@ export async function start(lang) {
   if (scroller.scrollWidth > scroller.clientWidth + 4) {
     const hint = $("hint");
     const hide = () => hint.classList.add("gone");
+    hint.style.setProperty("--thead-h", grid.tHead.offsetHeight + "px"); // 見出し行を除いて中央に置く
     hint.hidden = false;
     scroller.addEventListener("scroll", hide, { once: true });
     setTimeout(hide, 2800);

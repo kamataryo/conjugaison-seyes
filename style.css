@@ -14,6 +14,7 @@
   --ng-bg: rgba(196, 69, 60, .1);
   --focus: #3B57C4;
   --focus-bg: rgba(59, 87, 196, .08);
+  --shade: rgba(74, 62, 110, .18); /* 罫の紫を落とした陰。紙に落ちる影 */
   --display: "Bodoni Moda", "Hiragino Mincho ProN", serif;
   /* ラテンは Archivo、日本語は Zen Kaku Gothic New。
      素の system-ui (Mac なら Hiragino Sans) だと Archivo と字面が揃わない */
@@ -34,6 +35,7 @@
     --ng-bg: rgba(240, 124, 114, .14);
     --focus: #8FA3FF;
     --focus-bg: rgba(143, 163, 255, .12);
+  --shade: rgba(186, 195, 226, .22); /* 暗い面では黒でなく、罫の紫を明るくした霞 */
   }
 }
 :root[data-theme="dark"] {
@@ -50,6 +52,7 @@
   --ng-bg: rgba(240, 124, 114, .14);
   --focus: #8FA3FF;
   --focus-bg: rgba(143, 163, 255, .12);
+  --shade: rgba(186, 195, 226, .22); /* 暗い面では黒でなく、罫の紫を明るくした霞 */
 }
 
 body {
@@ -149,7 +152,14 @@ h1 {
   padding: .2rem .55rem;
 }
 
-.scroll { overflow-x: auto; background: var(--card); border: 1px solid var(--rule-faint); border-radius: 2px; }
+/* 右にまだ続くときだけ右端に影。覆い(local)が中身と一緒に流れ、端まで来ると影が消える */
+.scroll {
+  overflow-x: auto; border: 1px solid var(--rule-faint); border-radius: 2px;
+  background:
+    linear-gradient(to left, var(--card), transparent) right / 1.5rem 100% no-repeat local,
+    linear-gradient(to left, var(--shade), transparent) right / .75rem 100% no-repeat scroll,
+    var(--card);
+}
 table { border-collapse: collapse; width: 100%; }
 th { font-weight: 500; text-align: left; }
 /* 見出しの位置で決まるぶん(余白・罫・sticky)。中身が人称でも時制でも共通 */
@@ -266,6 +276,7 @@ input::placeholder { color: var(--rule); opacity: 1; }
 #hint[hidden] { display: none; }
 #hint {
   display: grid; place-items: center;
+  box-sizing: border-box; padding-top: var(--thead-h, 0px); /* 表全体でなく tbody の上下中央に */
   pointer-events: none; transition: opacity .45s ease;
   background: linear-gradient(90deg, transparent 40%, color-mix(in srgb, var(--card) 85%, transparent));
 }
