@@ -180,7 +180,7 @@ tbody th {
 }
 /* 見出しの中身で決まるぶん。行と列を入れ替えても字面はついて回る */
 th.pron { font-family: var(--display); font-size: 1.05rem; }
-th.tense { font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; }
+th.tense { font-size: 1rem; letter-spacing: .1em; text-transform: uppercase; }
 thead th:first-child { position: sticky; left: 0; z-index: 2; background: var(--card); border-right: 2px solid var(--margin); padding: .25rem .4rem; }
 /* 見出し列は幅を固定。人称と時制を入れ替えても表の位置がずれない。
    下限を決めているのは転置したときの "conditionnel" と 直説法現在(5文字)。
@@ -251,7 +251,7 @@ input.gap { cursor: default; }
 input::placeholder { color: var(--rule); opacity: 1; }
 /* 答え合わせで全セルに出る正解。採点前は空なので行の高さは変わらない */
 .ans {
-  display: block; padding: 0 .5rem .4rem; font-size: .8rem; line-height: 1.3;
+  display: block; padding: 0 .5rem .4rem; font-size: .9rem; line-height: 1.3;
   font-family: var(--display); font-style: italic; font-weight: 500; color: inherit;
   white-space: nowrap;
 }
