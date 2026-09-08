@@ -72,6 +72,9 @@ test("-ся 動詞は母音のあとで -сь になる", () => {
   // 未来の助動詞は再帰にしない
   assert.equal(row("заниматься", "future")[0], "буду заниматься");
   assert.equal(row("вернуться", "future")[1], "вернёшься");
+  // 完了体の -ться も同じ。過去は不定詞から作るので語幹の交替 (займ-) の影響を受けない
+  assert.equal(row("заняться", "future")[0], "займусь");
+  assert.equal(row("заняться", "past", true)[0], "занялась");
 });
 
 test("不規則動詞はシードの値を優先する", () => {
@@ -110,6 +113,15 @@ test("データの必須項目がそろっている", () => {
     if (!v.forms) assert.ok(v.stem && [1, 2].includes(v.conj), `${v.infinitive}: stem/conj`);
     // 体の対も動詞一覧に載っているとは限らないが、綴りだけは確かめる
     if (v.pair) assert.match(v.pair, /^[а-яё]+$/, `${v.infinitive}: pair`);
+  }
+  // 一覧に載っている相手なら、向こうからもこちらを指していて、体は必ず逆になる。
+  // 見出しの切り替えボタンがこれを頼りに行き来する
+  const byInf = new Map(verbs.map((v) => [v.infinitive, v]));
+  for (const v of verbs) {
+    const p = v.pair && byInf.get(v.pair);
+    if (!p) continue;
+    assert.equal(p.pair, v.infinitive, `${v.infinitive}: 片思い`);
+    assert.notEqual(p.aspect, v.aspect, `${v.infinitive}: 対の体が同じ`);
   }
 });
 
