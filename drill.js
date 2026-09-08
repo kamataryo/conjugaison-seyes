@@ -196,7 +196,7 @@ export async function start(lang) {
         ? `<span class="chip"><span>${name} ${n - hidden[a].size}/${n}</span>${undo(a, `消した${name}を表示`)}</span>` : "";
     const html = axis("人称", "p", P) + axis("時制", "t", T) +
       (sorted(order.p) && sorted(order.t) ? ""
-        : `<span class="chip"><span>シャッフル</span>${undo("o", "並び順を戻す")}</span>`);
+        : `<span class="chip"><span>　行列シャッフル</span>${undo("o", "並び順を戻す")}</span>`);
     $("state").innerHTML = html;
     $("state").hidden = !html;
   }

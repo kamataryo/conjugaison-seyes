@@ -1,0 +1,60 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>問題集 URL を作る (LanguageModel)</title>
+<style>
+  body { font-family: system-ui; max-width: 40rem; margin: 2rem auto; padding: 0 1rem; }
+  textarea { width: 100%; height: 6rem; }
+  #out { word-break: break-all; white-space: pre-wrap; }
+</style>
+<h1>問題集 URL を作る</h1>
+<textarea id="q" placeholder="例: 複合過去だけの表を10個、-ir 動詞で tu と vous だけ"></textarea>
+<p><button id="go">作る</button> <span id="status"></span></p>
+<p id="out"></p>
+
+<script type="module">
+import { PRONOUNS, TENSES, infinitiveLabel } from "./conjugate.js";
+
+const status = document.getElementById("status");
+const out = document.getElementById("out");
+
+let session;
+const getSession = async () => {
+  if (session) return session;
+  const [skill, verbs] = await Promise.all([
+    fetch(".claude/skills/quiz-url/SKILL.md").then((r) => r.text()),
+    fetch("verbs.json").then((r) => r.json()),
+  ]);
+  const system = [
+    skill,
+    "## PRONOUNS (index 順)",
+    PRONOUNS.map((p, i) => `${i}: ${p}`).join("\n"),
+    "## TENSES (index 順)",
+    TENSES.map((t, i) => `${i}: ${t.label} (${t.sub})`).join("\n"),
+    "## verbs.json",
+    verbs.map((v) => `${infinitiveLabel(v)}\t${v.kind}\t${v.meaning}`).join("\n"),
+    "ユーザーの要望に合う問題集 URL を1本だけ出力する。説明も前置きも書かない。",
+  ].join("\n\n");
+  session = await LanguageModel.create({
+    initialPrompts: [{ role: "system", content: system }],
+    monitor: (m) => m.addEventListener("downloadprogress", (e) => {
+      status.textContent = `モデル取得中 ${Math.round(e.loaded * 100)}%`;
+    }),
+  });
+  return session;
+};
+
+document.getElementById("go").onclick = async () => {
+  out.textContent = "";
+  status.textContent = "生成中…";
+  try {
+    const s = await getSession();
+    const text = (await s.prompt(document.getElementById("q").value)).trim();
+    const url = text.match(/https?:\/\/\S+/)?.[0] ?? text;
+    out.innerHTML = "";
+    out.append(Object.assign(document.createElement("a"), { href: url, textContent: url }));
+    status.textContent = "";
+  } catch (e) {
+    status.textContent = `エラー: ${e.message}`;
+  }
+};
+</script>
