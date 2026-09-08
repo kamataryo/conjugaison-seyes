@@ -211,18 +211,25 @@ input {
 }
 /* 採点中。フォーカスも渡さないので下線が出ない。色は自前のものを保つ */
 input:disabled { -webkit-text-fill-color: currentColor; opacity: 1; cursor: default; }
-input:focus { outline: 0; background: var(--focus-bg); box-shadow: inset 0 -2px 0 var(--focus); }
-input.ok { color: var(--ok); background: var(--ok-bg); }
-input.ng { color: var(--ng); background: var(--ng-bg); }
+/* 状態の色は入力欄ではなくマスの全面に敷く。入力欄は罫線まで届かないので、
+   ここで塗ると帯が浮く。半透明なので両方に塗ると重なったところだけ濃くなる */
+td:has(input:focus) { background: var(--focus-bg); }
+td:has(input.ok) { background: var(--ok-bg); }
+td:has(input.ng) { background: var(--ng-bg); }
 /* 行・列だけ採点したときの、採点対象外のセル */
-input.skip { color: var(--ink-soft); background: color-mix(in srgb, var(--ink-soft) 13%, transparent); }
+td:has(input.skip) { background: color-mix(in srgb, var(--ink-soft) 13%, transparent); }
 /* 形が存在しないマス(完了体の現在、命令法の я など)。斜線を敷いて書けないことを示す。
    仏語版には出ない形なので、.gap を付けるのはロシア語版だけ */
-input.gap {
-  cursor: default;
+td:has(input.gap) {
   background: repeating-linear-gradient(-45deg,
     transparent 0 6px, var(--rule-faint) 6px 7px);
 }
+/* 下線だけは入力欄の底に残す。マスの底まで落とすと罫線と重なって鈍る */
+input:focus { outline: 0; box-shadow: inset 0 -2px 0 var(--focus); }
+input.ok { color: var(--ok); }
+input.ng { color: var(--ng); }
+input.skip { color: var(--ink-soft); }
+input.gap { cursor: default; }
 input::placeholder { color: var(--rule); opacity: 1; }
 /* 答え合わせで全セルに出る正解。採点前は空なので行の高さは変わらない */
 .ans {
