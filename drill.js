@@ -755,4 +755,12 @@ export async function start(lang) {
     scroller.addEventListener("scroll", hide, { once: true });
     setTimeout(hide, 2800);
   }
+
+  // 不具合の報告は環境と場所が分からないと追えない。フォームを開く直前に足す
+  document.querySelector('a[href*="docs.google.com/forms"]')?.addEventListener("click", (e) => {
+    const url = new URL(e.currentTarget.href);
+    url.searchParams.set("entry.149797981", navigator.userAgent);
+    url.searchParams.set("entry.1293148250", location.href);
+    e.currentTarget.href = url;
+  });
 }
