@@ -135,19 +135,21 @@ export async function start(lang) {
     // 時制には原語名を添える。aria-label には日本語名だけを使う
     const tense = (i) => `${TENSES[i].label}<small class="sub">${TENSES[i].sub}</small>`;
     const pct = '<small class="pct"></small>';
-    const rowHead = (i) => (transposed ? tense(i) : PRONOUNS[i]) + pct;
-    const colHead = (i) => (transposed ? PRONOUNS[i] : tense(i)) + pct;
+    /** il で始まると、 iOSの Autocomplete でなぜか自宅住所がサジェストされるので、苦肉の策で変なコメントを入れてそれを防ぐ */
+    const replaceHeadingIl = (pronoun) => pronoun.startsWith('il') ? `i<!-- -->l` + pronoun.slice(2) : pronoun;
+    const rowHead = (i) => (transposed ? tense(i) : replaceHeadingIl(PRONOUNS[i])) + pct;
+    const colHead = (i) => (transposed ? replaceHeadingIl(PRONOUNS[i]) : tense(i)) + pct;
     // 見出しの字面は中身につく。入れ替えても人称はセリフ体、時制は小さな大文字のまま
     const rowCls = transposed ? "tense" : "pron";
     const colCls = transposed ? "pron" : "tense";
-    const rowLabel = (i) => (transposed ? TENSES[i].label : PRONOUNS[i]);
-    const colLabel = (i) => (transposed ? PRONOUNS[i] : TENSES[i].label);
+    const rowLabel = (i) => (transposed ? TENSES[i].label : replaceHeadingIl(PRONOUNS[i]));
+    const colLabel = (i) => (transposed ? replaceHeadingIl(PRONOUNS[i]) : TENSES[i].label);
 
     grid.innerHTML =
       `<thead><tr><th><div class="corner">${SWAP_BUTTON}${SHUFFLE_BUTTON}</div></th>${colKeys.map((i) => `<th class="${colCls}">${colHead(i)}<span class="cut-slot"></span></th>`).join("")}</tr></thead><tbody>` +
       rowKeys.map((r, y) =>
         `<tr><th class="${rowCls}">${rowHead(r)}<span class="cut-slot"></span></th>${colKeys.map((c, x) =>
-          `<td style="--i:${y * cols() + x}"><input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" aria-label="${rowLabel(r)} ${colLabel(c)}"><small class="ans"></small><small class="pct"></small></td>`,
+          `<td style="--i:${y * cols() + x}"><input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="next" aria-label="row:${rowLabel(r)} col:${colLabel(c)}"><small class="ans"></small><small class="pct"></small></td>`,
         ).join("")}</tr>`,
       ).join("") +
       "</tbody>";
