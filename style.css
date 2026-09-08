@@ -162,9 +162,10 @@ h1 {
 
 /* 右にまだ続くときだけ右端に影。覆い(local)が中身と一緒に流れ、端まで来ると影が消える */
 .scroll {
-  overflow-x: auto; border: 1px solid var(--rule-faint); border-radius: 2px;
+  overflow-x: auto;
+  border: 1px solid var(--rule-faint); border-radius: 2px;
   background:
-    linear-gradient(to left, var(--card), transparent) right / 1.5rem 100% no-repeat local,
+    linear-gradient(to left, var(--card) 1rem, transparent 2rem) right / 2rem 100% no-repeat local,
     linear-gradient(to left, var(--shade), transparent) right / .75rem 100% no-repeat scroll,
     var(--card);
 }
@@ -284,6 +285,7 @@ input::placeholder { color: var(--rule); opacity: 1; }
 #hint[hidden] { display: none; }
 #hint {
   display: grid; place-items: center;
+  position: relative; z-index: 3; /* td・th が position:relative なので、重ねるだけでは表の下に隠れる */
   box-sizing: border-box; padding-top: var(--thead-h, 0px); /* 表全体でなく tbody の上下中央に */
   pointer-events: none; transition: opacity .45s ease;
   background: linear-gradient(90deg, transparent 40%, color-mix(in srgb, var(--card) 85%, transparent));
