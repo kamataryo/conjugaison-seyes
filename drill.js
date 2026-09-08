@@ -93,6 +93,11 @@ export async function start(lang) {
   const order = { p: iota(P), t: iota(T) };
   let transposed = false;
   let checked = false;
+  // 答え合わせのあと、誤答・未回答のマスに触れて書き足しに戻ったか。
+  // 「やり直す」を「答え合わせ」に戻し、次に押したときは残りだけを採点する
+  let dirty = false;
+  // 一度当てたマス(正準インデックス)。以降は伏せたままにして、通算の記録にも二重に数えない
+  const locked = new Set();
   // 見出し行に伏せてある項目(フランス語版の助動詞)を出したか
   let revealed = false;
   let touched = false; // この表で1マスでも書いたか。集計の input を1回に畳む
@@ -166,10 +171,16 @@ export async function start(lang) {
     grid.classList.remove("grading"); // 走りは答え合わせの一回きり
 
     inputs.forEach((el, n) => {
-      el.addEventListener("focus", () => { cur = n; markCol(n % cols()); });
+      el.addEventListener("focus", () => {
+        cur = n;
+        markCol(n % cols());
+        // 触れた時点で書き足しに戻る。まだ当てていないマスの答えは次の答え合わせまで伏せる
+        if (checked && !dirty) { setChecked(true, true); render(); }
+      });
       el.addEventListener("blur", () => markCol(-1));
       el.addEventListener("input", () => {
         setValue(n, el.value);
+        el.classList.remove("ng", "skip"); // 書き直したマスは採点前の顔に戻す
         if (!touched) { touched = true; track("input"); } // 表ごとに1回だけ
       });
       el.addEventListener("keydown", (e) => {
@@ -280,26 +291,29 @@ export async function start(lang) {
       const k = canon[n];
       const gap = none(k); // 形のないマスは最初から伏せる。書く場所がないことも文法の一部
       const done = checked && answered(k);
-      el.value = values[k];
+      if (el.value !== values[k]) el.value = values[k]; // 書いている最中の代入はキャレットを飛ばす
       el.placeholder = gap ? "—" : "";
       el.classList.toggle("gap", gap);
       el.classList.toggle("ok", done && graded(k));
       el.classList.toggle("ng", done && !graded(k));
-      el.classList.toggle("skip", checked && !done && !gap); // 空欄は採点対象外
-      el.disabled = checked || gap; // 採点中は触れない。やり直すと入力に戻る
+      el.classList.toggle("skip", checked && !dirty && !done && !gap); // 空欄は採点対象外
+      el.disabled = gap || locked.has(k); // 伏せるのは当てたマスだけ。誤答と空欄は書き足せる
       // 答えは空欄のセルにも出す。行の高さが揃って背景がずれない
       const fem = isFem(k);
       reveals[n].innerHTML = checked && !gap
         ? answerHtml(Math.floor(k / T), fem ? femAnswers[k] : answers[k], fem, TENSES[k % T].key, femAnswers[k] === answers[k])
         : "";
     });
+    // 書き足しに戻ったら、まだ当てていないマスの答えは次の答え合わせまで引っ込める
+    grid.classList.toggle("hide-ans", dirty);
 
     // 今回のリリースでは通算正答率を出さない。記録は続けているので、この行を戻せば表示される
     // renderStats();
 
     // 答え合わせのあと、行・列の見出しの中に消去ボタンを出す。最後の1本は消せない。
+    // 書き足しに戻っているあいだは引っ込める。表をいじる場ではなく、書く場に戻っているので。
     // 出題中は今の表をピンが決めているので、戻せる ✕ を出さないのと対で、消すほうも出さない
-    const cuttable = checked && !quizMode;
+    const cuttable = checked && !dirty && !quizMode;
     const cutR = cuttable && rows() > 1;
     const cutC = cuttable && cols() > 1;
     // 見出しはボタンが出るときだけ、その置き場のぶん広げる
@@ -318,8 +332,8 @@ export async function start(lang) {
   // 画面外のセルは指で送ってもらう。Enter で1マス進むたびに紙面が跳ねるほうが読みにくい
   const focusCell = (n) => { inputs[n].focus({ preventScroll: true }); inputs[n].select(); };
 
-  // 形のないマスは入力できないので、移動では飛ばす
-  const live = (n) => n < inputs.length && !none(canon[n]);
+  // 形のないマスと当てたマスは入力できないので、移動では飛ばす
+  const live = (n) => n < inputs.length && !none(canon[n]) && !locked.has(canon[n]);
   const firstLive = (c) => {
     for (let n = c; n < inputs.length; n += cols()) if (live(n)) return n;
     return -1;
@@ -379,10 +393,12 @@ export async function start(lang) {
     if (wasFocused) inputs[cur].focus({ preventScroll: true });
   });
 
-  function setChecked(v) {
+  function setChecked(v, d = false) {
     checked = v;
+    dirty = d;
+    if (!v) locked.clear(); // やり直しと動詞の切り替えで、当てたマスも入力に戻る
     revealed = v; // 答え合わせで出し、やり直すとまた伏せる
-    $("check").innerHTML = v
+    $("check").innerHTML = v && !d
       ? `やり直す<small class="sub">${ui.recheck}</small>`
       : `答え合わせ<small class="sub">${ui.check}</small>`;
     renderGloss();
@@ -445,17 +461,17 @@ export async function start(lang) {
   addEventListener("popstate", () => location.reload());
 
   $("check").addEventListener("click", () => {
-    if (checked) return reset();
+    if (checked && !dirty) return reset();
     let cells = 0; // 出題数と、そのうち埋めた数、当たった数。集計に送る
     let filled = 0;
     let correct = 0;
-    for (const k of canon) { // 消した行列と空欄、形のないマスは数えない
-      if (none(k)) continue;
+    for (const k of canon) { // 消した行列と空欄、形のないマス、前に当てたマスは数えない
+      if (none(k) || locked.has(k)) continue;
       cells++;
       if (!answered(k)) continue;
       filled++;
       const ok = graded(k);
-      if (ok) correct++;
+      if (ok) { correct++; locked.add(k); } // 当てたマスはここで伏せる側に移る
       record(stats, {
         infinitive: verb.infinitive,
         pronoun: PRONOUNS[Math.floor(k / T)],
@@ -468,6 +484,9 @@ export async function start(lang) {
     // 当たり具合は端末の中にしか残らないので、動詞ごとの難しさが見えるのはここだけ
     track("check", { verb: verb.infinitive, cells, filled, correct });
     setChecked(true);
+    // 2回目以降は class が付いたままだと走りが出ない。一度外して読み直させる
+    grid.classList.remove("grading");
+    void grid.offsetWidth;
     grid.classList.add("grading");
     render();
   });

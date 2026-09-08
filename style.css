@@ -267,6 +267,8 @@ input::placeholder { color: var(--rule); opacity: 1; }
 .ans:empty { display: none; }
 /* 正解はセルの左、読み上げはセルの右端に寄せる。右には少し余白を残す */
 .ans:not(:empty) { display: flex; align-items: baseline; padding-right: .7rem; }
+/* 書き足しに戻っているあいだ、まだ当てていないマスの答えは引っ込める */
+#grid.hide-ans input:not(:disabled) + .ans { display: none; }
 .say {
   border: 0; background: transparent; color: var(--margin); cursor: pointer;
   padding: 0; margin-left: auto; flex: none; align-self: center;
