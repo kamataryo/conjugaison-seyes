@@ -11,6 +11,9 @@
 
 import { cellKey, load as loadStats, save, clear, record, merge, rate, topWrong } from "/stats.js";
 
+// 利用状況の集計 (Umami)。スクリプトが読めていなければ何もしない
+const track = (name, data) => window.umami?.track(name, data);
+
 // 表の左上の空欄に置く行列入れ替えボタン。横矢印=行、縦矢印=列
 const SWAP_BUTTON = `<button id="swap" aria-label="行と列を入れ替え" title="行と列を入れ替え">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
@@ -89,6 +92,7 @@ export async function start(lang) {
   let checked = false;
   // 見出し行に伏せてある項目(フランス語版の助動詞)を出したか
   let revealed = false;
+  let touched = false; // この表で1マスでも書いたか。集計の input を1回に畳む
   let cur = 0; // 表示上の位置 (row-major)
   let inputs = [];
   let reveals = [];
@@ -159,7 +163,10 @@ export async function start(lang) {
     inputs.forEach((el, n) => {
       el.addEventListener("focus", () => { cur = n; markCol(n % cols()); });
       el.addEventListener("blur", () => markCol(-1));
-      el.addEventListener("input", () => setValue(n, el.value));
+      el.addEventListener("input", () => {
+        setValue(n, el.value);
+        if (!touched) { touched = true; track("input"); } // 表ごとに1回だけ
+      });
       el.addEventListener("keydown", (e) => {
         if (e.key === "Enter") { e.preventDefault(); nextCell(); }
       });
@@ -334,11 +341,12 @@ export async function start(lang) {
   });
   grid.addEventListener("click", (e) => {
     const say = e.target.closest(".say");
-    if (say) return speak(say);
+    if (say) { track("say"); return speak(say); }
     const cut = e.target.closest(".cut-btn");
     if (cut) {
       const isRow = cut.dataset.axis === "row";
       const i = +cut.dataset.i;
+      track("cut", { axis: isRow ? "row" : "col" });
       // 消す行・列だけ先に畳んで見せてから、作り直す
       const at = cut.closest("th").cellIndex;
       const gone = isRow ? [cut.closest("tr")] : [...grid.rows].map((tr) => tr.cells[at]);
@@ -350,6 +358,7 @@ export async function start(lang) {
     if (!swap && !e.target.closest("#shuffle")) return;
     const k = canon[cur];
     const wasFocused = document.activeElement === inputs[cur];
+    track(swap ? "swap" : "shuffle");
     if (swap) transposed = !transposed;
     else { shuffle(order.p); shuffle(order.t); }
     build();
@@ -368,8 +377,10 @@ export async function start(lang) {
   }
 
   function reset() {
+    track("retry");
     values.fill("");
     setChecked(false);
+    touched = false;
     build(); // 消去ボタンを引っ込める。消した行列はそのまま
     cur = 0;
     focusStart();
@@ -384,6 +395,7 @@ export async function start(lang) {
     femAnswers = PRONOUNS.flatMap((_, p) => TENSES.map((t) => conjugate(v, t.key, p, true)));
     values.fill("");
     setChecked(false);
+    touched = false;
     cur = 0;
     // シャッフルはこの表かぎり。消した行列と転置は動詞をまたいでそのまま
     order.p = iota(P);
@@ -422,17 +434,27 @@ export async function start(lang) {
 
   $("check").addEventListener("click", () => {
     if (checked) return reset();
+    let cells = 0; // 出題数と、そのうち埋めた数、当たった数。集計に送る
+    let filled = 0;
+    let correct = 0;
     for (const k of canon) { // 消した行列と空欄、形のないマスは数えない
-      if (none(k) || !answered(k)) continue;
+      if (none(k)) continue;
+      cells++;
+      if (!answered(k)) continue;
+      filled++;
+      const ok = graded(k);
+      if (ok) correct++;
       record(stats, {
         infinitive: verb.infinitive,
         pronoun: PRONOUNS[Math.floor(k / T)],
         tense: TENSES[k % T].key,
         input: values[k],
-        ok: graded(k),
+        ok,
       }, normalizeWrong);
     }
     save(stats, STATS_KEY);
+    // 当たり具合は端末の中にしか残らないので、動詞ごとの難しさが見えるのはここだけ
+    track("check", { verb: verb.infinitive, cells, filled, correct });
     setChecked(true);
     grid.classList.add("grading");
     render();
@@ -483,6 +505,7 @@ export async function start(lang) {
 
   const pick = () => sample(verbs);
   $("next").addEventListener("click", () => {
+    track("next", { quiz: quizMode });
     if (!quizMode) return load(pick());
     // 問題集からは表ごと引く (動詞・並び順・消した行列で1件)。2件以上あれば今の表は避ける
     const here = stateKey(state());
@@ -505,7 +528,11 @@ export async function start(lang) {
       vs.map(([i, v]) => `<option value="${i}">${infinitiveLabel(v)}</option>`).join("")
     }</optgroup>`)
     .join("");
-  $("pick").addEventListener("change", (e) => load(verbs[+e.target.value]));
+  // ランダムの「次の動詞」に対して、こちらは覚えたい動詞を名指しした行動
+  $("pick").addEventListener("change", (e) => {
+    track("pick");
+    load(verbs[+e.target.value]);
+  });
 
   // ピン留め。動詞・転置・消した行列を1件としてまとめる。
   // URL の ?v=&p=&t=&x= と同じ中身なので、戻すのも同じ経路で済む。
@@ -623,6 +650,7 @@ export async function start(lang) {
   $("pin").addEventListener("click", () => {
     const here = stateKey(state());
     const i = pins.findIndex((s) => stateKey(s) === here);
+    track("pin", { on: i < 0 }); // 留めたのか外したのか
     if (i < 0) pins.push(state());
     else pins.splice(i, 1); // 留めてある表をもう一度押したら外す
     syncUrl();
@@ -644,6 +672,7 @@ export async function start(lang) {
     }
     const copy = e.target.closest("#copy-pins");
     if (copy) {
+      track("copy-pins", { count: pins.length }); // 何件の問題集が配られたか
       // iOS Safari は click の中から直に呼ぶかぎり通る。await を挟むと弾かれるので then で受ける
       return copyText(location.href).then(
         () => flash(copy, DONE_ICON, "コピーしました"),
@@ -676,6 +705,20 @@ export async function start(lang) {
 
   // ?v=parler で動詞を指す。リロードしても同じ表に戻る
   const query = new URLSearchParams(location.search);
+
+  // クエリ付きで開かれたとき (広告・共有リンク) の着地を1回だけ記録する。
+  // exclude-search で URL は送られないので、ここで拾わないとどこにも残らない。
+  // fbclid のような 1 人 1 個の印は拾わない (拾うと内訳が人数分に散る)
+  if (location.search) track("landing", {
+    source: query.get("utm_source") || undefined,
+    medium: query.get("utm_medium") || undefined,
+    campaign: query.get("utm_campaign") || undefined,
+    ad: query.get("utm_content") || undefined,
+    // 何の動詞で開かせたか。「être から始めると続くか」を見るための足がかり
+    v: query.get("v") || undefined,
+    pins: query.get("pins")?.split(",").length, // 問題集は件数だけ。中身は散るので見ない
+  });
+
   const wanted = query.get("v");
   // 消した人称・時制は1桁ずつ並べてある。数字以外と範囲外は捨て、最後の1本は必ず残す
   const parseCut = (v, n) =>

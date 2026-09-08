@@ -29,6 +29,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600&family=Playfair+Display:ital,wght@0,400..600;1,400..500&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap">
 <link rel="stylesheet" href="/style.css">
+<!-- 利用状況の集計。?v= や ?pins= は表の状態を URL に書いているだけなので、
+     exclude-search で検索文字列を落とす。これがないと表を変えるたびページビューが1件増える -->
+<script defer src="https://cloud.umami.is/script.js"
+        data-website-id="b7166d81-1b1d-47ce-88b9-a2f054dd29b0"
+        data-exclude-search="true"
+        data-tag="ru"></script>
 <style>
   /* キリルを持つ書体だけを使う。Bodoni Moda / Archivo にキリルはない */
   :root {
@@ -74,6 +80,7 @@
     <p class="feedback"><a href="/">フランス語版へ</a><span class="sep">·</span><a
        href="https://github.com/kamataryo/conjugaison-seyes/issues/new"
        target="_blank" rel="noopener">Сообщить об ошибке</a></p>
+    <p class="feedback">改善のため、利用状況を匿名で集計しています（Cookie は使いません）。</p>
   </div>
   <!-- 今回のリリースでは出さない。app.js のリスナと対で戻す
   <button id="reset-score">スコアをリセット</button>

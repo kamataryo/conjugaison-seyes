@@ -29,6 +29,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..600;1,6..96,400..500&family=Zen+Kaku+Gothic+New:wght@400;500&display=swap">
 <link rel="stylesheet" href="/style.css">
+<!-- 利用状況の集計。?v= や ?pins= は表の状態を URL に書いているだけなので、
+     exclude-search で検索文字列を落とす。これがないと表を変えるたびページビューが1件増える -->
+<script defer src="https://cloud.umami.is/script.js"
+        data-website-id="b7166d81-1b1d-47ce-88b9-a2f054dd29b0"
+        data-exclude-search="true"
+        data-tag="fr"></script>
 
 <p id="fallback" hidden>動詞データを読み込めませんでした。ページを再読み込みしてください。</p>
 <noscript><p>このドリルは JavaScript が必要です。ブラウザの設定で有効にしてください。</p></noscript>
@@ -62,6 +68,7 @@
     <ul class="pins" id="pin-ctrl" hidden></ul>
     <a class="feedback" href="https://github.com/kamataryo/conjugaison-seyes/issues/new"
        target="_blank" rel="noopener">Signaler un problème</a>
+    <p class="feedback">改善のため、利用状況を匿名で集計しています（Cookie は使いません）。</p>
   </div>
   <!-- 今回のリリースでは出さない。app.js のリスナと対で戻す
   <button id="reset-score">スコアをリセット</button>

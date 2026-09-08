@@ -62,6 +62,71 @@ OGP・アイコン・manifest も `ru/` に別で持つ (版下は `ru/ogp.html`
 
 件ごとに向きが違うときは上のように件ごとに書く。全件同じなら「全部1列 (縦並び) で」で足りる。
 
+## 利用状況の集計 (Umami)
+
+どこで離れているか、どの機能が使われているかを見るために、Umami Cloud にイベントを送っている。
+Cookie も localStorage も使わないので同意バナーは要らない。断りはフッターに一行だけ出している。
+
+| イベント | 送るところ | 添えるもの |
+|---|---|---|
+| `input` | 表の1マス目を書いたとき (表ごとに1回。`touched` で畳む) | |
+| `check` | 答え合わせ | `verb` / `cells` 出題数 / `filled` 埋めた数 / `correct` 当たった数 |
+| `retry` | やり直す | |
+| `next` | 次の動詞 | `quiz` 問題集からの出題か |
+| `pick` | ドロップダウンで動詞を選ぶ | |
+| `pin` | ピン留め | `on` 留めたか外したか |
+| `copy-pins` | 問題集をコピー | `count` 何件の問題集か |
+| `swap` / `shuffle` / `say` / `cut` | 表の上のボタン | `cut` は `axis` 行か列か |
+
+`check` の `correct` だけは離脱とは別の狙いで、動詞ごと・時制ごとの難しさを全体で見るためのもの。
+`stats.js` の集計は端末の中にしか残らないので、ここでしか分からない。
+
+`swap` / `shuffle` / `say` / `cut` は使われているのか分からない機能を測っている。
+数ヶ月見て動いていなければ UI から外す。消す根拠を作るための計測。
+
+仏語版と露語版は同じ website-id で、パス (`/` と `/ru/`) で分かれる。イベント名だけの一覧では
+混ざるので、`data-tag` に `fr` / `ru` を入れて全イベントに言語が乗るようにしてある。
+
+`pageview → input → check → next` をファネルにすると、書き始める前に離れた人と、書いたが
+答え合わせしなかった人が分かれて見える。
+
+`data-exclude-search="true"` は外せない。`?v=` / `?pins=` は表の状態を URL に書いているだけなのに
+`build()` のたび `replaceState` が走る。落とさないと表を変えるたびページビューが1件増え、
+ページ一覧も URL ごとにばらける。
+
+### 広告からの流入 (UTM)
+
+`exclude-search` で URL のクエリを落としているので、Umami 標準の UTM レポートは動かない。
+代わりに、クエリ付きで開かれたら `landing` を1回だけ送る (`drill.js` の `query` の下)。
+広告だけでなく、共有された `?v=` `?pins=` の着地もここに入る。
+
+| プロパティ | 元 |
+|---|---|
+| `source` `medium` `campaign` | `utm_source` `utm_medium` `utm_campaign` |
+| `ad` | `utm_content` — 広告1本ずつの識別に使う |
+| `v` | `?v=` — 何の動詞で開かせたか |
+| `pins` | `?pins=` の件数 (中身は散るので送らない) |
+
+`v` があるので「être や avoir から始めさせると続くか」を測れる。同じクリエイティブで
+着地だけ変えた広告を2本流し、`landing → input → check → next` を `v` で絞って比べる。
+1回のセッションでどこまで粘ったかは出る。翌日また来たかは Umami のリテンションを
+着地条件で切れないので出ない。
+
+Instagram (Meta) 側は広告の「URL パラメータ」欄に入れる。`{{...}}` は Meta が配信時に差し替える。
+
+```
+utm_source=instagram&utm_medium=paid&utm_campaign={{campaign.name}}&utm_content={{ad.name}}
+```
+
+Meta は `fbclid` も足してくるが、1 人 1 個の印なので拾わない。`exclude-search` のおかげで
+ページ一覧も汚れない。
+
+`landing → input → check` をファネルにして `ad` で絞ると、広告ごとに「開いただけ」と
+「書き始めた」の差が出る。インストール数ではなくこれを見る。
+
+スクリプトが読めなければ `track()` は何もしない (`window.umami?.track`)。`exercices.html` は
+自分用の目次なので入れていない。
+
 ## デプロイ（Cloudflare Pages）
 
 ```bash
