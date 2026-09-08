@@ -176,13 +176,14 @@ thead th { padding: .45rem .5rem; white-space: nowrap; border-bottom: 2px solid 
 tbody th {
   position: sticky; left: 0; z-index: 1; background: var(--card);
   padding: 0 .5rem; white-space: nowrap;
-  border-right: 2px solid var(--margin);
+  /* border-collapse では罫は表のもので、sticky なセルについて来ない。赤い縦罫だけ影で描く */
+  box-shadow: inset -2px 0 var(--margin);
   border-bottom: 1px solid var(--rule-faint);
 }
 /* 見出しの中身で決まるぶん。行と列を入れ替えても字面はついて回る */
 th.pron { font-family: var(--display); font-size: 1.05rem; }
 th.tense { font-size: 1rem; letter-spacing: .1em; text-transform: uppercase; }
-thead th:first-child { position: sticky; left: 0; z-index: 2; background: var(--card); border-right: 2px solid var(--margin); padding: .25rem .4rem; }
+thead th:first-child { position: sticky; left: 0; z-index: 2; background: var(--card); box-shadow: inset -2px 0 var(--margin); padding: .25rem .4rem; }
 /* 見出し列は幅を固定。人称と時制を入れ替えても表の位置がずれない。
    下限を決めているのは転置したときの "conditionnel" と 直説法現在(5文字)。
    これ以上詰めると人称のときだけ列が細くなって、入れ替えるたびに表が横に動く */
