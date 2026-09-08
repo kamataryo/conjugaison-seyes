@@ -52,10 +52,12 @@
   /* 左端の赤い余白線。斜線ではなく、ノートと同じようにまっすぐ引く */
   #og::before { content: ""; position: absolute; inset: 0 auto 0 calc(var(--pitch) * 2); width: 2px; background: var(--margin); }
 
-  /* 1行ぶんの箱。下端が --y の罫に一致し、そこに文字のベースラインが乗る */
+  /* 1行ぶんの箱。下端が --y の罫に一致し、そこに文字のベースラインが乗る。
+     z-index はタイトルを活用表より前に出すため。にじみ (--halo) が下の字を抜く */
   .rule {
     position: absolute; left: var(--x); top: calc(var(--y) - var(--pitch) + var(--shift));
     height: var(--pitch); display: flex; align-items: flex-end; line-height: 1;
+    z-index: 1;
   }
   .rule > span { display: block; transform: translateY(var(--drop)); }
 
