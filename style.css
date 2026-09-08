@@ -168,6 +168,9 @@ thead th:first-child { position: sticky; left: 0; z-index: 2; background: var(--
    下限を決めているのは転置したときの "conditionnel" と 直説法現在(5文字)。
    これ以上詰めると人称のときだけ列が細くなって、入れ替えるたびに表が横に動く */
 tbody th, thead th:first-child { box-sizing: border-box; width: 5.5rem; min-width: 5.5rem; text-align: right; }
+/* 高さも固定。行見出しが時制に来ると原語名が2行に折れて人称より高くなるので、
+   どちらの向きでも高いほうを取っておく。入れ替えるたびに表が縦に伸び縮みしない */
+th, td { height: 3.5rem; }
 /* 行・列を消すボタンの置き場。採点したら見出しの中に出す。
    列は最前行の見出しの右端、行は最前列の見出しの左端 */
 th { position: relative; }
