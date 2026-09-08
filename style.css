@@ -310,14 +310,15 @@ button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 }
 #swap:hover, #shuffle:hover { background: var(--ng-bg); }
 #swap:active, #shuffle:active { background: var(--ng-bg); transform: scale(.88); }
-/* 出題中は並べ替えも止める。表の並びごと 1 件なので触らせない */
-body:has(.pins.quiz) :is(#swap, #shuffle) { display: none; }
+/* 出題中の転置は止める。どちらの軸を縦に置くかごと 1 件なので触らせない。
+   シャッフルはピンに入らないその場かぎりの並べ替えなので、出題中も押せる */
+body:has(.pins.quiz) #swap { display: none; }
 /* 1セルだけになったシャッフル。押せないことを見せて、そのまま置いておく */
 #shuffle:disabled { opacity: .3; cursor: default; }
 #shuffle:disabled:hover, #shuffle:disabled:active { background: var(--card); transform: none; }
 #swap svg, #shuffle svg { width: 1.05rem; height: 1.05rem; }
 #swap svg { transform: translate(1px, 1px); }
-/* 動詞の左。今の動詞と並び順・消した行列をまとめてピン留めする */
+/* 動詞の左。今の動詞と転置・消した行列をまとめてピン留めする */
 #pin {
   width: 1.7rem; height: 1.7rem; min-width: 0; padding: 0; align-self: center;
   position: relative; top: 7px; /* h1 の字面に対して少し下げる */

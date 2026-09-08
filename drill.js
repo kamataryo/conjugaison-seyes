@@ -83,7 +83,7 @@ export async function start(lang) {
   const values = new Array(P * T).fill("");
   // 採点後に消した人称と時制。やり直しても残り、次の動詞と「消した◯を表示」で戻る
   const hidden = { p: new Set(), t: new Set() };
-  // 表示順。シャッフルで並び替わる。これも動詞をまたいで残る
+  // 表示順。シャッフルで並び替わる。動詞を変えると初期順に戻る
   const order = { p: iota(P), t: iota(T) };
   let transposed = false;
   let checked = false;
@@ -175,9 +175,9 @@ export async function start(lang) {
   }
 
   // 表の上に出す今の表の断り。消した行列とシャッフルだけ。転置は表を見ればわかる
-  // 出題中は今の表をピンが決めているので、その場で戻せる ✕ は出さない
+  // 出題中は消した行列をピンが決めているので ✕ を出さない。シャッフルはピンの外なので出す
   function renderState() {
-    const undo = (r, label) => quizMode ? ""
+    const undo = (r, label) => quizMode && r !== "o" ? ""
       : `<button class="chip-x" data-r="${r}" aria-label="${label}" title="${label}">✕</button>`;
     const axis = (name, a, n) =>
       hidden[a].size
@@ -385,11 +385,15 @@ export async function start(lang) {
     values.fill("");
     setChecked(false);
     cur = 0;
-    build(); // 消した行列も並び順も、動詞をまたいでそのまま。URL は build() が書く
+    // シャッフルはこの表かぎり。消した行列と転置は動詞をまたいでそのまま
+    order.p = iota(P);
+    order.t = iota(T);
+    build(); // URL は build() が書く
     focusStart();
   }
 
   // ?v=parler&p=05&t=13 = 動詞と、消した人称・時制。リロードや共有で同じ表に戻る。
+  // シャッフルはその場かぎりなので URL に入れない
   // push=true のときだけ履歴に1段積む。取り消せない操作 (ピンを外す) の前後を残すため
   function syncUrl(push = false) {
     const url = new URL(location);
@@ -397,9 +401,6 @@ export async function start(lang) {
     for (const a of ["p", "t"]) {
       if (hidden[a].size) url.searchParams.set(a, [...hidden[a]].sort().join(""));
       else url.searchParams.delete(a);
-      // 並び順は初期状態のときだけ省く。URL をむやみに長くしない
-      if (sorted(order[a])) url.searchParams.delete("o" + a);
-      else url.searchParams.set("o" + a, order[a].join(""));
     }
     if (transposed) url.searchParams.set("x", "1");
     else url.searchParams.delete("x");
@@ -489,7 +490,7 @@ export async function start(lang) {
     applyPin(sample(rest.length ? rest : pins));
   });
 
-  // ドロップダウンからの直接指定。並び順・消した行列はそのまま引き継ぐ
+  // ドロップダウンからの直接指定。消した行列と転置はそのまま引き継ぐ
   // classify() の分類ごとに optgroup。群の番号順に並べ、分類の中はアルファベット順
   const byKind = Object.groupBy(
     verbs
@@ -506,9 +507,9 @@ export async function start(lang) {
     .join("");
   $("pick").addEventListener("change", (e) => load(verbs[+e.target.value]));
 
-  // ピン留め。動詞・並び順(シャッフルと転置)・消した行列を1件としてまとめる。
-  // URL の ?v=&p=&t=&op=&ot=&x= と同じ中身なので、戻すのも同じ経路で済む
-  const DEFAULT_ORDER = { p: iota(P).join(""), t: iota(T).join("") };
+  // ピン留め。動詞・転置・消した行列を1件としてまとめる。
+  // URL の ?v=&p=&t=&x= と同じ中身なので、戻すのも同じ経路で済む。
+  // シャッフルはその場かぎりの並べ替えなので入れない
   let pins = []; // 中身は下の ?pins= から入る
   // 「問題集から出題」。次の動詞をピンの中からだけ引く
   let quizMode = false;
@@ -517,11 +518,9 @@ export async function start(lang) {
     v: infinitiveLabel(verb),
     p: [...hidden.p].sort().join(""),
     t: [...hidden.t].sort().join(""),
-    op: order.p.join(""),
-    ot: order.t.join(""),
     x: transposed ? 1 : 0,
   });
-  const stateKey = (s) => [s.v, s.p, s.t, s.op, s.ot, s.x].join("|");
+  const stateKey = (s) => [s.v, s.p, s.t, s.x].join("|");
   // 今の表が問題集の1件か
   const pinned = () => pins.some((s) => stateKey(s) === stateKey(state()));
 
@@ -536,7 +535,6 @@ export async function start(lang) {
   // 一覧に出す一言。並びをいじっていない全体表なら何も言わない
   const pinLabel = (s) => [
     s.x && "転置",
-    (s.op !== DEFAULT_ORDER.p || s.ot !== DEFAULT_ORDER.t) && "シャッフル",
     axisLabel(s.p, PRONOUNS, "人称"),
     axisLabel(s.t, TENSE_LABELS, "時制"),
   ].filter(Boolean).join(" · ");
@@ -597,26 +595,27 @@ export async function start(lang) {
 
   // ?pins= を一覧に戻す。1件は stateKey のまま "," でつないである
   function parsePins(v) {
+    const seen = new Set();
     return (v ?? "").split(",").filter(Boolean).map((s) => {
-      const [inf, p, t, op, ot, x] = s.split("|");
+      const [inf, p, t, x] = s.split("|");
       // 中身は URL から読むときと同じ検算にかけ、今の表と stateKey が揃う形に直す
       return {
         v: inf,
         p: [...parseCut(p, P)].sort().join(""),
         t: [...parseCut(t, T)].sort().join(""),
-        op: parseOrder(op, P).join(""),
-        ot: parseOrder(ot, T).join(""),
         x: x === "1" ? 1 : 0,
       };
-    }).filter((s) => verbs.some((w) => infinitiveLabel(w) === s.v));
+    }).filter((s) => {
+      if (!verbs.some((w) => infinitiveLabel(w) === s.v)) return false;
+      const k = stateKey(s); // 同じ表が2件あっても出題が偏るだけ
+      return !seen.has(k) && !!seen.add(k);
+    });
   }
 
-  // 消した行列も並び順も、URL から読むときと同じ検算にかける
+  // 消した行列は URL から読むときと同じ検算にかける。並び順は load() が初期順に戻す
   function applyPin(s) {
     hidden.p = parseCut(s.p, P);
     hidden.t = parseCut(s.t, T);
-    order.p = parseOrder(s.op, P);
-    order.t = parseOrder(s.ot, T);
     transposed = !!s.x;
     load(verbs.find((v) => infinitiveLabel(v) === s.v) ?? pick());
   }
@@ -683,13 +682,6 @@ export async function start(lang) {
     new Set([...new Set(v ?? "")].map(Number).filter((i) => i >= 0 && i < n).slice(0, n - 1));
   hidden.p = parseCut(query.get("p"), P);
   hidden.t = parseCut(query.get("t"), T);
-  // 並び順は全索引がそろっているときだけ採る。欠けても重なっても初期順に戻す
-  const parseOrder = (v, n) => {
-    const a = [...new Set(v ?? "")].map(Number).filter((i) => i >= 0 && i < n);
-    return a.length === n ? a : iota(n);
-  };
-  order.p = parseOrder(query.get("op"), P);
-  order.t = parseOrder(query.get("ot"), T);
   transposed = query.get("x") === "1";
   pins = parsePins(query.get("pins"));
   // 問題集の URL から入ったら出題モードで始める。自分で切ったときだけ q=0 が書いてある
