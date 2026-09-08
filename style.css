@@ -121,6 +121,14 @@ h1 {
 }
 #aux-hint span { transform: translateY(1px); } /* 点線の円の中で ? を下げる */
 #aux-hint:hover, #aux-hint:active { background: var(--ng-bg); }
+/* 体の対 (ロシア語版)。字は見出しの他の動詞と同じで、押せることは破線の下線で示す */
+#pair-switch {
+  font: inherit; font-family: var(--display); font-style: italic; font-weight: 500;
+  font-size: .95rem; color: var(--margin);
+  background: none; border: 0; border-bottom: 1px dashed var(--margin); border-radius: 0;
+  min-width: 0; padding: 0 .06rem;
+}
+#pair-switch:hover, #pair-switch:active { background: var(--focus-bg); }
 /* 用例。活用形を含むので答え合わせのあとだけ出る */
 .ex {
   margin: .6rem 0 0; font-family: var(--display); font-style: italic;

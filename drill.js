@@ -72,6 +72,9 @@ export async function start(lang) {
     // ここで落ちると main が hidden のまま = 白紙。断りを出してから止まる
     .catch((e) => { document.getElementById("fallback").hidden = false; throw e; });
 
+  // 見出し行に出せる動詞かどうか。ロシア語版が体の対の相手を出すのに使う
+  const has = (inf) => verbs.some((v) => v.infinitive === inf);
+
   const P = PRONOUNS.length;
   const T = TENSES.length;
   const $ = (id) => document.getElementById(id);
@@ -199,14 +202,21 @@ export async function start(lang) {
   // 辞書の見出しにならった1行。中身は言語ごとに違うので lang.gloss に任せる
   function renderGloss() {
     $("gloss").innerHTML = `<span class="chip">${classify(verb).label}</span>` +
-      lang.gloss(verb, revealed).filter(Boolean).join('<span class="sep">,</span>');
+      lang.gloss(verb, revealed, has).filter(Boolean).join('<span class="sep">,</span>');
     // 用例は必ず活用形を含むので、答え合わせのあとだけ出す
     $("ex").innerHTML = checked && verb.ex
       ? `${verb.ex[0]}<small>${verb.ex[1]}</small>` : "";
   }
 
-  // 伏せてある項目を押して出す (フランス語版の助動詞)。他の言語には #aux-hint が出ない
+  // 伏せてある項目を押して出す (フランス語版の助動詞)。他の言語には #aux-hint が出ない。
+  // ロシア語版はここに体の対への切り替え (#pair-switch) も出す
   $("gloss").addEventListener("click", (e) => {
+    const pair = e.target.closest("#pair-switch");
+    if (pair) {
+      const v = verbs.find((x) => x.infinitive === pair.dataset.v);
+      track("pair", { verb: v.infinitive, aspect: v.aspect }); // どちらの体へ渡るか
+      return load(v);
+    }
     if (!e.target.closest("#aux-hint")) return;
     revealed = true;
     renderGloss();
