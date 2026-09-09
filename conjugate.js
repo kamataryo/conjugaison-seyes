@@ -6,8 +6,8 @@ export const TENSES = [
   { key: "futur", label: "単純未来", sub: "futur simple" },
   { key: "conditionnel", label: "条件法現在", sub: "conditionnel" },
   { key: "subjonctif", label: "接続法現在", sub: "subjonctif" },
-  { key: "passeCompose", label: "複合過去", sub: "passé composé" },
-  { key: "plusQueParfait", label: "大過去", sub: "plus-que-parfait" },
+  { key: "passeCompose", label: "複合過去", sub: "passé composé", compound: true },
+  { key: "plusQueParfait", label: "大過去", sub: "plus-que-parfait", compound: true },
 ];
 
 // 複合時制 → 助動詞をどの時制に活用するか

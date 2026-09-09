@@ -330,7 +330,12 @@ export async function start(lang) {
 
   // preventScroll: こちらから当てるフォーカスで表を動かさない。
   // 画面外のセルは指で送ってもらう。Enter で1マス進むたびに紙面が跳ねるほうが読みにくい
-  const focusCell = (n) => { inputs[n].focus({ preventScroll: true }); inputs[n].select(); };
+  // caret を渡すと、全選択せずにその位置にカーソルを置く
+  const focusCell = (n, caret) => {
+    inputs[n].focus({ preventScroll: true });
+    if (caret == null) inputs[n].select();
+    else inputs[n].setSelectionRange(caret, caret);
+  };
 
   // 形のないマスと当てたマスは入力できないので、移動では飛ばす
   const live = (n) => n < inputs.length && !none(canon[n]) && !locked.has(canon[n]);
@@ -351,7 +356,13 @@ export async function start(lang) {
     for (let n = cur + cols(); n < inputs.length; n += cols()) {
       if (!live(n)) continue;
       // 縦に進むときだけ、空セルを直前の答えで埋めて補助する
-      if (!inputs[n].value) setValue(n, inputs[cur].value);
+      if (!inputs[n].value) {
+        setValue(n, inputs[cur].value);
+        // 写した文字は選ばずに末尾から書き足す。複合時制で書き換わるのは助動詞なので、その後ろで止める
+        const v = inputs[n].value;
+        const aux = TENSES[canon[n] % T].compound ? v.lastIndexOf(" ") : -1;
+        return focusCell(n, aux < 0 ? v.length : aux);
+      }
       return focusCell(n);
     }
     // 折り返し先は隣の時制(転置時は隣の人称)なので写さない。右下の最後のセルでは止まる
