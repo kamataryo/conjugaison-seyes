@@ -448,6 +448,8 @@ export async function start(lang) {
   // push=true のときだけ履歴に1段積む。取り消せない操作 (ピンを外す) の前後を残すため
   function syncUrl(push = false) {
     const url = new URL(location);
+    // 出稿の印は着地時に landing で拾ってある。URL に残すと問題集の共有先まで付いていく
+    for (const k of [...url.searchParams.keys()]) if (k.startsWith("utm_")) url.searchParams.delete(k);
     url.searchParams.set("v", infinitiveLabel(verb));
     for (const a of ["p", "t"]) {
       if (hidden[a].size) url.searchParams.set(a, [...hidden[a]].sort().join(""));

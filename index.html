@@ -31,9 +31,23 @@
 <link rel="stylesheet" href="/style.css">
 <!-- 利用状況の集計。?v= や ?pins= は表の状態を URL に書いているだけなので、
      exclude-search で検索文字列を落とす。これがないと表を変えるたびページビューが1件増える -->
+<!-- 出稿の印 (utm_*) だけ集計に残す。値は読み込み時に決めるので、drill.js が
+     URL から消したあとも同じ印のまま送られる。exclude-search で落ちる分の埋め合わせ -->
+<script>
+  const utm = new URLSearchParams(
+    [...new URLSearchParams(location.search)].filter(([k]) => k.startsWith("utm_")),
+  ).toString();
+  window.keepUtm = (type, payload) => {
+    const url = new URL(payload.url);
+    url.search = utm;
+    payload.url = url.toString();
+    return payload;
+  };
+</script>
 <script defer src="https://cloud.umami.is/script.js"
         data-website-id="b7166d81-1b1d-47ce-88b9-a2f054dd29b0"
         data-exclude-search="true"
+        data-before-send="keepUtm"
         data-tag="fr"></script>
 
 <p id="fallback" hidden>動詞データを読み込めませんでした。ページを再読み込みしてください。</p>
