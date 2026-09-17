@@ -135,7 +135,7 @@ Meta は `fbclid` も足してくるが、1 人 1 個の印なので拾わない
 ## デプロイ（Cloudflare Pages）
 
 ```bash
-pnpm dlx wrangler@latest pages deploy . --project-name=conjugaison-seyes
+pnpm dlx --allow-build=esbuild --allow-build=workerd --config.minimum-release-age=43200 wrangler@4.123.0 pages deploy . --project-name=conjugaison-seyes
 ```
 
 ### デプロイ後
