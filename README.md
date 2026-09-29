@@ -134,6 +134,14 @@ Meta は `fbclid` も足してくるが、1 人 1 個の印なので拾わない
 
 ## デプロイ（Cloudflare Pages）
 
+`main` への push（または Actions の手動実行）で Cloudflare Pages にデプロイされる（`.github/workflows/deploy.yml`）。
+`node --test` が通ったら、下の手動デプロイと同じコマンドでリポジトリをそのまま上げる。
+
+初回だけ、リポジトリの Secrets に `CLOUDFLARE_API_TOKEN`（Cloudflare Pages の編集権限）と
+`CLOUDFLARE_ACCOUNT_ID` を登録する。
+
+手元から上げるとき:
+
 ```bash
 pnpm dlx --allow-build=esbuild --allow-build=workerd --config.minimum-release-age=43200 wrangler@4.123.0 pages deploy . --project-name=conjugaison-seyes
 ```
